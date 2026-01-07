@@ -1,0 +1,181 @@
+<button mat-stroked-button routerLink="/players">← Retour</button>
+
+@if (player$ | async; as player) {
+  @if (player === null) {
+    <p>Joueur introuvable.</p>
+  } @else {
+
+    <!-- HEADER / PLAYER CARD -->
+    <mat-card class="player-card">
+      <div class="player-card__top">
+        <div class="player-card__info">
+          <div class="player-name">{{ player.name }}</div>
+          <div class="player-meta">
+            Né en {{ player.birthDate }} • {{ player.size }} cm • {{ player.weight }} kg
+          </div>
+
+          <div class="chips">
+            <mat-chip-set>
+              <mat-chip>Two-way</mat-chip>
+              <mat-chip>Rim Protector</mat-chip>
+              <mat-chip>High Potential</mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+
+        <div class="player-card__overall">
+          <div class="overall-label">OVERALL</div>
+          <div class="overall-value">{{ overall(player) }}</div>
+        </div>
+      </div>
+
+      <!-- 3 KPI rapides -->
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">Attaque</div>
+          <div class="kpi-value">{{ attackScore(player) }}</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Défense</div>
+          <div class="kpi-value">{{ defenseScore(player) }}</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Mental</div>
+          <div class="kpi-value">{{ mentalScore(player) }}</div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- TABS -->
+    <mat-tab-group>
+      <mat-tab label="Profil">
+        <mat-card class="section">
+          <div class="profile-grid">
+            <div><span class="label">Nom</span> <span class="value">{{ player.name }}</span></div>
+            <div><span class="label">Année</span> <span class="value">{{ player.birthDate }}</span></div>
+            <div><span class="label">Taille</span> <span class="value">{{ player.size }} cm</span></div>
+            <div><span class="label">Poids</span> <span class="value">{{ player.weight }} kg</span></div>
+          </div>
+        </mat-card>
+      </mat-tab>
+
+      <mat-tab label="Attaque">
+        <mat-card class="section">
+          <div class="gauges">
+            @for (s of offense(player); track s.label) {
+              <div class="gauge">
+                <div class="gauge-circle">
+                  <mat-progress-spinner
+                    mode="determinate"
+                    [value]="clamp(s.value)"
+                    [diameter]="72"
+                    [strokeWidth]="8">
+                  </mat-progress-spinner>
+
+                  <div class="gauge-value">{{ s.value }}</div>
+                </div>
+
+                <div class="gauge-label">{{ s.label }}</div>
+              </div>
+            }
+          </div>
+        </mat-card>
+      </mat-tab>
+
+      <mat-tab label="Défense">
+        <mat-card class="section">
+          <div class="gauges">
+            @for (s of defense(player); track s.label) {
+              <div class="gauge">
+                <div class="gauge-circle">
+                  <mat-progress-spinner
+                    mode="determinate"
+                    [value]="clamp(s.value)"
+                    [diameter]="72"
+                    [strokeWidth]="8">
+                  </mat-progress-spinner>
+
+                  <div class="gauge-value">{{ s.value }}</div>
+                </div>
+
+                <div class="gauge-label">{{ s.label }}</div>
+              </div>
+            }
+          </div>
+        </mat-card>
+      </mat-tab>
+
+      <mat-tab label="Physique">
+        <mat-card class="section">
+          <div class="gauges">
+            @for (s of physique(player); track s.label) {
+              <div class="gauge">
+                <div class="gauge-circle">
+                  <mat-progress-spinner
+                    mode="determinate"
+                    [value]="clamp(s.value)"
+                    [diameter]="72"
+                    [strokeWidth]="8">
+                  </mat-progress-spinner>
+
+                  <div class="gauge-value">{{ s.value }}</div>
+                </div>
+
+                <div class="gauge-label">{{ s.label }}</div>
+              </div>
+            }
+          </div>
+        </mat-card>
+      </mat-tab>
+
+      <mat-tab label="Mental">
+        <mat-card class="section">
+          <div class="gauges">
+            @for (s of mental(player); track s.label) {
+              <div class="gauge">
+                <div class="gauge-circle">
+                  <mat-progress-spinner
+                    mode="determinate"
+                    [value]="clamp(s.value)"
+                    [diameter]="72"
+                    [strokeWidth]="8">
+                  </mat-progress-spinner>
+
+                  <div class="gauge-value">{{ s.value }}</div>
+                </div>
+
+                <div class="gauge-label">{{ s.label }}</div>
+              </div>
+            }
+          </div>
+        </mat-card>
+      </mat-tab>
+
+      <mat-tab label="Potentiel">
+        <mat-card class="section">
+          <div class="gauges">
+            @for (s of potentiel(player); track s.label) {
+              <div class="gauge">
+                <div class="gauge-circle">
+                  <mat-progress-spinner
+                    mode="determinate"
+                    [value]="clamp(s.value)"
+                    [diameter]="72"
+                    [strokeWidth]="8">
+                  </mat-progress-spinner>
+
+                  <div class="gauge-value">{{ s.value }}</div>
+                </div>
+
+                <div class="gauge-label">{{ s.label }}</div>
+              </div>
+            }
+          </div>
+        </mat-card>
+      </mat-tab>
+    </mat-tab-group>
+
+  }
+} @else {
+  <p>Chargement…</p>
+}

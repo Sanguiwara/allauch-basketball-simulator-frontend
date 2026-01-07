@@ -1,0 +1,96 @@
+<div class="toolbar">
+  <mat-form-field appearance="outline" class="filter">
+    <mat-label>Rechercher</mat-label>
+    <input matInput #filterInput (keyup)="applyFilter(filterInput.value)" placeholder="Nom, id..." />
+  </mat-form-field>
+
+  <button mat-stroked-button (click)="loadPlayers()">Rafraîchir</button>
+</div>
+
+@if (isLoading) {
+  <div class="state">Chargement...</div>
+}
+
+@if (errorMsg) {
+  <div class="state error">{{ errorMsg }}</div>
+}
+
+<div class="table-wrapper" >
+  <table mat-table [dataSource]="dataSource" matSort>
+
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+      <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Nom</th>
+      <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="birthDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Année</th>
+      <td mat-cell *matCellDef="let row">{{ row.birthDate }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="tir3Pts">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>3 pts</th>
+      <td mat-cell *matCellDef="let row">{{ row.tir3Pts }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="tir2Pts">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>2 pts</th>
+      <td mat-cell *matCellDef="let row">{{ row.tir2Pts }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="lancerFranc">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>LF</th>
+      <td mat-cell *matCellDef="let row">{{ row.lancerFranc }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="finitionAuCercle">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Finition</th>
+      <td mat-cell *matCellDef="let row">{{ row.finitionAuCercle }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="defExterieur">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Def ext</th>
+      <td mat-cell *matCellDef="let row">{{ row.defExterieur }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="protectionCercle">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Protection</th>
+      <td mat-cell *matCellDef="let row">{{ row.protectionCercle }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="physique">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Physique</th>
+      <td mat-cell *matCellDef="let row">{{ row.physique }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="iq">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>IQ</th>
+      <td mat-cell *matCellDef="let row">{{ row.iq }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="potentielSkill">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Pot. Skill</th>
+      <td mat-cell *matCellDef="let row">{{ row.potentielSkill }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="leadership">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Leadership</th>
+      <td mat-cell *matCellDef="let row">{{ row.leadership }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: displayedColumns;"
+      class="clickable-row"
+      [routerLink]="['/players', row.id]"
+      [attr.aria-label]="'Voir ' + row.name"
+    ></tr>  </table>
+
+  <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons></mat-paginator>
+</div>

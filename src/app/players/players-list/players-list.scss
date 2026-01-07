@@ -1,0 +1,28 @@
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.filter {
+  width: 320px;
+}
+
+.table-wrapper {
+  overflow: auto;
+}
+
+.state {
+  padding: 12px;
+}
+.state.error {
+  color: #b00020;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+.clickable-row:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
