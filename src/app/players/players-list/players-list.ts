@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, ViewChild} from '@angular/core';
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
-import {Player} from '../player-detail/player.model';
+import {Player} from '../../models/player.model';
 import {MatSort, MatSortModule} from '@angular/material/sort';
 import {PlayersService} from '../players.service';
 import {MatInputModule} from '@angular/material/input';
@@ -14,7 +14,7 @@ import {RouterModule} from '@angular/router';
   standalone: true,
 
   imports: [
-    RouterModule,          // <-- nécessaire pour routerLink
+    RouterModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -29,7 +29,6 @@ export class PlayersList implements AfterViewInit{
 
 
   displayedColumns: string[] = [
-    'id',
     'name',
     'birthDate',
     'tir3Pts',

@@ -1,14 +1,14 @@
-import { Component, inject } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { PlayersService } from '../players.service';
-import { Player } from './player.model';
-import { switchMap, map, distinctUntilChanged, catchError, of, shareReplay } from 'rxjs';
+import {Component, inject} from '@angular/core';
+import {ActivatedRoute, RouterModule} from '@angular/router';
+import {PlayersService} from '../players.service';
+import {Player} from '../../models/player.model';
+import {catchError, distinctUntilChanged, map, of, shareReplay, switchMap} from 'rxjs';
 
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import {AsyncPipe, NgForOf} from '@angular/common';
+import {MatCardModule} from '@angular/material/card';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {AsyncPipe} from '@angular/common';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
 import {MatChip, MatChipSet} from '@angular/material/chips';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
@@ -16,7 +16,7 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-player-detail',
   standalone: true,
-  imports: [RouterModule, MatCardModule, MatProgressBarModule, MatButtonModule, MatIconModule, AsyncPipe, NgForOf, MatTab, MatTabGroup, MatChipSet, MatChip, MatProgressSpinner],
+  imports: [RouterModule, MatCardModule, MatProgressBarModule, MatButtonModule, MatIconModule, AsyncPipe, MatTab, MatTabGroup, MatChipSet, MatChip, MatProgressSpinner],
   templateUrl: './player-detail.html',
   styleUrls: ['./player-detail.scss'],
 })
@@ -39,56 +39,57 @@ export class PlayerDetail {
   // Petites listes pour afficher des “stats” de manière groupée
   offense(player: Player) {
     return [
-      { label: '3 pts', value: player.tir3Pts },
-      { label: '2 pts', value: player.tir2Pts },
-      { label: 'Lancer franc', value: player.lancerFranc },
-      { label: 'Floater', value: player.floater },
-      { label: 'Finition au cercle', value: player.finitionAuCercle },
-      { label: 'Ballhandling', value: player.ballhandling },
-      { label: 'Passing', value: player.passingSkills },
+      {label: '3 pts', value: player.tir3Pts},
+      {label: '2 pts', value: player.tir2Pts},
+      {label: 'Lancer franc', value: player.lancerFranc},
+      {label: 'Floater', value: player.floater},
+      {label: 'Finition au cercle', value: player.finitionAuCercle},
+      {label: 'Ballhandling', value: player.ballhandling},
+      {label: 'Passing', value: player.passingSkills},
     ];
   }
 
   defense(player: Player) {
     return [
-      { label: 'Déf. extérieur', value: player.defExterieur },
-      { label: 'Déf. poste', value: player.defPoste },
-      { label: 'Protection cercle', value: player.protectionCercle },
-      { label: 'Timing rebond', value: player.timingRebond },
-      { label: 'Agressivité rebond', value: player.agressiviteRebond },
-      { label: 'Steal', value: player.steal },
+      {label: 'Déf. extérieur', value: player.defExterieur},
+      {label: 'Déf. poste', value: player.defPoste},
+      {label: 'Protection cercle', value: player.protectionCercle},
+      {label: 'Timing rebond', value: player.timingRebond},
+      {label: 'Agressivité rebond', value: player.agressiviteRebond},
+      {label: 'Steal', value: player.steal},
     ];
   }
 
   physique(player: Player) {
     return [
-      { label: 'Physique', value: player.physique },
-      { label: 'Endurance', value: player.endurance },
-      { label: 'Solidité', value: player.solidite },
-      { label: 'Speed', value: player.speed },
-      { label: 'Size', value: player.size },
-      { label: 'Weight', value: player.weight },
+      {label: 'Physique', value: player.physique},
+      {label: 'Endurance', value: player.endurance},
+      {label: 'Solidité', value: player.solidite},
+      {label: 'Speed', value: player.speed},
+      {label: 'Size', value: player.size},
+      {label: 'Weight', value: player.weight},
     ];
   }
 
   mental(player: Player) {
     return [
-      { label: 'IQ (global)', value: player.iq },
-      { label: 'IQ Off', value: player.basketballIqOff },
-      { label: 'IQ Def', value: player.basketballIqDef },
-      { label: 'Coachability', value: player.coachability },
-      { label: 'Soft skills', value: player.softSkills },
-      { label: 'Leadership', value: player.leadership },
-      { label: 'Ego', value: player.ego },
+      {label: 'IQ (global)', value: player.iq},
+      {label: 'IQ Off', value: player.basketballIqOff},
+      {label: 'IQ Def', value: player.basketballIqDef},
+      {label: 'Coachability', value: player.coachability},
+      {label: 'Soft skills', value: player.softSkills},
+      {label: 'Leadership', value: player.leadership},
+      {label: 'Ego', value: player.ego},
     ];
   }
 
   potentiel(player: Player) {
     return [
-      { label: 'Potentiel skill', value: player.potentielSkill },
-      { label: 'Potentiel physique', value: player.potentielPhysique },
+      {label: 'Potentiel skill', value: player.potentielSkill},
+      {label: 'Potentiel physique', value: player.potentielPhysique},
     ];
   }
+
   clamp(v: number): number {
     return Math.max(0, Math.min(100, v));
   }

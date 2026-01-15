@@ -1,0 +1,150 @@
+<mat-tab-group>
+  <mat-tab label="Matchups">
+    <div cdkDropListGroup>
+
+      <div class="board">
+
+        <!-- LEFT: HOME POOL -->
+        <div class="container">
+          <div cdkDropList [cdkDropListData]="homePlayers" class="list" (cdkDropListDropped)="drop($event)">
+            @for (p of homePlayers; track p.id) {
+              <div class="list-item">
+                <mat-card class="player-card"
+                          cdkDrag
+                          [cdkDragData]="p">
+                  <mat-card-content class="player-card-content">
+                    <div class="player-name">{{ p.name }}</div>
+                    <div class="def-grid">
+                      <div class="stat">
+                        <div class="label">DEF EXT</div>
+                        <div class="value">{{ p.defExterieur }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">POSTE</div>
+                        <div class="value">{{ p.defPoste }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">RIM</div>
+                        <div class="value">{{ p.protectionCercle }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">REB T</div>
+                        <div class="value">{{ p.timingRebond }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">REB A</div>
+                        <div class="value">{{ p.agressiviteRebond }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">STL</div>
+                        <div class="value">{{ p.steal }}</div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            }
+          </div>
+
+        </div>
+
+        <div class="container">
+          <div cdkDropList [cdkDropListData]="defensivePlayers" class="list" (cdkDropListDropped)="drop($event)">
+            @for (p of defensivePlayers; track p.id) {
+              <div class="list-item">
+                <mat-card class="player-card"
+                          cdkDrag
+                          [cdkDragData]="p">
+                  <mat-card-content class="player-card-content">
+                    <div class="player-name">{{ p.name }}</div>
+                    <div class="def-grid">
+                      <div class="stat">
+                        <div class="label">DEF EXT</div>
+                        <div class="value">{{ p.defExterieur }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">POSTE</div>
+                        <div class="value">{{ p.defPoste }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">RIM</div>
+                        <div class="value">{{ p.protectionCercle }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">REB T</div>
+                        <div class="value">{{ p.timingRebond }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">REB A</div>
+                        <div class="value">{{ p.agressiviteRebond }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">STL</div>
+                        <div class="value">{{ p.steal }}</div>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            }
+          </div>
+        </div>
+
+
+        <div class="container">
+          <div class="list">
+            @for (p of visitorPlayers; track p.id) {
+              <div class="list-item">
+
+                <!-- pas de cdkDrag ici si tu veux vraiment fixe -->
+                <mat-card class="player-card offensive">
+                  <mat-card-content class="player-card-content">
+                    <div class="player-name">{{ p.name }}</div>
+                    <div class="def-grid">
+                      <div class="stat">
+                        <div class="label">3PT</div>
+                        <div class="value">{{ p.tir3Pts }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">2PT</div>
+                        <div class="value">{{ p.tir2Pts }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">FT</div>
+                        <div class="value">{{ p.lancerFranc }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">FLT</div>
+                        <div class="value">{{ p.floater }}</div>
+                      </div>
+                      <div class="stat">
+                        <div class="label">RIM</div>
+                        <div class="value">{{ p.finitionAuCercle }}</div>
+                      </div>
+                    </div>
+
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- RIGHT: VISITOR + SLOT (1 row per visitor) -->
+        <!-- Pool home (source) -->
+
+
+      </div>
+    </div>
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold">Game Plan</h1>
+      <button class="btn btn-primary" (click)="generateMatchups()">
+        Générer les Matchups
+      </button>
+    </div>
+
+  </mat-tab>
+
+  <mat-tab label="Second">Content 2</mat-tab>
+  <mat-tab label="Third">Content 3</mat-tab>
+</mat-tab-group>
