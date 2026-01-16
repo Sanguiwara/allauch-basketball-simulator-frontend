@@ -6,22 +6,32 @@ import {
   CdkDragDrop,
   CdkDropListGroup,
   moveItemInArray,
-  transferArrayItem, CdkDragPlaceholder
 } from '@angular/cdk/drag-drop';
+import { MatCard, MatCardContent } from '@angular/material/card';
+
 import { GamePlan } from '../models/gameplan.model';
 import { Player } from '../models/player.model';
 import { GamePlanApiService } from './gameplan-service';
-import {MatCard, MatCardContent} from '@angular/material/card';
 
-type MatchupSlot = {
+type Matchup = {
   visitor: Player;
-  home?: Player;
+  home: Player | null;
 };
+
+type DragPayload =
+  | { from: 'pool'; player: Player }
+  | { from: 'slot'; player: Player; slotIndex: number };
 
 @Component({
   selector: 'app-gameplan',
   standalone: true,
-  imports: [MatTabGroup, MatTab, CdkDrag, CdkDropList, MatCardContent, MatCard, CdkDropListGroup, CdkDrag, CdkDropList],
+  imports: [
+    MatTabGroup,
+    MatTab,
+    CdkDropListGroup,
+    CdkDropList,
+    CdkDrag,
+  ],
   templateUrl: './gameplan.html',
   styleUrl: './gameplan.scss',
 })
@@ -29,11 +39,11 @@ export class GameplanComponent implements OnInit {
   gamePlan?: GamePlan;
 
   homePlayers: Player[] = [];
-  visitorPlayers: Player[] = [];
+  visitorsPlayers: Player[] = [];
 
-  defensivePlayers: Player[] = [];
+  matchupsUI: Matchup[] = [];
 
-  matchupSlots: MatchupSlot[] = [];
+  homePool: Player[] = [];
 
   loading = true;
   error?: string;
@@ -46,67 +56,123 @@ export class GameplanComponent implements OnInit {
         this.gamePlan = plan;
 
         this.homePlayers = plan.teamHome?.players ?? [];
-        this.visitorPlayers = plan.teamVisitor?.players ?? [];
-        this.defensivePlayers = [];
+        this.visitorsPlayers = plan.teamVisitor?.players ?? [];
 
+        const record = (plan.matchups ?? {}) as Record<string, string>;
 
-        // 1 slot par visitor
-        this.matchupSlots = this.visitorPlayers.map(v => ({ visitor: v, home: undefined }));
+        const homeById = new Map(this.homePlayers.map(h => [h.id, h]));
+        const visitorById = new Map(this.visitorsPlayers.map(v => [v.id, v]));
+        const existingMatchups: Matchup[] = Object.entries(record)
+          .map(([homeId, visitorId]) => {
+            const home = homeById.get(homeId) ?? null;
+            const visitor = visitorById.get(visitorId);
+            return visitor ? ({ visitor, home } as Matchup) : null;
+          })
+          .filter((x): x is Matchup => x !== null);
+
+        const matchedVisitorIds = new Set(existingMatchups.map(m => m.visitor.id));
+        const emptyMatchups: Matchup[] = this.visitorsPlayers
+          .filter(player => !matchedVisitorIds.has(player.id))
+          .map(player => ({ visitor: player, home: null }));
+
+        this.matchupsUI = [...existingMatchups, ...emptyMatchups];
+
+        // 3) pool = homes non utilisés
+        this.recomputeHomePool();
 
         this.loading = false;
-        console.log(this.gamePlan);
       },
       error: (err) => {
         console.error(err);
         this.error = 'Impossible de charger le gameplan.';
         this.loading = false;
-      }
+      },
     });
   }
-  //TODO En fait defensivePlayers doit s'initialiser avec les joueurs present dans les matchups
 
+  private recomputeHomePool(): void {
+    const usedHomeIds = new Set(
+      this.matchupsUI.map(m => m.home?.id).filter((id): id is string => !!id)
+    );
+    this.homePool = this.homePlayers.filter(h => !usedHomeIds.has(h.id));
+  }
 
-  drop(event: CdkDragDrop<Player[]>): void {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+  // -------------------------
+  // Drag & Drop
+  // -------------------------
 
-    } else {
-      transferArrayItem(event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex);
+  dropPool(event: CdkDragDrop<Player[]>): void {
+    const payload = event.item.data as DragPayload;
 
+    // Reorder dans le pool
+    if (payload.from === 'pool' && event.previousContainer === event.container) {
+      moveItemInArray(this.homePool, event.previousIndex, event.currentIndex);
+      return;
+    }
+
+    // Slot -> Pool (désassignation)
+    if (payload.from === 'slot') {
+      const originIndex = payload.slotIndex;
+
+      // retire du slot
+      if (this.matchupsUI[originIndex].home?.id === payload.player.id) {
+        this.matchupsUI[originIndex].home = null;
+      }
+
+      // insère dans le pool à la position de drop
+      const insertAt = Math.min(Math.max(event.currentIndex, 0), this.homePool.length);
+      this.homePool.splice(insertAt, 0, payload.player);
+      return;
+    }
+
+    // Pool -> Pool via autre container (normalement n'arrive pas)
+  }
+
+  dropOnSlot(event: CdkDragDrop<any>, targetIndex: number): void { //TODO enlever le any
+    const payload = event.item.data as DragPayload;
+    const targetMatchup = this.matchupsUI[targetIndex];
+
+    // Pool -> Slot
+    if (payload.from === 'pool') {
+      // retire du pool
+      const idx = this.homePool.findIndex(p => p.id === payload.player.id);
+      if (idx >= 0) this.homePool.splice(idx, 1);
+
+      // si le slot avait déjà un home, on le remet au pool
+      if (targetMatchup.home) this.homePool.push(targetMatchup.home);
+
+      // assigne
+      targetMatchup.home = payload.player;
+      return;
+    }
+
+    // Slot -> Slot (swap)
+    if (payload.from === 'slot') {
+      const fromIndex = payload.slotIndex;
+      if (fromIndex === targetIndex) return;
+
+      const source = this.matchupsUI[fromIndex];
+
+      const temp = targetMatchup.home;
+      targetMatchup.home = source.home;
+      source.home = temp;
+      return;
     }
   }
 
-  generateMatchups(): void {
-    // 1) On part des matchups existants (Record), sans tout effacer
-    const raw = this.gamePlan?.matchups;
+  // -------------------------
+  // Save
+  // -------------------------
 
-    // Copie défensive : on évite de muter une référence partagée
-    const matchups: Record<string, string> = { ...(raw ?? {}) };
+  saveMatchups(): void {
+    if (!this.gamePlan) return;
 
-    // 2) Construire les slots UI
-    this.matchupSlots = this.visitorPlayers.map((visitor, index) => ({
-      visitor,
-      home: this.defensivePlayers[index] ?? undefined,
-    }));
+    const record: Record<string, string> = {};
+    for (const m of this.matchupsUI) {
+      if (m.home) record[m.home.id] = m.visitor.id;
+    }
 
-    // 3) Appliquer les mises à jour : attacker(home.id) -> defender(visitor.id)
-    this.matchupSlots.forEach(slot => {
-      if (slot.home) {
-        matchups[slot.home.id] = slot.visitor.id;
-      }
-    });
-
-    // 4) Réinjecter dans le gamePlan
-    this.gamePlan!.matchups = matchups;
-
-    console.log(this.gamePlan!.matchups);
-
-    this.api.saveGamePlan(this.gamePlan!).subscribe();
+    this.gamePlan.matchups = record;
+    this.api.saveGamePlan(this.gamePlan).subscribe();
   }
-
-
-
 }
