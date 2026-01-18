@@ -1,0 +1,156 @@
+:host {
+  display: block;
+}
+
+/* Page background (même vibe que tes autres écrans) */
+.example-card {
+  min-height: calc(100vh - 80px);
+  padding: 12px;
+  background: #0b1020;
+  color: #e9eefc;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Titre */
+.example-h2 {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  opacity: 0.92;
+}
+
+/* Sections */
+.example-section {
+  margin-top: 12px;
+}
+
+/* Card joueur */
+.card {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.card__body {
+  padding: 12px !important;
+}
+
+/* Nom */
+.name {
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 10px;
+}
+
+/* Grille des 3 stats */
+.stats {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+/* Bloc stat */
+.stat {
+  border-radius: 14px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+/* Label + valeur */
+.label {
+  opacity: 0.65;
+  font-size: 10px;
+  line-height: 1.1;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.value {
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 1.15;
+}
+
+/* Slider spacing */
+mat-slider {
+  width: 100%;
+}
+
+/* Rendre le texte des labels Material lisible */
+:host ::ng-deep .mdc-form-field > label {
+  color: rgba(233, 238, 252, 0.90) !important;
+}
+
+/* Slider Material (MDC tokens) : thumb/track visibles sur fond dark */
+:host ::ng-deep mat-slider {
+  --mdc-slider-handle-color: rgba(120, 180, 255, 0.95);
+  --mdc-slider-focus-handle-color: rgba(120, 180, 255, 0.95);
+  --mdc-slider-hover-handle-color: rgba(120, 180, 255, 0.95);
+
+  --mdc-slider-active-track-color: rgba(120, 180, 255, 0.70);
+  --mdc-slider-inactive-track-color: rgba(233, 238, 252, 0.18);
+
+  --mdc-slider-active-tick-mark-color: rgba(0, 0, 0, 0);
+  --mdc-slider-inactive-tick-mark-color: rgba(0, 0, 0, 0);
+
+  --mdc-slider-label-container-color: rgba(255, 255, 255, 0.10);
+  --mdc-slider-label-label-text-color: rgba(233, 238, 252, 0.90);
+}
+
+/* Progress spinner: bien visible (couleur + fond) */
+:host ::ng-deep mat-progress-spinner {
+  display: inline-block;
+}
+
+:host ::ng-deep .mdc-circular-progress__determinate-circle,
+:host ::ng-deep .mdc-circular-progress__indeterminate-circle-graphic {
+  stroke: rgba(120, 180, 255, 0.95) !important;
+}
+
+:host ::ng-deep .mdc-circular-progress {
+  /* cercle “track” discret */
+  --mdc-circular-progress-track-color: rgba(233, 238, 252, 0.12);
+}
+
+/* Si tu veux aligner slider + spinner sur la même ligne (optionnel)
+   Ajoute class="stat__controls" autour du slider+spinner dans ton HTML */
+.stat__controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.save-btn {
+  border-radius: 14px !important;
+  padding: 10px 16px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+
+  background: linear-gradient(135deg, rgba(120, 180, 255, 0.95), rgba(90, 120, 255, 0.95)) !important;
+  color: #0b1020 !important;
+
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.10) inset !important;
+
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}

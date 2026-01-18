@@ -1,0 +1,157 @@
+<!-- PAGE WRAPPER -->
+<div class="page">
+  <!-- BOARD: Pool (left) + Matchups (right) -->
+  <div cdkDropListGroup class="board">
+
+    <!-- LEFT: HOME POOL -->
+    <section class="panel">
+      <div class="panel__header">
+        <h2 class="panel__title">Home Pool</h2>
+        <span class="pill">{{ homePool.length }}</span>
+      </div>
+
+      <div
+        cdkDropList
+        [cdkDropListData]="homePool"
+        (cdkDropListDropped)="dropPool($event)"
+        class="list list--pool"
+      >
+        @if (homePool.length === 0) {
+          <mat-card class="card card--empty">
+            <mat-card-content class="card__body">
+              <div class="card__title">Pool vide</div>
+              <div class="card__hint">Glisse un défenseur ici pour le remettre dans le pool.</div>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @for (p of homePool; track p.id) {
+          <div class="list__item">
+            <mat-card
+              class="card"
+              cdkDrag
+              [cdkDragData]="{ from: 'pool', player: p }"
+            >
+              <mat-card-content class="card__body">
+                <div class="card__top">
+                  <div class="name">{{ p.name }}</div>
+                  <span class="tag">HOME</span>
+                </div>
+
+                <div class="stats">
+                  <div class="stat"><div class="label">DEF EXT</div><div class="value">{{ p.defExterieur }}</div></div>
+                  <div class="stat"><div class="label">POSTE</div><div class="value">{{ p.defPoste }}</div></div>
+                  <div class="stat"><div class="label">RIM</div><div class="value">{{ p.protectionCercle }}</div></div>
+                  <div class="stat"><div class="label">REB T</div><div class="value">{{ p.timingRebond }}</div></div>
+                  <div class="stat"><div class="label">REB A</div><div class="value">{{ p.agressiviteRebond }}</div></div>
+                  <div class="stat"><div class="label">STL</div><div class="value">{{ p.steal }}</div></div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- RIGHT: MATCHUPS -->
+    <section class="panel">
+      <div class="panel__header">
+        <div class="panel__header-left">
+          <h2 class="panel__title">Matchups</h2>
+          <span class="pill">{{ matchupsUI.length }}</span>
+        </div>
+      </div>
+
+      <div class="matchups__header">
+        <div class="matchups__col-title">
+          <span class="pill pill--ghost">HOME</span>
+          <span>Défenseur</span>
+        </div>
+        <div class="matchups__col-title">
+          <span class="pill pill--ghost">VISITOR</span>
+          <span>Attaquant</span>
+        </div>
+      </div>
+
+      <div class="list list--matchups">
+        @for (m of matchupsUI; track m.visitor.id; let i = $index) {
+
+          <div class="matchup-row">
+            <!-- HOME SLOT (drop zone) -->
+            <div
+              class="slot"
+              cdkDropList
+              [cdkDropListData]="[]"
+              (cdkDropListDropped)="dropOnSlot($event, i)"
+            >
+              @if (m.home) {
+                <mat-card
+                  class="card"
+                  cdkDrag
+                  [cdkDragData]="{ from: 'slot', player: m.home, slotIndex: i }"
+                >
+                  <mat-card-content class="card__body">
+                    <div class="card__top">
+                      <div class="name">{{ m.home.name }}</div>
+                      <span class="tag">HOME</span>
+                    </div>
+
+                    <div class="stats">
+                      <div class="stat"><div class="label">DEF EXT</div><div class="value">{{ m.home.defExterieur }}</div></div>
+                      <div class="stat"><div class="label">POSTE</div><div class="value">{{ m.home.defPoste }}</div></div>
+                      <div class="stat"><div class="label">RIM</div><div class="value">{{ m.home.protectionCercle }}</div></div>
+                      <div class="stat"><div class="label">REB T</div><div class="value">{{ m.home.timingRebond }}</div></div>
+                      <div class="stat"><div class="label">REB A</div><div class="value">{{ m.home.agressiviteRebond }}</div></div>
+                      <div class="stat"><div class="label">STL</div><div class="value">{{ m.home.steal }}</div></div>
+                    </div>
+
+                    <div class="card__footer-hint">Drag vers le pool pour retirer</div>
+                  </mat-card-content>
+                </mat-card>
+              } @else {
+                <mat-card class="card card--empty">
+                  <mat-card-content class="card__body">
+                    <div class="card__top">
+                      <div class="name muted">Slot vide</div>
+                      <span class="tag">HOME</span>
+                    </div>
+                    <div class="card__hint">Dépose un défenseur ici.</div>
+                  </mat-card-content>
+                </mat-card>
+              }
+            </div>
+
+            <!-- VISITOR -->
+            <mat-card class="card card--visitor">
+              <mat-card-content class="card__body">
+                <div class="card__top">
+                  <div class="name">{{ m.visitor.name }}</div>
+                  <span class="tag">VISITOR</span>
+                </div>
+
+                <div class="stats stats--visitor">
+                  <div class="stat"><div class="label">3PT</div><div class="value">{{ m.visitor.tir3Pts }}</div></div>
+                  <div class="stat"><div class="label">2PT</div><div class="value">{{ m.visitor.tir2Pts }}</div></div>
+                  <div class="stat"><div class="label">FT</div><div class="value">{{ m.visitor.lancerFranc }}</div></div>
+                  <div class="stat"><div class="label">FLT</div><div class="value">{{ m.visitor.floater }}</div></div>
+                  <div class="stat"><div class="label">RIM</div><div class="value">{{ m.visitor.finitionAuCercle }}</div></div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+        }
+      </div>
+
+      <div class="panel__footer">
+        <div class="hint">
+          Tip: Pool → Slot (assigne), Slot → Pool (retire), Slot → Slot (swap)
+        </div>
+
+        <button mat-stroked-button class="save-btn" (click)="saveMatchups()">
+          Sauvegarder
+        </button>
+      </div>
+    </section>
+  </div>
+</div>

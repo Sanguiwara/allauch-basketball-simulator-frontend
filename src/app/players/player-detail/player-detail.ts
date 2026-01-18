@@ -25,14 +25,12 @@ export class PlayerDetail {
   private playersService = inject(PlayersService);
 
   // Observable du player chargé depuis /players/:id
-  player$ = this.route.paramMap.pipe(
-    map(pm => Number(pm.get('id'))),
+  player$ = this.route.params.pipe(
+    map(params => params['id'] as string),
     distinctUntilChanged(),
-    switchMap(id =>
-      this.playersService.getPlayerById(id).pipe(
-        catchError(() => of(null))
-      )
-    ),
+    switchMap(id => this.playersService.getPlayerById(id).pipe(
+      catchError(() => of(null))
+    )),
     shareReplay(1)
   );
 

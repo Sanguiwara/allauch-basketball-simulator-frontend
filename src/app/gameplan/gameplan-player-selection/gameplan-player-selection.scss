@@ -1,0 +1,232 @@
+:host {
+  display: block;
+}
+
+.page {
+  min-height: calc(100vh - 80px);
+  padding: 12px;
+  background: #0b1020;
+  color: #e9eefc;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.panel {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  padding: 12px;
+  min-width: 0;
+}
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.panel__header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  opacity: 0.92;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+  padding: 0 8px;
+  font-size: 11px;
+  border-radius: 999px;
+  color: rgba(233, 238, 252, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.list {
+  max-height: calc(100vh - 200px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.card {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  margin-bottom: 10px;
+}
+
+.card__body {
+  padding: 12px !important;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .row {
+    grid-template-columns: 1fr 280px;
+  }
+}
+
+.left {
+  min-width: 0;
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 8px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+
+.stat .label {
+  opacity: 0.60;
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.stat .value {
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.15;
+  margin-top: 2px;
+}
+
+/* Radios */
+.radios {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.radio {
+  font-size: 12px;
+}
+
+/* CTA button (même style que ce qu'on avait fait) */
+.save-btn {
+  border-radius: 14px !important;
+  padding: 10px 16px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
+
+  background: linear-gradient(135deg, rgba(120, 180, 255, 0.95), rgba(90, 120, 255, 0.95)) !important;
+  color: #0b1020 !important;
+
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.10) inset !important;
+
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+
+.save-btn:hover {
+  filter: brightness(1.03);
+  transform: translateY(-1px);
+  box-shadow:
+    0 18px 34px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.14) inset !important;
+}
+
+.save-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+}
+/* Force la couleur du texte des radios Material */
+:host ::ng-deep .radios .mdc-form-field > label {
+  color: #e9eefc !important;
+}
+
+/* Optionnel : couleur du cercle (unchecked) */
+:host ::ng-deep .radios .mdc-radio {
+  --mdc-radio-unselected-icon-color: rgba(233, 238, 252, 0.75);
+  --mdc-radio-unselected-hover-icon-color: #e9eefc;
+}
+
+/* Optionnel : couleur du cercle (checked) */
+:host ::ng-deep .radios .mdc-radio {
+  --mdc-radio-selected-icon-color: #78b4ff;
+  --mdc-radio-selected-hover-icon-color: #78b4ff;
+}
+/* zone radios à droite: 2 colonnes */
+.right {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+@media (max-width: 899px) {
+  .right {
+    grid-template-columns: 1fr; /* sur mobile: repasse en colonne */
+  }
+}
+
+/* radios */
+.radios {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.starter-col {
+  padding-left: 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+@media (max-width: 899px) {
+  .starter-col {
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    padding-top: 10px;
+  }
+}
+
+.hint {
+  margin-top: 8px;
+  font-size: 11px;
+  opacity: 0.8;
+  color: rgba(233, 238, 252, 0.85);
+}
+
+/* IMPORTANT: texte des radios Material lisible en dark */
+:host ::ng-deep .mdc-form-field > label {
+  color: rgba(233, 238, 252, 0.90) !important;
+}
+
+/* disabled plus lisible */
+:host ::ng-deep .mdc-radio--disabled + label,
+:host ::ng-deep .mdc-form-field--disabled > label {
+  color: rgba(233, 238, 252, 0.40) !important;
+}

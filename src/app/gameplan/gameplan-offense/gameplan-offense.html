@@ -1,0 +1,81 @@
+<mat-card class="example-card">
+  <button mat-raised-button class="save-btn" (click)="saveActivePlayers()">
+    Sauvegarder
+  </button>
+  <mat-card-content>
+    @for (inGamePlayer of activePlayers; track inGamePlayer.player.id) {
+      <section class="example-section">
+        <mat-card class="card">
+          <mat-card-content class="card__body">
+            <div class="name">{{ inGamePlayer.player.name }}</div>
+
+            <div class="stats">
+              <!-- DRIVE -->
+              <div class="stat">
+                <div class="label">DRIVE</div>
+                <div class="value">{{ inGamePlayer.usageDrive }}</div>
+
+                <mat-slider min="0" max="30" step="1">
+                  <input
+                    type="range"
+                    [value]="inGamePlayer.usageDrive"
+                    (input)="setUsage(inGamePlayer, 'usageDrive', ($any($event.target).valueAsNumber))"
+                    matSliderThumb
+                  />
+                </mat-slider>
+
+                <mat-progress-spinner
+                  [mode]="'determinate'"
+                  [value]="inGamePlayer.usageDrive"
+                  diameter="32">
+                </mat-progress-spinner>
+              </div>
+
+              <!-- SHOOT -->
+              <div class="stat">
+                <div class="label">SHOOT</div>
+                <div class="value">{{ inGamePlayer.usageShoot }}</div>
+
+                <mat-slider min="0" max="30" step="1">
+                  <input
+                    type="range"
+                    [value]="inGamePlayer.usageShoot"
+                    (input)="setUsage(inGamePlayer, 'usageShoot', ($any($event.target).valueAsNumber))"
+                    matSliderThumb
+                  />
+                </mat-slider>
+
+                <mat-progress-spinner
+                  [mode]="'determinate'"
+                  [value]="inGamePlayer.usageShoot"
+                  diameter="32">
+                </mat-progress-spinner>
+              </div>
+
+              <!-- POST -->
+              <div class="stat">
+                <div class="label">POST</div>
+                <div class="value">{{ inGamePlayer.usagePost }}</div>
+
+                <mat-slider min="0" max="30" step="1">
+                  <input
+                    type="range"
+                    [value]="inGamePlayer.usagePost"
+                    (input)="setUsage(inGamePlayer, 'usagePost', ($any($event.target).valueAsNumber))"
+                    matSliderThumb
+                  />
+                </mat-slider>
+
+                <mat-progress-spinner
+                  [mode]="'determinate'"
+                  [value]="inGamePlayer.usagePost"
+                  diameter="32">
+                </mat-progress-spinner>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </section>
+    }
+  </mat-card-content>
+</mat-card>

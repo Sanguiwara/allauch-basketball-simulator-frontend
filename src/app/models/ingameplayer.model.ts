@@ -1,7 +1,5 @@
-// Player minimal (à ajuster selon ton backend)
-export interface Player {
-  id: string; // UUID
-}
+import {Player} from './player.model';
+
 
 export interface InGamePlayer {
   player: Player;
@@ -23,8 +21,9 @@ export interface InGamePlayer {
   twoPa: number;
   twoPm: number;
 
-  // Usages (final en Java -> readonly côté TS si tu veux)
   usageShoot: number;
   usageDrive: number;
   usagePost: number;
+
+  starter:boolean;
 }

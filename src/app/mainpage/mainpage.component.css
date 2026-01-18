@@ -1,17 +1,98 @@
+:host {
+  display: block;
+}
+
+/* Container global */
 .sidenav-container {
-  height: 100%;
+  min-height: 100vh;
+  background: #0b1020;
+  color: #e9eefc;
 }
 
+/* Sidenav */
 .sidenav {
-  width: 200px;
+  width: 260px;
+  background: rgba(255, 255, 255, 0.04);
+  border-right: 1px solid rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(10px);
 }
 
-.sidenav .mat-toolbar {
-  background: inherit;
+.sidenav__toolbar {
+  background: transparent !important;
+  color: #e9eefc !important;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.mat-toolbar.mat-primary {
-  position: sticky;
-  top: 0;
-  z-index: 1;
+/* Liste */
+.nav {
+  padding-top: 8px;
+}
+
+/* Items Material */
+:host ::ng-deep .nav .mdc-list-item {
+  margin: 6px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  transition: transform 120ms ease, filter 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+/* Texte */
+:host ::ng-deep .nav .mdc-list-item__primary-text {
+  color: rgba(233, 238, 252, 0.90);
+  font-weight: 650;
+  font-size: 13px;
+}
+
+/* Hover */
+:host ::ng-deep .nav .mdc-list-item:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Active (routerLinkActive) */
+:host ::ng-deep .nav a.is-active.mdc-list-item {
+  border-color: rgba(120, 180, 255, 0.45);
+  background: rgba(120, 180, 255, 0.10);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+}
+
+:host ::ng-deep .nav a.is-active .mdc-list-item__primary-text {
+  color: rgba(233, 238, 252, 0.98);
+}
+
+/* Topbar */
+.topbar {
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #e9eefc !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(10px);
+}
+
+.topbar__btn {
+  border-radius: 12px;
+}
+
+/* Contenu */
+.content {
+  background: #0b1020;
+  color: #e9eefc;
+}
+
+.content__body {
+  padding: 12px;
+}
+
+/* Icônes */
+:host ::ng-deep .topbar mat-icon {
+  color: rgba(233, 238, 252, 0.90);
+}
+
+/* Sidenav overlay/backdrop (mode over) */
+:host ::ng-deep .mat-drawer-backdrop.mat-drawer-shown {
+  background: rgba(11, 16, 32, 0.55);
 }

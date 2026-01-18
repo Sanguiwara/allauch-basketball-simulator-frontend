@@ -1,17 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { MatTab, MatTabGroup } from '@angular/material/tabs';
-import {
-  CdkDrag,
-  CdkDropList,
-  CdkDragDrop,
-  CdkDropListGroup,
-  moveItemInArray,
-} from '@angular/cdk/drag-drop';
-import { MatCard, MatCardContent } from '@angular/material/card';
+import {Component, OnInit} from '@angular/core';
+import {CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, moveItemInArray,} from '@angular/cdk/drag-drop';
+import {MatCard, MatCardContent} from '@angular/material/card';
 
-import { GamePlan } from '../models/gameplan.model';
-import { Player } from '../models/player.model';
-import { GamePlanApiService } from './gameplan-service';
+import {GamePlan} from '../../models/gameplan.model';
+import {Player} from '../../models/player.model';
+import {GamePlanApiService} from '../gameplan-service';
+import {MatButton} from '@angular/material/button';
 
 type Matchup = {
   visitor: Player;
@@ -23,19 +17,20 @@ type DragPayload =
   | { from: 'slot'; player: Player; slotIndex: number };
 
 @Component({
-  selector: 'app-gameplan',
+  selector: 'gameplan-matchup-component',
   standalone: true,
   imports: [
-    MatTabGroup,
-    MatTab,
     CdkDropListGroup,
     CdkDropList,
     CdkDrag,
+    MatCardContent,
+    MatCard,
+    MatButton,
   ],
-  templateUrl: './gameplan.html',
-  styleUrl: './gameplan.scss',
+  templateUrl: './gameplan-matchup.html',
+  styleUrl: './gameplan-matchup.scss',
 })
-export class GameplanComponent implements OnInit {
+export class GameplanMatchupComponent implements OnInit {
   gamePlan?: GamePlan;
 
   homePlayers: Player[] = [];
@@ -48,7 +43,8 @@ export class GameplanComponent implements OnInit {
   loading = true;
   error?: string;
 
-  constructor(private api: GamePlanApiService) {}
+  constructor(private api: GamePlanApiService) {
+  }
 
   ngOnInit(): void {
     this.api.getGamePlanById().subscribe({
@@ -66,14 +62,14 @@ export class GameplanComponent implements OnInit {
           .map(([homeId, visitorId]) => {
             const home = homeById.get(homeId) ?? null;
             const visitor = visitorById.get(visitorId);
-            return visitor ? ({ visitor, home } as Matchup) : null;
+            return visitor ? ({visitor, home} as Matchup) : null;
           })
           .filter((x): x is Matchup => x !== null);
 
         const matchedVisitorIds = new Set(existingMatchups.map(m => m.visitor.id));
         const emptyMatchups: Matchup[] = this.visitorsPlayers
           .filter(player => !matchedVisitorIds.has(player.id))
-          .map(player => ({ visitor: player, home: null }));
+          .map(player => ({visitor: player, home: null}));
 
         this.matchupsUI = [...existingMatchups, ...emptyMatchups];
 
