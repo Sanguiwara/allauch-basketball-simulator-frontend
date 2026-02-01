@@ -15,7 +15,7 @@ export class GamePlanApiService {
 
   // Variante 2 (si tu as): GET /gameplans/{id}
   getGamePlanById(): Observable<GamePlan> {
-    return this.http.get<GamePlan>(`${this.baseUrl}/gameplans/56afc092-6032-47a6-b43b-e88524e0fa25`);
+    return this.http.get<GamePlan>(`${this.baseUrl}/gameplans/bae5cdbf-58a1-4950-ae9e-a20339002a4f`);
   }
 
   saveGamePlan(gamePlan: GamePlan): Observable<GamePlan> {

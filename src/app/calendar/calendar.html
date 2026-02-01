@@ -1,0 +1,39 @@
+<div class="page">
+  <mat-form-field appearance="outline" class="team-filter">
+    <mat-label>Équipe</mat-label>
+    <mat-select [(value)]="selectedTeamId">
+      <mat-option [value]="null">Toutes</mat-option>
+      @for (t of teams; track t.id) {
+        <mat-option [value]="t.id">{{ t.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-list class="games-list">
+    @for (game of filteredGames; track game.id) {
+      <mat-list-item class="game-row">
+        <div class="row">
+          <div class="date">{{ game.executeAt | date:'EEE d MMM • HH:mm' }}</div>
+
+          <div class="teams-grid">
+            <div class="team-col home">
+              <div class="name">{{ game.homeTeamName }}</div>
+              <div class="meta">
+                <div class="score">0</div>
+              </div>
+            </div>
+
+            <div class="vs">VS</div>
+
+            <div class="team-col away">
+              <div class="name">{{ game.awayTeamName }}</div>
+              <div class="meta">
+                <div class="score">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-list-item>
+    }
+  </mat-list>
+</div>
