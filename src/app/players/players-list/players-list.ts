@@ -7,7 +7,9 @@ import {PlayersService} from '../players.service';
 import {MatInputModule} from '@angular/material/input';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import {RouterModule} from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
+import {CalendarApiService} from '../../calendar/calendar-api.service';
+import {AuthService} from '@auth0/auth0-angular';
 
 @Component({
   selector: 'app-players-list',
@@ -50,7 +52,7 @@ export class PlayersList implements AfterViewInit{
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private playersService: PlayersService) {}
+  constructor(private playersService: PlayersService, private auth: AuthService) {}
 
   ngAfterViewInit(): void {
     this.loadPlayers();
@@ -66,6 +68,11 @@ export class PlayersList implements AfterViewInit{
   }
 
   loadPlayers(): void {
+
+    this.auth.getAccessTokenSilently().subscribe({
+      next: t => console.log('TOKEN OK', t),
+      error: e => console.error('TOKEN ERROR', e),
+    });
     this.isLoading = true;
     this.errorMsg = null;
 

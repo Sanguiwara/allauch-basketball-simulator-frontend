@@ -7,6 +7,7 @@ import { Game } from '../models/game.model';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import {AuthService} from '@auth0/auth0-angular';
 
 @Component({
   selector: 'app-calendar',
@@ -25,7 +26,7 @@ export class Calendar implements OnInit {
   // Liste des équipes (dérivée des games)
   teams: { id: string; name: string }[] = [];
 
-  constructor(private api: CalendarApiService, private router: Router) {}
+  constructor(private api: CalendarApiService) {}
 
   ngOnInit(): void {
     this.api.getGames().subscribe({
