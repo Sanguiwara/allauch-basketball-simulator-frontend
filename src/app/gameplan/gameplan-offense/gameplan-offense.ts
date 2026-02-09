@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MatSlider, MatSliderThumb} from '@angular/material/slider';
@@ -25,24 +25,24 @@ type UsageKey = 'usageDrive' | 'usageShoot' | 'usagePost';
   templateUrl: './gameplan-offense.html',
   styleUrl: './gameplan-offense.scss',
 })
-export class GameplanOffense implements OnInit {
-  gamePlan?: GamePlan;
+export class GameplanOffense implements OnChanges {
+  @Input({required: true}) gamePlan!: GamePlan;
+
   activePlayers: InGamePlayer[] = [];
 
   maxGeneralUsage = 100;
   maxPerPlayerUsage = 30;
 
-  constructor(private api: GamePlanApiService) {}
-
-  ngOnInit(): void {
-    this.api.getGamePlanById().subscribe({
-      next: (plan) => {
-        this.gamePlan = plan;
-        this.activePlayers = (plan.activePlayers ?? []).map((p) => ({ ...p }));
-      },
-    });
+  constructor(private api: GamePlanApiService) {
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['gamePlan'] && this.gamePlan) {
+      this.activePlayers = (this.gamePlan.activePlayers ?? []).map((p) => ({...p}));
+    }
+
+
+  }
 
 
   /** Somme en excluant un joueur (utile pour calculer ce qu'il reste) */

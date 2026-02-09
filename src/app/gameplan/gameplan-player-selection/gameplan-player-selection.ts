@@ -39,7 +39,7 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
   }
 
   private hydrateFromPlan(): void {
-    this.homePlayers = this.gamePlan.teamHome?.players ?? [];
+    this.homePlayers = this.gamePlan.ownerTeam?.players ?? [];
 
     const activePlayers = this.gamePlan.activePlayers ?? [];
     const activeById = new Map(activePlayers.map(activePlayer => [activePlayer.player.id, activePlayer]));

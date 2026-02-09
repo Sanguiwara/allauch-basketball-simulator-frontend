@@ -17,13 +17,13 @@
 
         <mat-tab label="Defensive Matchups">
           <div class="tab-body">
-            <gameplan-matchup-component></gameplan-matchup-component>
+            <gameplan-matchup-component [gamePlan]="gp"></gameplan-matchup-component>
           </div>
         </mat-tab>
 
         <mat-tab label="Offense & Usage">
           <div class="tab-body">
-            <app-gameplan-offense></app-gameplan-offense>
+            <app-gameplan-offense [gamePlan]="gp" ></app-gameplan-offense>
           </div>
         </mat-tab>
       </mat-tab-group>

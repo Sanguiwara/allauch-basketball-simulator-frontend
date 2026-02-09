@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, moveItemInArray,} from '@angular/cdk/drag-drop';
 import {MatCard, MatCardContent} from '@angular/material/card';
 
@@ -30,8 +30,9 @@ type DragPayload =
   templateUrl: './gameplan-matchup.html',
   styleUrl: './gameplan-matchup.scss',
 })
-export class GameplanMatchupComponent implements OnInit {
-  gamePlan?: GamePlan;
+export class GameplanMatchupComponent implements OnChanges {
+  @Input({required: true}) gamePlan!: GamePlan;
+
 
   homePlayers: Player[] = [];
   visitorsPlayers: Player[] = [];
@@ -46,45 +47,39 @@ export class GameplanMatchupComponent implements OnInit {
   constructor(private api: GamePlanApiService) {
   }
 
-  ngOnInit(): void {
-    this.api.getGamePlanById().subscribe({
-      next: (plan) => {
-        this.gamePlan = plan;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['gamePlan'] && this.gamePlan) {
 
-        this.homePlayers = plan.teamHome?.players ?? [];
-        this.visitorsPlayers = plan.teamVisitor?.players ?? [];
+      this.homePlayers = this.gamePlan.ownerTeam?.players ?? [];
+      this.visitorsPlayers = this.gamePlan.opponentTeam?.players ?? [];
 
-        const record = (plan.matchups ?? {}) as Record<string, string>;
+      const record = (this.gamePlan.matchups ?? {}) as Record<string, string>;
 
-        const homeById = new Map(this.homePlayers.map(h => [h.id, h]));
-        const visitorById = new Map(this.visitorsPlayers.map(v => [v.id, v]));
-        const existingMatchups: Matchup[] = Object.entries(record)
-          .map(([homeId, visitorId]) => {
-            const home = homeById.get(homeId) ?? null;
-            const visitor = visitorById.get(visitorId);
-            return visitor ? ({visitor, home} as Matchup) : null;
-          })
-          .filter((x): x is Matchup => x !== null);
+      const homeById = new Map(this.homePlayers.map(h => [h.id, h]));
+      const visitorById = new Map(this.visitorsPlayers.map(v => [v.id, v]));
+      const existingMatchups: Matchup[] = Object.entries(record)
+        .map(([homeId, visitorId]) => {
+          const home = homeById.get(homeId) ?? null;
+          const visitor = visitorById.get(visitorId);
+          return visitor ? ({visitor, home} as Matchup) : null;
+        })
+        .filter((x): x is Matchup => x !== null);
 
-        const matchedVisitorIds = new Set(existingMatchups.map(m => m.visitor.id));
-        const emptyMatchups: Matchup[] = this.visitorsPlayers
-          .filter(player => !matchedVisitorIds.has(player.id))
-          .map(player => ({visitor: player, home: null}));
+      const matchedVisitorIds = new Set(existingMatchups.map(m => m.visitor.id));
+      const emptyMatchups: Matchup[] = this.visitorsPlayers
+        .filter(player => !matchedVisitorIds.has(player.id))
+        .map(player => ({visitor: player, home: null}));
 
-        this.matchupsUI = [...existingMatchups, ...emptyMatchups];
+      this.matchupsUI = [...existingMatchups, ...emptyMatchups];
 
-        // 3) pool = homes non utilisés
-        this.recomputeHomePool();
+      // 3) pool = homes non utilisés
+      this.recomputeHomePool();
 
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.error = 'Impossible de charger le gameplan.';
-        this.loading = false;
-      },
-    });
+      this.loading = false;
+
+    }
   }
+
 
   private recomputeHomePool(): void {
     const usedHomeIds = new Set(
