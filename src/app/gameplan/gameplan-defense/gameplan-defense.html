@@ -1,0 +1,62 @@
+<div class="page">
+  <div class="board">
+    <section class="panel">
+      <div class="panel__header">
+        <div class="panel__header-left">
+          <h2 class="panel__title">Defense</h2>
+          <span class="pill">Type</span>
+        </div>
+      </div>
+
+      <div class="panel__body">
+        <div class="field">
+          <div class="field__label">Type de defense</div>
+          <mat-radio-group
+            class="radios"
+            [value]="defenseFamily"
+            (change)="setDefenseFamily($event.value)"
+          >
+            <mat-radio-button class="radio" value="MAN_TO_MAN">
+              Homme a homme
+            </mat-radio-button>
+            <mat-radio-button class="radio" value="ZONE">
+              Defense de zone
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        @if (isZone) {
+          <gameplan-zone-defense
+            [zoneType]="zoneType"
+            (zoneTypeChange)="onZoneTypeChange($event)"
+          ></gameplan-zone-defense>
+        }
+      </div>
+
+      @if (isZone) {
+        <div class="panel__footer">
+          <div class="hint" [class.hint--error]="isZoneInvalid">
+            @if (isZoneInvalid) {
+              Choisir un type de zone pour sauvegarder.
+            } @else {
+              Defense de zone prete.
+            }
+          </div>
+
+          <button
+            mat-raised-button
+            class="save-btn"
+            [disabled]="isZoneInvalid"
+            (click)="saveDefense()"
+          >
+            Sauvegarder
+          </button>
+        </div>
+      }
+    </section>
+  </div>
+
+  @if (!isZone) {
+    <gameplan-matchup-component [gamePlan]="gamePlan" [embedded]="true"></gameplan-matchup-component>
+  }
+</div>

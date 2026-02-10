@@ -1,0 +1,17 @@
+<mat-card class="card">
+  <mat-card-content class="card__body">
+    <div class="section-title">Type de zone</div>
+
+    <mat-radio-group
+      class="radios"
+      [value]="zoneType"
+      (change)="onZoneTypeChange($event.value)"
+    >
+      @for (option of zoneOptions; track option.value) {
+        <mat-radio-button class="radio" [value]="option.value">
+          {{ option.label }}
+        </mat-radio-button>
+      }
+    </mat-radio-group>
+  </mat-card-content>
+</mat-card>

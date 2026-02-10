@@ -12,6 +12,62 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* Tabs */
+.tabs {
+  margin-top: 2px;
+}
+
+.tab-body {
+  padding-top: 12px;
+}
+
+:host ::ng-deep .mat-mdc-tab-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 14px;
+  padding: 4px;
+}
+
+:host ::ng-deep .mdc-tab {
+  min-height: 42px;
+  border-radius: 12px;
+  transition: background 120ms ease, filter 120ms ease;
+}
+
+:host ::ng-deep .mdc-tab__text-label {
+  color: rgba(233, 238, 252, 0.70) !important;
+  font-weight: 900 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.2px;
+}
+
+:host ::ng-deep .mdc-tab:hover {
+  background: rgba(255, 255, 255, 0.03);
+  filter: brightness(1.05);
+}
+
+:host ::ng-deep .mdc-tab--active {
+  background: rgba(120, 180, 255, 0.10);
+}
+
+:host ::ng-deep .mdc-tab--active .mdc-tab__text-label {
+  color: rgba(233, 238, 252, 0.96) !important;
+}
+
+:host ::ng-deep .mat-mdc-tab-group .mdc-tab-indicator__content--underline {
+  border-color: rgba(120, 180, 255, 0.0) !important;
+}
+
+:host ::ng-deep .mat-mdc-tab-body-content {
+  padding: 0 !important;
+}
+
+:host ::ng-deep .mdc-tab--active {
+  box-shadow:
+    0 12px 26px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(120, 180, 255, 0.22) inset;
+}
+
 /* Titre */
 .example-h2 {
   margin: 0 0 10px 0;
@@ -137,6 +193,53 @@ mat-slider {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 10px;
+}
+
+/* Shot mix */
+.shot-mix__grid {
+  display: grid;
+  gap: 12px;
+}
+
+.shot-mix__row {
+  border-radius: 14px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  gap: 10px;
+}
+
+.shot-mix__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.shot-mix__footer {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.total {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.total--error {
+  color: rgba(255, 180, 180, 0.9);
+}
+
+.hint {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.hint--error {
+  color: rgba(255, 180, 180, 0.9);
 }
 
 .save-btn {

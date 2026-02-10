@@ -32,6 +32,7 @@ type DragPayload =
 })
 export class GameplanMatchupComponent implements OnChanges {
   @Input({required: true}) gamePlan!: GamePlan;
+  @Input() embedded = false;
 
 
   homePlayers: Player[] = [];

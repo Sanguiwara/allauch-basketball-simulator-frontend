@@ -1,0 +1,44 @@
+:host {
+  display: block;
+}
+
+.card {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.card__body {
+  padding: 12px !important;
+}
+
+.section-title {
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  opacity: 0.85;
+  text-transform: uppercase;
+}
+
+.radios {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.radio {
+  font-size: 12px;
+}
+
+:host ::ng-deep .radios .mdc-form-field > label {
+  color: rgba(233, 238, 252, 0.90) !important;
+}
+
+:host ::ng-deep .radios .mdc-radio {
+  --mdc-radio-unselected-icon-color: rgba(233, 238, 252, 0.75);
+  --mdc-radio-unselected-hover-icon-color: #e9eefc;
+  --mdc-radio-selected-icon-color: #78b4ff;
+  --mdc-radio-selected-hover-icon-color: #78b4ff;
+}

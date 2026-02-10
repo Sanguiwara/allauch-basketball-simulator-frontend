@@ -1,81 +1,175 @@
 <mat-card class="example-card">
-  <button mat-raised-button class="save-btn" (click)="saveActivePlayers()">
-    Sauvegarder
-  </button>
-  <mat-card-content>
-    @for (inGamePlayer of activePlayers; track inGamePlayer.player.id) {
-      <section class="example-section">
-        <mat-card class="card">
-          <mat-card-content class="card__body">
-            <div class="name">{{ inGamePlayer.player.name }}</div>
+  <mat-tab-group class="tabs">
+    <mat-tab label="Usage">
+      <div class="tab-body">
+        <button mat-raised-button class="save-btn" (click)="saveActivePlayers()">
+          Sauvegarder
+        </button>
 
-            <div class="stats">
-              <!-- DRIVE -->
-              <div class="stat">
-                <div class="label">DRIVE</div>
-                <div class="value">{{ inGamePlayer.usageDrive }}</div>
+        @for (inGamePlayer of activePlayers; track inGamePlayer.player.id) {
+          <section class="example-section">
+            <mat-card class="card">
+              <mat-card-content class="card__body">
+                <div class="name">{{ inGamePlayer.player.name }}</div>
 
-                <mat-slider min="0" max="30" step="1">
-                  <input
-                    type="range"
-                    [value]="inGamePlayer.usageDrive"
-                    (input)="setUsage(inGamePlayer, 'usageDrive', ($any($event.target).valueAsNumber))"
-                    matSliderThumb
-                  />
-                </mat-slider>
+                <div class="stats">
+                  <!-- DRIVE -->
+                  <div class="stat">
+                    <div class="label">DRIVE</div>
+                    <div class="value">{{ inGamePlayer.usageDrive }}</div>
 
-                <mat-progress-spinner
-                  [mode]="'determinate'"
-                  [value]="inGamePlayer.usageDrive"
-                  diameter="32">
-                </mat-progress-spinner>
+                    <mat-slider min="0" max="30" step="1">
+                      <input
+                        type="range"
+                        [value]="inGamePlayer.usageDrive"
+                        (input)="setUsage(inGamePlayer, 'usageDrive', ($any($event.target).valueAsNumber))"
+                        matSliderThumb
+                      />
+                    </mat-slider>
+
+                    <mat-progress-spinner
+                      [mode]="'determinate'"
+                      [value]="inGamePlayer.usageDrive"
+                      diameter="32">
+                    </mat-progress-spinner>
+                  </div>
+
+                  <!-- SHOOT -->
+                  <div class="stat">
+                    <div class="label">SHOOT</div>
+                    <div class="value">{{ inGamePlayer.usageShoot }}</div>
+
+                    <mat-slider min="0" max="30" step="1">
+                      <input
+                        type="range"
+                        [value]="inGamePlayer.usageShoot"
+                        (input)="setUsage(inGamePlayer, 'usageShoot', ($any($event.target).valueAsNumber))"
+                        matSliderThumb
+                      />
+                    </mat-slider>
+
+                    <mat-progress-spinner
+                      [mode]="'determinate'"
+                      [value]="inGamePlayer.usageShoot"
+                      diameter="32">
+                    </mat-progress-spinner>
+                  </div>
+
+                  <!-- POST -->
+                  <div class="stat">
+                    <div class="label">POST</div>
+                    <div class="value">{{ inGamePlayer.usagePost }}</div>
+
+                    <mat-slider min="0" max="30" step="1">
+                      <input
+                        type="range"
+                        [value]="inGamePlayer.usagePost"
+                        (input)="setUsage(inGamePlayer, 'usagePost', ($any($event.target).valueAsNumber))"
+                        matSliderThumb
+                      />
+                    </mat-slider>
+
+                    <mat-progress-spinner
+                      [mode]="'determinate'"
+                      [value]="inGamePlayer.usagePost"
+                      diameter="32">
+                    </mat-progress-spinner>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </section>
+        }
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Tendances de tir">
+      <div class="tab-body">
+        <form class="shot-mix" [formGroup]="shotMixForm">
+          <mat-card class="card">
+            <mat-card-content class="card__body">
+              <div class="shot-mix__grid">
+                <div class="shot-mix__row">
+                  <div class="shot-mix__header">
+                    <div class="label">Three-point attempt</div>
+                    <div class="value">{{ shotMixForm.get('threePoint')?.value }}%</div>
+                  </div>
+                  <mat-slider min="10" max="80" step="1">
+                    <input
+                      type="range"
+                      [value]="shotMixForm.get('threePoint')?.value"
+                      (input)="setShotMixValue('threePoint', ($any($event.target).valueAsNumber))"
+                      matSliderThumb
+                    />
+                  </mat-slider>
+                  @if (shotMixForm.get('threePoint')?.hasError('min')) {
+                    <div class="hint hint--error">Min 10%</div>
+                  }
+                </div>
+
+                <div class="shot-mix__row">
+                  <div class="shot-mix__header">
+                    <div class="label">Mid-range attempt</div>
+                    <div class="value">{{ shotMixForm.get('midRange')?.value }}%</div>
+                  </div>
+                  <mat-slider min="10" max="80" step="1">
+                    <input
+                      type="range"
+                      [value]="shotMixForm.get('midRange')?.value"
+                      (input)="setShotMixValue('midRange', ($any($event.target).valueAsNumber))"
+                      matSliderThumb
+                    />
+                  </mat-slider>
+                  @if (shotMixForm.get('midRange')?.hasError('min')) {
+                    <div class="hint hint--error">Min 10%</div>
+                  }
+                </div>
+
+                <div class="shot-mix__row">
+                  <div class="shot-mix__header">
+                    <div class="label">Drive attempt</div>
+                    <div class="value">{{ shotMixForm.get('drive')?.value }}%</div>
+                  </div>
+                  <mat-slider min="10" max="80" step="1">
+                    <input
+                      type="range"
+                      [value]="shotMixForm.get('drive')?.value"
+                      (input)="setShotMixValue('drive', ($any($event.target).valueAsNumber))"
+                      matSliderThumb
+                    />
+                  </mat-slider>
+                  @if (shotMixForm.get('drive')?.hasError('min')) {
+                    <div class="hint hint--error">Min 10%</div>
+                  }
+                </div>
               </div>
 
-              <!-- SHOOT -->
-              <div class="stat">
-                <div class="label">SHOOT</div>
-                <div class="value">{{ inGamePlayer.usageShoot }}</div>
+              <div class="shot-mix__footer">
+                <div class="total" [class.total--error]="shotMixForm.hasError('sumExceeded')">
+                  Total: {{ totalPercent }}%
+                </div>
 
-                <mat-slider min="0" max="30" step="1">
-                  <input
-                    type="range"
-                    [value]="inGamePlayer.usageShoot"
-                    (input)="setUsage(inGamePlayer, 'usageShoot', ($any($event.target).valueAsNumber))"
-                    matSliderThumb
-                  />
-                </mat-slider>
+                <div class="hint" [class.hint--error]="shotMixForm.hasError('sumExceeded')">
+                  @if (shotMixForm.hasError('sumExceeded')) {
+                    Total doit etre <= 100%.
+                  } @else {
+                    Minimum 10% par categorie.
+                  }
+                </div>
 
-                <mat-progress-spinner
-                  [mode]="'determinate'"
-                  [value]="inGamePlayer.usageShoot"
-                  diameter="32">
-                </mat-progress-spinner>
+                <button
+                  mat-raised-button
+                  class="save-btn"
+                  [disabled]="isShotMixInvalid"
+                  (click)="saveShotMix()"
+                >
+                  Sauvegarder
+                </button>
               </div>
-
-              <!-- POST -->
-              <div class="stat">
-                <div class="label">POST</div>
-                <div class="value">{{ inGamePlayer.usagePost }}</div>
-
-                <mat-slider min="0" max="30" step="1">
-                  <input
-                    type="range"
-                    [value]="inGamePlayer.usagePost"
-                    (input)="setUsage(inGamePlayer, 'usagePost', ($any($event.target).valueAsNumber))"
-                    matSliderThumb
-                  />
-                </mat-slider>
-
-                <mat-progress-spinner
-                  [mode]="'determinate'"
-                  [value]="inGamePlayer.usagePost"
-                  diameter="32">
-                </mat-progress-spinner>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </section>
-    }
-  </mat-card-content>
+            </mat-card-content>
+          </mat-card>
+        </form>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </mat-card>

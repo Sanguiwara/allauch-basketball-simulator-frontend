@@ -2,6 +2,7 @@ import {Team} from './team.model';
 import {Position} from './position.enum';
 import {InGamePlayer} from './ingameplayer.model';
 import {DefenseType} from './zone.enum';
+import {ZoneDefenseType} from './zone-defense-type.enum';
 
 export interface GamePlan {
   id: string;          // UUID
@@ -17,6 +18,7 @@ export interface GamePlan {
   driveAttemptShare: number;
   totalShotNumber: number;
   defenseType: DefenseType;
+  zoneType?: ZoneDefenseType | null;
 }
 
 
