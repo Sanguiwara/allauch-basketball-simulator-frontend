@@ -7,7 +7,7 @@
       </div>
     </div>
 
-    @if (gamePlan; as gp) {
+    @if (gamePlan$ | async; as gp) {
       <mat-tab-group class="tabs">
         <mat-tab label="Selection">
           <div class="tab-body">

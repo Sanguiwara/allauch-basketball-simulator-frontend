@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { CalendarApiService } from './calendar-api.service';
-import { Game } from '../models/game.model';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {CalendarApiService} from './calendar-api.service';
+import {Game} from '../models/game.model';
 
-import { MatListModule } from '@angular/material/list';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import {AuthService} from '@auth0/auth0-angular';
+import {MatListModule} from '@angular/material/list';
+import {MatSelectModule} from '@angular/material/select';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {SessionStore} from '../session.store';
+import {BoxScore} from '../models/game-result.model';
 
 @Component({
   selector: 'app-calendar',
@@ -26,7 +27,11 @@ export class Calendar implements OnInit {
   // Liste des équipes (dérivée des games)
   teams: { id: string; name: string }[] = [];
 
-  constructor(private api: CalendarApiService) {}
+  constructor(
+    private api: CalendarApiService,
+    private sessionStore: SessionStore,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     this.api.getGames().subscribe({
@@ -64,5 +69,34 @@ export class Calendar implements OnInit {
     return this.games.filter(g =>
       g.homeTeamId === this.selectedTeamId || g.awayTeamId === this.selectedTeamId
     );
+  }
+
+  onMatchClick(match: Game): void {
+    const clubId = this.sessionStore.clubId();
+    console.log(match.awayClubID);
+    const gamePlanId = this.resolveGamePlanIdForUser(match, clubId);
+
+    if (!gamePlanId) return;
+    console.log(gamePlanId);
+
+    void this.router.navigate(['/gameplan'], { queryParams: { id: gamePlanId } });
+  }
+
+  resolveGamePlanIdForUser(match: Game, clubId: string | null): string | null {
+    if (!clubId) return null;
+
+    if (clubId === match.homeClubID) return match.homeGamePlanId ?? null;
+    if (clubId === match.awayClubID) return match.awayGamePlanId ?? null;
+
+    return null;
+  }
+
+
+  getScore(boxScore: BoxScore): number {
+
+    return boxScore.threePointShootingResult.made * 3 +
+      boxScore.twoPointShootingResult.made * 2 +
+      boxScore.driveResult.made * 2
+
   }
 }
