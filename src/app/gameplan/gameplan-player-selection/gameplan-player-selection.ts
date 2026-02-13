@@ -136,11 +136,11 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
       fga: 0,
       fgm: 0,
 
-      tpa: 0,
-      tpm: 0,
+      threePointAttempt: 0,
+      threePointMade: 0,
 
-      twoPa: 0,
-      twoPm: 0,
+      twoPointAttempts: 0,
+      twoPointMade: 0,
 
       usageShoot: 0,
       usageDrive: 0,

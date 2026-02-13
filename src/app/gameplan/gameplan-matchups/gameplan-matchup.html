@@ -1,5 +1,4 @@
-<!-- PAGE WRAPPER -->
-<div class="page">
+<div class="page" [class.page--embedded]="embedded">
   <!-- BOARD: Pool (left) + Matchups (right) -->
   <div cdkDropListGroup class="board">
 
@@ -20,7 +19,7 @@
           <mat-card class="card card--empty">
             <mat-card-content class="card__body">
               <div class="card__title">Pool vide</div>
-              <div class="card__hint">Glisse un défenseur ici pour le remettre dans le pool.</div>
+              <div class="card__hint">Glisse un dÃ©fenseur ici pour le remettre dans le pool.</div>
             </mat-card-content>
           </mat-card>
         }
@@ -65,7 +64,7 @@
       <div class="matchups__header">
         <div class="matchups__col-title">
           <span class="pill pill--ghost">HOME</span>
-          <span>Défenseur</span>
+          <span>DÃ©fenseur</span>
         </div>
         <div class="matchups__col-title">
           <span class="pill pill--ghost">VISITOR</span>
@@ -115,7 +114,7 @@
                       <div class="name muted">Slot vide</div>
                       <span class="tag">HOME</span>
                     </div>
-                    <div class="card__hint">Dépose un défenseur ici.</div>
+                    <div class="card__hint">DÃ©pose un dÃ©fenseur ici.</div>
                   </mat-card-content>
                 </mat-card>
               }
@@ -145,7 +144,7 @@
 
       <div class="panel__footer">
         <div class="hint">
-          Tip: Pool → Slot (assigne), Slot → Pool (retire), Slot → Slot (swap)
+          Tip: Pool â†’ Slot (assigne), Slot â†’ Pool (retire), Slot â†’ Slot (swap)
         </div>
 
         <button mat-stroked-button class="save-btn" (click)="saveMatchups()">

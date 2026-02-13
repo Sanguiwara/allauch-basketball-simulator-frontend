@@ -9,6 +9,12 @@
   color: #e9eefc;
 }
 
+.page--embedded {
+  min-height: auto;
+  padding: 0;
+  background: transparent;
+}
+
 /* Layout global */
 .board {
   display: grid;

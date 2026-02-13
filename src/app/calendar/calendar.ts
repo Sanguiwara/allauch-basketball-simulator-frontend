@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { CalendarApiService } from './calendar-api.service';
-import { Game } from '../models/game.model';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {NavigationExtras, Router} from '@angular/router';
+import {CalendarApiService} from './calendar-api.service';
+import {Game} from '../models/game.model';
 
-import { MatListModule } from '@angular/material/list';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import {AuthService} from '@auth0/auth0-angular';
+import {MatListModule} from '@angular/material/list';
+import {MatSelectModule} from '@angular/material/select';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {SessionStore} from '../session.store';
+import {BoxScore} from '../models/game-result.model';
+import {calculateScore} from '../utils/game-result.utils';
 
 @Component({
   selector: 'app-calendar',
@@ -26,7 +28,11 @@ export class Calendar implements OnInit {
   // Liste des équipes (dérivée des games)
   teams: { id: string; name: string }[] = [];
 
-  constructor(private api: CalendarApiService) {}
+  constructor(
+    private api: CalendarApiService,
+    private sessionStore: SessionStore,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     this.api.getGames().subscribe({
@@ -64,5 +70,49 @@ export class Calendar implements OnInit {
     return this.games.filter(g =>
       g.homeTeamId === this.selectedTeamId || g.awayTeamId === this.selectedTeamId
     );
+  }
+
+  onMatchClick(match: Game): void {
+    const clubId = this.sessionStore.clubId();
+    const navigation = this.resolveMatchNavigation(match, clubId);
+
+    if (!navigation) return;
+    void this.router.navigate(navigation.commands, navigation.extras);
+  }
+
+  private resolveMatchNavigation(
+    match: Game,
+    clubId: string | null,
+  ): { commands: string[]; extras?: NavigationExtras } | null {
+    if (this.isUpcomingMatch(match) && this.isUserClubMatch(match, clubId)) {
+      const gamePlanId = this.resolveGamePlanIdForUser(match, clubId);
+      if (!gamePlanId) return null;
+      return { commands: ['/gameplan'], extras: { queryParams: { id: gamePlanId } } };
+    }
+
+    return { commands: ['/match-summary'], extras: { queryParams: { id: match.id } } };
+  }
+
+  private isUpcomingMatch(match: Game): boolean {
+    return new Date(match.executeAt).getTime() > Date.now();
+  }
+
+  private isUserClubMatch(match: Game, clubId: string | null): boolean {
+    if (!clubId) return false;
+    return clubId === match.homeClubID || clubId === match.awayClubID;
+  }
+
+  private resolveGamePlanIdForUser(match: Game, clubId: string | null): string | null {
+    if (!clubId) return null;
+
+    if (clubId === match.homeClubID) return match.homeGamePlanId ?? null;
+    if (clubId === match.awayClubID) return match.awayGamePlanId ?? null;
+
+    return null;
+  }
+
+
+  getScore(boxScore: BoxScore): number {
+    return calculateScore(boxScore);
   }
 }

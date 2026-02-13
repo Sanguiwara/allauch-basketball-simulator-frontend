@@ -7,7 +7,7 @@
       </div>
     </div>
 
-    @if (gamePlan; as gp) {
+    @if (gamePlan$ | async; as gp) {
       <mat-tab-group class="tabs">
         <mat-tab label="Selection">
           <div class="tab-body">
@@ -17,7 +17,7 @@
 
         <mat-tab label="Defensive Matchups">
           <div class="tab-body">
-            <gameplan-matchup-component [gamePlan]="gp"></gameplan-matchup-component>
+            <gameplan-defense [gamePlan]="gp"></gameplan-defense>
           </div>
         </mat-tab>
 

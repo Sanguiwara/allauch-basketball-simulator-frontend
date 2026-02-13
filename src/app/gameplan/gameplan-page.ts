@@ -1,29 +1,29 @@
 import {Component, OnInit} from '@angular/core';
-import {MatTab, MatTabGroup} from '@angular/material/tabs';
-import {GameplanMatchupComponent} from './gameplan-matchups/gameplan-matchup';
-import {GameplanOffense} from './gameplan-offense/gameplan-offense';
-import {GameplanPlayerSelectionComponent} from './gameplan-player-selection/gameplan-player-selection';
-import {GamePlan} from '../models/gameplan.model';
+import {ActivatedRoute} from '@angular/router';
+import {CommonModule} from '@angular/common';
+import {Observable} from 'rxjs';
 import {GamePlanApiService} from './gameplan-service';
+import {GamePlan} from '../models/gameplan.model';
+import {MatTab, MatTabGroup} from '@angular/material/tabs';
+import {GameplanPlayerSelectionComponent} from './gameplan-player-selection/gameplan-player-selection';
+import {GameplanDefenseComponent} from './gameplan-defense/gameplan-defense';
+import {GameplanOffense} from './gameplan-offense/gameplan-offense';
 
 @Component({
   standalone: true,
-  imports: [MatTabGroup, MatTab, GameplanMatchupComponent, GameplanOffense, GameplanPlayerSelectionComponent, /* ... */],
+  imports: [CommonModule, MatTabGroup, MatTab, GameplanPlayerSelectionComponent, GameplanDefenseComponent, GameplanOffense, /* + tes imports Material & components */],
   selector: 'app-gameplan-page',
   templateUrl: './gameplan-page.html',
   styleUrl: './gameplan-page.scss',
 })
 export class GameplanPage implements OnInit {
-  constructor(private api: GamePlanApiService) {
+  gamePlan$!: Observable<GamePlan>;
+
+  constructor(private api: GamePlanApiService, private route: ActivatedRoute) {
   }
 
-  gamePlan?: GamePlan;
-
   ngOnInit(): void {
-    this.api.getGamePlanById().subscribe({
-      next: (plan) => {
-        this.gamePlan = plan;
-      }
-    });
+    const gamePlanId = this.route.snapshot.queryParamMap.get('id');
+    this.gamePlan$ = gamePlanId ? this.api.getGamePlanById(gamePlanId) : this.api.getNextGame();
   }
 }

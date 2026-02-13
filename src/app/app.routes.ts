@@ -5,6 +5,7 @@ import { MainpageComponent } from './mainpage/mainpage.component';
 import { PlayersList } from './players/players-list/players-list';
 import { GameplanPage } from './gameplan/gameplan-page';
 import { Calendar } from './calendar/calendar';
+import { MatchSummaryPage } from './match-summary/match-summary-page';
 
 export const routes: Routes = [
   // Page login
@@ -33,6 +34,7 @@ export const routes: Routes = [
 
       { path: 'gameplan', component: GameplanPage, canActivate: [AuthGuard] },
       { path: 'calendar', component: Calendar, canActivate: [AuthGuard] },
+      { path: 'match-summary', component: MatchSummaryPage, canActivate: [AuthGuard] },
     ],
   },
 
