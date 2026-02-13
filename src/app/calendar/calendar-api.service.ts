@@ -12,4 +12,8 @@ export class CalendarApiService {
   getGames(): Observable<Game[]> {
     return this.http.get<Game[]>(`${this.baseUrl}`);
   }
+
+  getGameById(id: string): Observable<Game> {
+    return this.http.get<Game>(`${this.baseUrl}/${id}`);
+  }
 }

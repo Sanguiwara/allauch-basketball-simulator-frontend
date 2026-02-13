@@ -15,11 +15,12 @@ export interface InGamePlayer {
   fga: number;
   fgm: number;
 
-  tpa: number;
-  tpm: number;
+  threePointAttempt: number;
+  threePointMade: number;
 
-  twoPa: number;
-  twoPm: number;
+
+  twoPointAttempts: number;
+  twoPointMade: number;
 
   usageShoot: number;
   usageDrive: number;

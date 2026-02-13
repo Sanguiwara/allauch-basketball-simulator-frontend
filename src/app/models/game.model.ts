@@ -1,4 +1,5 @@
 import {GameResult} from './game-result.model';
+import {InGamePlayer} from './ingameplayer.model';
 
 export interface Game {
   id: string;               // UUID
@@ -12,4 +13,6 @@ export interface Game {
   homeClubID: string;
   awayClubID: string;
   gameResult: GameResult;
+  homeActivePlayers?: InGamePlayer[];
+  awayActivePlayers?: InGamePlayer[];
 }

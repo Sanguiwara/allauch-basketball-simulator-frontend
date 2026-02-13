@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Router} from '@angular/router';
+import {NavigationExtras, Router} from '@angular/router';
 import {CalendarApiService} from './calendar-api.service';
 import {Game} from '../models/game.model';
 
@@ -9,6 +9,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {SessionStore} from '../session.store';
 import {BoxScore} from '../models/game-result.model';
+import {calculateScore} from '../utils/game-result.utils';
 
 @Component({
   selector: 'app-calendar',
@@ -73,16 +74,35 @@ export class Calendar implements OnInit {
 
   onMatchClick(match: Game): void {
     const clubId = this.sessionStore.clubId();
-    console.log(match.awayClubID);
-    const gamePlanId = this.resolveGamePlanIdForUser(match, clubId);
+    const navigation = this.resolveMatchNavigation(match, clubId);
 
-    if (!gamePlanId) return;
-    console.log(gamePlanId);
-
-    void this.router.navigate(['/gameplan'], { queryParams: { id: gamePlanId } });
+    if (!navigation) return;
+    void this.router.navigate(navigation.commands, navigation.extras);
   }
 
-  resolveGamePlanIdForUser(match: Game, clubId: string | null): string | null {
+  private resolveMatchNavigation(
+    match: Game,
+    clubId: string | null,
+  ): { commands: string[]; extras?: NavigationExtras } | null {
+    if (this.isUpcomingMatch(match) && this.isUserClubMatch(match, clubId)) {
+      const gamePlanId = this.resolveGamePlanIdForUser(match, clubId);
+      if (!gamePlanId) return null;
+      return { commands: ['/gameplan'], extras: { queryParams: { id: gamePlanId } } };
+    }
+
+    return { commands: ['/match-summary'], extras: { queryParams: { id: match.id } } };
+  }
+
+  private isUpcomingMatch(match: Game): boolean {
+    return new Date(match.executeAt).getTime() > Date.now();
+  }
+
+  private isUserClubMatch(match: Game, clubId: string | null): boolean {
+    if (!clubId) return false;
+    return clubId === match.homeClubID || clubId === match.awayClubID;
+  }
+
+  private resolveGamePlanIdForUser(match: Game, clubId: string | null): string | null {
     if (!clubId) return null;
 
     if (clubId === match.homeClubID) return match.homeGamePlanId ?? null;
@@ -93,10 +113,6 @@ export class Calendar implements OnInit {
 
 
   getScore(boxScore: BoxScore): number {
-
-    return boxScore.threePointShootingResult.made * 3 +
-      boxScore.twoPointShootingResult.made * 2 +
-      boxScore.driveResult.made * 2
-
+    return calculateScore(boxScore);
   }
 }
