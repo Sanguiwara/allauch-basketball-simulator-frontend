@@ -5,11 +5,12 @@ import {MatTableModule} from '@angular/material/table';
 import {Observable, of} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {MatchSummaryService, MatchSummaryVm} from './match-summary.service';
+import {PlayerProgressionTabsComponent} from './player-progression-tabs/player-progression-tabs.component';
 
 @Component({
   selector: 'app-match-summary-page',
   standalone: true,
-  imports: [CommonModule, MatTableModule],
+  imports: [CommonModule, MatTableModule, PlayerProgressionTabsComponent],
   templateUrl: './match-summary-page.html',
   styleUrl: './match-summary-page.scss',
 })

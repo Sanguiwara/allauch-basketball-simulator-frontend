@@ -1,0 +1,63 @@
+<div class="progression-grid">
+  <mat-card class="team-card">
+    <div class="team-card__title">{{ homeTeamName }}</div>
+    @if (homePlayers.length > 0) {
+      <mat-tab-group>
+        @for (player of homePlayers; track player.player.id) {
+          <mat-tab [label]="getPlayerLabel(player)">
+            @if (getProgressionForPlayer(player); as progression) {
+              <mat-list class="stats-list">
+                @for (stat of stats; track stat.key) {
+                  @let value = getStatValue(progression, stat.key);
+                  <mat-list-item>
+                    <div class="stat-row">
+                      <span class="stat-label">{{ stat.label }}</span>
+                      <span class="stat-value" [ngClass]="getStatClass(value)">
+                        {{ formatStatValue(value) }}
+                      </span>
+                    </div>
+                  </mat-list-item>
+                }
+              </mat-list>
+            } @else {
+              <div class="state">Aucune progression disponible pour ce joueur.</div>
+            }
+          </mat-tab>
+        }
+      </mat-tab-group>
+    } @else {
+      <div class="state">Aucun joueur disponible.</div>
+    }
+  </mat-card>
+
+  <mat-card class="team-card">
+    <div class="team-card__title">{{ awayTeamName }}</div>
+    @if (awayPlayers.length > 0) {
+      <mat-tab-group>
+        @for (player of awayPlayers; track player.player.id) {
+          <mat-tab [label]="getPlayerLabel(player)">
+            @if (getProgressionForPlayer(player); as progression) {
+              <mat-list class="stats-list">
+                @for (stat of stats; track stat.key) {
+                  @let value = getStatValue(progression, stat.key);
+                  <mat-list-item>
+                    <div class="stat-row">
+                      <span class="stat-label">{{ stat.label }}</span>
+                      <span class="stat-value" [ngClass]="getStatClass(value)">
+                        {{ formatStatValue(value) }}
+                      </span>
+                    </div>
+                  </mat-list-item>
+                }
+              </mat-list>
+            } @else {
+              <div class="state">Aucune progression disponible pour ce joueur.</div>
+            }
+          </mat-tab>
+        }
+      </mat-tab-group>
+    } @else {
+      <div class="state">Aucun joueur disponible.</div>
+    }
+  </mat-card>
+</div>

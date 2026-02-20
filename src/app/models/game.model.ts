@@ -1,5 +1,6 @@
 import {GameResult} from './game-result.model';
 import {InGamePlayer} from './ingameplayer.model';
+import {PlayerProgression} from './player-progression.model';
 
 export interface Game {
   id: string;               // UUID
@@ -15,4 +16,5 @@ export interface Game {
   gameResult: GameResult;
   homeActivePlayers?: InGamePlayer[];
   awayActivePlayers?: InGamePlayer[];
+  playerProgressions?: PlayerProgression[];
 }

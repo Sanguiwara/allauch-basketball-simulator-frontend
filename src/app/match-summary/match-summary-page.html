@@ -44,7 +44,7 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="teamStatsColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: teamStatsColumns;"></tr>
+            <tr mat-row *matRowDef="; columns: teamStatsColumns;"></tr>
           </table>
         </div>
       </div>
@@ -229,6 +229,11 @@
             <div class="state small">Aucune statistique individuelle disponible.</div>
           }
         </div>
+      </div>
+
+      <div class="section">
+        <div class="section__title">Progression Joueurs</div>
+        <app-player-progression-tabs [game]="vm.game"></app-player-progression-tabs>
       </div>
     } @else {
       <div class="panel__header">
