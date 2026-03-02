@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {Player} from '../models/player.model';
+import { Player } from '../models/player.model';
+import { apiBaseUrl } from '../utils/api-base-url';
 
 @Injectable({ providedIn: 'root' })
 export class PlayersService {
-  private readonly baseUrl = 'http://localhost:8080/players';
+  private readonly baseUrl = `${apiBaseUrl}/players`;
 
   constructor(private http: HttpClient) {}
 

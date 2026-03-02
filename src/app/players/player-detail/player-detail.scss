@@ -93,6 +93,52 @@
   font-size: 11px !important;
 }
 
+/* Badges */
+.badge-list {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (min-width: 900px) {
+  .badge-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.badge-item {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: center;
+  gap: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 6px 8px;
+}
+
+.badge-icon {
+  width: 22px;
+  height: 22px;
+  font-size: 20px;
+  color: rgba(120, 180, 255, 0.95);
+}
+
+.badge-name {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: rgba(233, 238, 252, 0.92);
+}
+
+.badge-empty {
+  margin-top: 10px;
+  font-size: 11px;
+  opacity: 0.7;
+  font-weight: 700;
+}
+
 /* Overall */
 .player-card__overall {
   justify-self: start;

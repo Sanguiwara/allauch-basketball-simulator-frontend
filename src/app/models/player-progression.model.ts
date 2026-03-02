@@ -1,3 +1,5 @@
+import {Badge} from './badge.model';
+
 export interface PlayerProgression {
   playerId: string;
   eventId: string;
@@ -32,4 +34,6 @@ export interface PlayerProgression {
   softSkills: number;
   leadership: number;
   morale: number;
+
+  badges: Badge[];
 }

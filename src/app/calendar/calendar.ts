@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {NavigationExtras, Router} from '@angular/router';
 import {CalendarApiService} from './calendar-api.service';
-import {Game} from '../models/game.model';
+import {SimplifiedGame} from '../models/simplified-game.model';
 
 import {MatListModule} from '@angular/material/list';
 import {MatSelectModule} from '@angular/material/select';
@@ -20,7 +20,7 @@ import {calculateScore} from '../utils/game-result.utils';
 })
 export class Calendar implements OnInit {
 
-  games: Game[] = [];
+  games: SimplifiedGame[] = [];
 
   // Id de l’équipe sélectionnée
   selectedTeamId: string | null = null;
@@ -64,7 +64,7 @@ export class Calendar implements OnInit {
   }
 
   // Liste filtrée affichée
-  get filteredGames(): Game[] {
+  get filteredGames(): SimplifiedGame[] {
     if (!this.selectedTeamId) return this.games;
 
     return this.games.filter(g =>
@@ -72,7 +72,7 @@ export class Calendar implements OnInit {
     );
   }
 
-  onMatchClick(match: Game): void {
+  onMatchClick(match: SimplifiedGame): void {
     const clubId = this.sessionStore.clubId();
     const navigation = this.resolveMatchNavigation(match, clubId);
 
@@ -81,7 +81,7 @@ export class Calendar implements OnInit {
   }
 
   private resolveMatchNavigation(
-    match: Game,
+    match: SimplifiedGame,
     clubId: string | null,
   ): { commands: string[]; extras?: NavigationExtras } | null {
     if (this.isUpcomingMatch(match) && this.isUserClubMatch(match, clubId)) {
@@ -90,19 +90,21 @@ export class Calendar implements OnInit {
       return { commands: ['/gameplan'], extras: { queryParams: { id: gamePlanId } } };
     }
 
+    if (!this.hasGameResult(match)) return null;
+
     return { commands: ['/match-summary'], extras: { queryParams: { id: match.id } } };
   }
 
-  private isUpcomingMatch(match: Game): boolean {
+  private isUpcomingMatch(match: SimplifiedGame): boolean {
     return new Date(match.executeAt).getTime() > Date.now();
   }
 
-  private isUserClubMatch(match: Game, clubId: string | null): boolean {
+  private isUserClubMatch(match: SimplifiedGame, clubId: string | null): boolean {
     if (!clubId) return false;
     return clubId === match.homeClubID || clubId === match.awayClubID;
   }
 
-  private resolveGamePlanIdForUser(match: Game, clubId: string | null): string | null {
+  private resolveGamePlanIdForUser(match: SimplifiedGame, clubId: string | null): string | null {
     if (!clubId) return null;
 
     if (clubId === match.homeClubID) return match.homeGamePlanId ?? null;
@@ -111,8 +113,12 @@ export class Calendar implements OnInit {
     return null;
   }
 
+  private hasGameResult(match: SimplifiedGame): boolean {
+    return !!(match.gameResult?.homeScore && match.gameResult?.awayScore);
+  }
 
-  getScore(boxScore: BoxScore): number {
-    return calculateScore(boxScore);
+  getScoreOrDash(boxScore?: BoxScore | null): string {
+    if (!boxScore) return '-';
+    return String(calculateScore(boxScore));
   }
 }

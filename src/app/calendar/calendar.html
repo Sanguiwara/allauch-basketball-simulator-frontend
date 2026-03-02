@@ -19,7 +19,7 @@
             <div class="team-col home">
               <div class="name">{{ game.homeTeamName }}</div>
               <div class="meta">
-                <div class="score">{{ getScore(game.gameResult.homeScore) }}</div>
+                <div class="score">{{ getScoreOrDash(game.gameResult?.homeScore) }}</div>
               </div>
             </div>
 
@@ -28,7 +28,7 @@
             <div class="team-col away">
               <div class="name">{{ game.awayTeamName }}</div>
               <div class="meta">
-                <div class="score">{{ getScore(game.gameResult.awayScore) }}</div>
+                <div class="score">{{ getScoreOrDash(game.gameResult?.awayScore) }}</div>
               </div>
             </div>
           </div>

@@ -1,9 +1,12 @@
-import { ApplicationConfig } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import {provideHttpClient, withInterceptors, withInterceptorsFromDi} from '@angular/common/http';
+import {ApplicationConfig} from '@angular/core';
+import {provideRouter} from '@angular/router';
+import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import {authHttpInterceptorFn, provideAuth0} from '@auth0/auth0-angular';
 
-import { routes } from './app.routes';
+import {routes} from './app.routes';
+import {environment} from '../environments/environment';
+
+const apiBaseUrl = environment.apiBaseUrl.replace(/\/+$/, '');
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -11,19 +14,19 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authHttpInterceptorFn])),
 
     ...provideAuth0({
-      domain: 'dev-csf1pz6vkgyyinsz.us.auth0.com',
-      clientId: 'ccW5NjuTahPGYv17gaJgGMjxZsk2aVsq',
+      domain: environment.auth0.domain,
+      clientId: environment.auth0.clientId,
       authorizationParams: {
         redirect_uri: window.location.origin,
-        audience: 'https://allauch-simulator-backend/',
+        audience: environment.auth0.audience,
       },
       httpInterceptor: {
         allowedList: [
           {
-            uri: 'http://localhost:8080/*',
+            uri: `${apiBaseUrl}/*`,
             tokenOptions: {
               authorizationParams: {
-                audience: 'https://allauch-simulator-backend/',
+                audience: environment.auth0.audience,
               },
             },
           },

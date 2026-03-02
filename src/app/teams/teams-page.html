@@ -1,0 +1,30 @@
+<div class="teams-page">
+  <h1>Equipes</h1>
+
+  <ng-container *ngIf="state$ | async as state">
+    <div class="state" *ngIf="state.status === 'loading'">
+      <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+      <div>Chargement des equipes...</div>
+    </div>
+
+    <div class="state error" *ngIf="state.status === 'error'">
+      {{ state.message }}
+    </div>
+
+    <div class="state" *ngIf="state.status === 'empty'">
+      Aucune equipe disponible.
+    </div>
+
+    <mat-list *ngIf="state.status === 'loaded'">
+      <a mat-list-item *ngFor="let team of state.teams; trackBy: trackByTeamId" [routerLink]="['/teams', team.id]">
+        <div class="team-row">
+          <div>
+            <div class="team-name">{{ team.name }}</div>
+            <div class="team-meta">{{ team.category }} - {{ team.gender }}</div>
+          </div>
+          <div class="team-count">{{ team.playerCount }} joueurs</div>
+        </div>
+      </a>
+    </mat-list>
+  </ng-container>
+</div>

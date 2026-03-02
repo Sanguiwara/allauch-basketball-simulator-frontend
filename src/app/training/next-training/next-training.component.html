@@ -1,0 +1,74 @@
+<div class="next-training">
+  <div class="next-training__header">
+    <div>
+      <div class="next-training__title">Prochain entraînement</div>
+      @if (training?.team?.name) {
+        <div class="next-training__subtitle">{{ training?.team?.name }}</div>
+      }
+    </div>
+    <button
+      mat-button
+      type="button"
+      class="next-training__refresh"
+      (click)="loadTraining()"
+      [disabled]="isLoading || isUpdating"
+    >
+      Rafraîchir
+    </button>
+  </div>
+
+  @if (isLoading) {
+    <div class="state">Chargement…</div>
+  } @else if (errorMsg) {
+    <div class="state error">{{ errorMsg }}</div>
+  } @else if (!training) {
+    <div class="state">Aucun entraînement à venir</div>
+  } @else {
+    <div class="next-training__body">
+      <div class="next-training__row">
+        <div class="next-training__label">Date / heure</div>
+        <div class="next-training__value">{{ training.executeAt | date: 'medium' }}</div>
+      </div>
+
+      <div class="next-training__row">
+        <div class="next-training__label">Type actuel</div>
+        <div class="next-training__value type">
+          <mat-icon>{{ getTypeUi(training.trainingType).icon }}</mat-icon>
+          <span>{{ getTypeUi(training.trainingType).label }}</span>
+        </div>
+      </div>
+
+      <div class="next-training__row">
+        <div class="next-training__label">Modifier le type</div>
+        <mat-button-toggle-group
+          class="type-selector"
+          [value]="selectedType ?? training.trainingType"
+          (change)="onTypeChange($event.value)"
+          [disabled]="isUpdating"
+        >
+          <mat-button-toggle *ngFor="let type of trainingTypeOptions" [value]="type">
+            <mat-icon>{{ getTypeUi(type).icon }}</mat-icon>
+            <span>{{ getTypeUi(type).label }}</span>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+      <div class="next-training__row">
+        <div class="next-training__label"></div>
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          (click)="saveType()"
+          [disabled]="isUpdating || !selectedType || selectedType === training.trainingType"
+        >
+          Sauvegarder
+        </button>
+      </div>
+
+      @if (isUpdating) {
+        <div class="state small">Mise à jour en cours…</div>
+      }
+    </div>
+  }
+</div>

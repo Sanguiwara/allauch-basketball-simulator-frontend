@@ -10,13 +10,16 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {AsyncPipe} from '@angular/common';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
-import {MatChip, MatChipSet} from '@angular/material/chips';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {Badge} from '../../models/badge.model';
+import {BADGE_ICON_BY_NAME, DEFAULT_BADGE_ICON} from '../../utils/badge-icons';
+import {BADGE_DESCRIPTION_BY_NAME, DEFAULT_BADGE_DESCRIPTION} from '../../utils/badge-descriptions';
 
 @Component({
   selector: 'app-player-detail',
   standalone: true,
-  imports: [RouterModule, MatCardModule, MatProgressBarModule, MatButtonModule, MatIconModule, AsyncPipe, MatTab, MatTabGroup, MatChipSet, MatChip, MatProgressSpinner],
+  imports: [RouterModule, MatCardModule, MatProgressBarModule, MatButtonModule, MatIconModule, AsyncPipe, MatTab, MatTabGroup, MatProgressSpinner, MatTooltipModule],
   templateUrl: './player-detail.html',
   styleUrls: ['./player-detail.scss'],
 })
@@ -130,5 +133,15 @@ export class PlayerDetail {
 
 
   trackByLabel = (_: number, item: { label: string; value: number }) => item.label;
+
+  trackByBadgeId = (_: number, badge: Badge) => badge.id;
+
+  badgeIcon(name: string): string {
+    return BADGE_ICON_BY_NAME[name] ?? DEFAULT_BADGE_ICON;
+  }
+
+  badgeDescription(name: string): string {
+    return BADGE_DESCRIPTION_BY_NAME[name] ?? DEFAULT_BADGE_DESCRIPTION;
+  }
 }
 

@@ -7,7 +7,7 @@ import {Game} from '../../models/game.model';
 import {InGamePlayer} from '../../models/ingameplayer.model';
 import {PlayerProgression} from '../../models/player-progression.model';
 
-type StatKey = Exclude<keyof PlayerProgression, 'playerId' | 'eventId'>;
+type StatKey = Exclude<keyof PlayerProgression, 'playerId' | 'eventId' | 'badges'>;
 
 const PLAYER_PROGRESSION_STATS: ReadonlyArray<{key: StatKey; label: string}> = [
   {key: 'tir3Pts', label: 'Tir 3 pts'},

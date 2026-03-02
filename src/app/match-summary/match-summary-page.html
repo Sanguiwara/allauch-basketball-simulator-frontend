@@ -44,7 +44,7 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="teamStatsColumns"></tr>
-            <tr mat-row *matRowDef="; columns: teamStatsColumns;"></tr>
+            <tr mat-row *matRowDef="let row; columns: teamStatsColumns;"></tr>
           </table>
         </div>
       </div>

@@ -1,0 +1,8 @@
+export enum BadgeType {
+  THREE_POINT = 'THREE_POINT',
+  TWO_POINT = 'TWO_POINT',
+  DRIVE = 'DRIVE',
+  REBOUND = 'REBOUND',
+  STEAL = 'STEAL',
+  ASSIST = 'ASSIST',
+}

@@ -1,3 +1,5 @@
+import {Badge} from './badge.model';
+
 export interface Player {
   id: string;
   name: string;
@@ -37,4 +39,6 @@ export interface Player {
   ego: number;
   softSkills: number;
   leadership: number;
+
+  badges: Badge[];
 }
