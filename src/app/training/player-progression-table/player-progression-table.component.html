@@ -1,0 +1,239 @@
+@if (playerProgressions.length === 0) {
+  <div class="state small">{{ emptyLabel }}</div>
+} @else {
+  <div class="group-toggles">
+    <button
+      type="button"
+      class="group-toggle"
+      [class.is-active]="showShooting()"
+      (click)="toggleGroup('shooting')"
+    >
+      Shooting
+    </button>
+    <button
+      type="button"
+      class="group-toggle"
+      [class.is-active]="showDefense()"
+      (click)="toggleGroup('defense')"
+    >
+      Defense
+    </button>
+    <button
+      type="button"
+      class="group-toggle"
+      [class.is-active]="showPhysical()"
+      (click)="toggleGroup('physical')"
+    >
+      Physique
+    </button>
+    <button
+      type="button"
+      class="group-toggle"
+      [class.is-active]="showPlaymaking()"
+      (click)="toggleGroup('playmaking')"
+    >
+      Playmaking
+    </button>
+    <button
+      type="button"
+      class="group-toggle"
+      [class.is-active]="showMorale()"
+      (click)="toggleGroup('morale')"
+    >
+      Morale
+    </button>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="progress-table">
+      <thead>
+        <tr>
+          <th>Joueur</th>
+          <th>Badges</th>
+          @if (showShooting()) {
+            <th>Tir 3 pts</th>
+            <th>Tir 2 pts</th>
+            <th>Lancer franc</th>
+            <th>Floater</th>
+            <th>Finition cercle</th>
+          }
+          @if (showDefense()) {
+            <th>Def ext</th>
+            <th>Def poste</th>
+            <th>Protection cercle</th>
+            <th>Steal</th>
+            <th>Timing block</th>
+          }
+          @if (showPhysical()) {
+            <th>Physique</th>
+            <th>Speed</th>
+            <th>Endurance</th>
+            <th>Solidite</th>
+          }
+          @if (showPlaymaking()) {
+            <th>Ballhandling</th>
+            <th>Passing</th>
+            <th>IQ off</th>
+            <th>IQ def</th>
+            <th>IQ</th>
+          }
+          @if (showMorale()) {
+            <th>Morale</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (progression of playerProgressions; track progression.playerId) {
+          <tr>
+            <td>
+              <a class="player-link" [routerLink]="['/players', progression.playerId]">
+                {{ resolvePlayerName(progression.playerId) }}
+              </a>
+            </td>
+            <td>
+              @if (progression.badges?.length) {
+                <div class="badge-list">
+                  @for (badge of progression.badges; track badge.id) {
+                    <span class="badge-pill">{{ badge.name }}</span>
+                  }
+                </div>
+              } @else {
+                <span class="badge-empty">Aucun</span>
+              }
+            </td>
+            @if (showShooting()) {
+              <td
+                [class.progress-positive]="isPositive(progression.tir3Pts)"
+                [class.progress-negative]="isNegative(progression.tir3Pts)"
+              >
+                {{ formatDelta(progression.tir3Pts) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.tir2Pts)"
+                [class.progress-negative]="isNegative(progression.tir2Pts)"
+              >
+                {{ formatDelta(progression.tir2Pts) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.lancerFranc)"
+                [class.progress-negative]="isNegative(progression.lancerFranc)"
+              >
+                {{ formatDelta(progression.lancerFranc) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.floater)"
+                [class.progress-negative]="isNegative(progression.floater)"
+              >
+                {{ formatDelta(progression.floater) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.finitionAuCercle)"
+                [class.progress-negative]="isNegative(progression.finitionAuCercle)"
+              >
+                {{ formatDelta(progression.finitionAuCercle) }}
+              </td>
+            }
+            @if (showDefense()) {
+              <td
+                [class.progress-positive]="isPositive(progression.defExterieur)"
+                [class.progress-negative]="isNegative(progression.defExterieur)"
+              >
+                {{ formatDelta(progression.defExterieur) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.defPoste)"
+                [class.progress-negative]="isNegative(progression.defPoste)"
+              >
+                {{ formatDelta(progression.defPoste) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.protectionCercle)"
+                [class.progress-negative]="isNegative(progression.protectionCercle)"
+              >
+                {{ formatDelta(progression.protectionCercle) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.steal)"
+                [class.progress-negative]="isNegative(progression.steal)"
+              >
+                {{ formatDelta(progression.steal) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.timingBlock)"
+                [class.progress-negative]="isNegative(progression.timingBlock)"
+              >
+                {{ formatDelta(progression.timingBlock) }}
+              </td>
+            }
+            @if (showPhysical()) {
+              <td
+                [class.progress-positive]="isPositive(progression.physique)"
+                [class.progress-negative]="isNegative(progression.physique)"
+              >
+                {{ formatDelta(progression.physique) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.speed)"
+                [class.progress-negative]="isNegative(progression.speed)"
+              >
+                {{ formatDelta(progression.speed) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.endurance)"
+                [class.progress-negative]="isNegative(progression.endurance)"
+              >
+                {{ formatDelta(progression.endurance) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.solidite)"
+                [class.progress-negative]="isNegative(progression.solidite)"
+              >
+                {{ formatDelta(progression.solidite) }}
+              </td>
+            }
+            @if (showPlaymaking()) {
+              <td
+                [class.progress-positive]="isPositive(progression.ballhandling)"
+                [class.progress-negative]="isNegative(progression.ballhandling)"
+              >
+                {{ formatDelta(progression.ballhandling) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.passingSkills)"
+                [class.progress-negative]="isNegative(progression.passingSkills)"
+              >
+                {{ formatDelta(progression.passingSkills) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.basketballIqOff)"
+                [class.progress-negative]="isNegative(progression.basketballIqOff)"
+              >
+                {{ formatDelta(progression.basketballIqOff) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.basketballIqDef)"
+                [class.progress-negative]="isNegative(progression.basketballIqDef)"
+              >
+                {{ formatDelta(progression.basketballIqDef) }}
+              </td>
+              <td
+                [class.progress-positive]="isPositive(progression.iq)"
+                [class.progress-negative]="isNegative(progression.iq)"
+              >
+                {{ formatDelta(progression.iq) }}
+              </td>
+            }
+            @if (showMorale()) {
+              <td
+                [class.progress-positive]="isPositive(progression.morale)"
+                [class.progress-negative]="isNegative(progression.morale)"
+              >
+                {{ formatDelta(progression.morale) }}
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

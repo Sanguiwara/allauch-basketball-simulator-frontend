@@ -1,34 +1,54 @@
 <div class="page">
   <section class="panel">
-    <div class="panel__header">
-      <div class="panel__header-left">
-        <h2 class="panel__title">GamePlan</h2>
-        <span class="pill">Strategy</span>
-      </div>
-    </div>
-
     @if (gamePlan$ | async; as gp) {
+      <div class="panel__header">
+        <div class="panel__header-left">
+          <h2 class="panel__title">GamePlan</h2>
+          <span class="pill">Strategy</span>
+        </div>
+        <div class="panel__matchup">
+          <div class="panel__team">
+            <span class="panel__team-label">Domicile</span>
+            <span class="panel__team-name">{{ gp.ownerTeam?.name || 'Equipe domicile' }}</span>
+          </div>
+          <span class="panel__vs">vs</span>
+          <div class="panel__team">
+            <span class="panel__team-label">Exterieur</span>
+            <span class="panel__team-name">{{ gp.opponentTeam?.name || 'Equipe exterieur' }}</span>
+          </div>
+        </div>
+      </div>
+
       <mat-tab-group class="tabs">
         <mat-tab label="Selection">
           <div class="tab-body">
-            <app-player-selection-tab [gamePlan]="gp"></app-player-selection-tab>
+            <app-player-selection-tab
+              [gamePlan]="gp"
+              (activePlayersChange)="onActivePlayersChange($event)"
+            ></app-player-selection-tab>
           </div>
         </mat-tab>
 
         <mat-tab label="Defensive Matchups">
           <div class="tab-body">
-            <gameplan-defense [gamePlan]="gp"></gameplan-defense>
+            <gameplan-defense [gamePlan]="gp" [activePlayers]="activePlayers()"></gameplan-defense>
           </div>
         </mat-tab>
 
         <mat-tab label="Offense & Usage">
           <div class="tab-body">
-            <app-gameplan-offense [gamePlan]="gp" ></app-gameplan-offense>
+            <app-gameplan-offense [gamePlan]="gp" [activePlayers]="activePlayers()" ></app-gameplan-offense>
           </div>
         </mat-tab>
       </mat-tab-group>
     } @else {
-      <div class="state">Chargement…</div>
+      <div class="panel__header">
+        <div class="panel__header-left">
+          <h2 class="panel__title">GamePlan</h2>
+          <span class="pill">Strategy</span>
+        </div>
+      </div>
+      <div class="state">Chargement...</div>
     }
   </section>
 </div>

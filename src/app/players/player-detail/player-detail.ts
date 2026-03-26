@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {ActivatedRoute, RouterModule} from '@angular/router';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {PlayersService} from '../players.service';
 import {Player} from '../../models/player.model';
 import {catchError, distinctUntilChanged, map, of, shareReplay, switchMap} from 'rxjs';
@@ -8,13 +8,17 @@ import {MatCardModule} from '@angular/material/card';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, Location} from '@angular/common';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {Badge} from '../../models/badge.model';
 import {BADGE_ICON_BY_NAME, DEFAULT_BADGE_ICON} from '../../utils/badge-icons';
 import {BADGE_DESCRIPTION_BY_NAME, DEFAULT_BADGE_DESCRIPTION} from '../../utils/badge-descriptions';
+import {filterBadgesWithParentheses, filterBadgesWithoutParentheses} from '../../utils/badge-name';
+import {formatSize, formatWeight} from '../../utils/player-metrics';
+
+type GaugeStat = {label: string; value: number; displayValue?: string};
 
 @Component({
   selector: 'app-player-detail',
@@ -25,7 +29,9 @@ import {BADGE_DESCRIPTION_BY_NAME, DEFAULT_BADGE_DESCRIPTION} from '../../utils/
 })
 export class PlayerDetail {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private playersService = inject(PlayersService);
+  private location = inject(Location);
 
   // Observable du player chargé depuis /players/:id
   player$ = this.route.params.pipe(
@@ -38,7 +44,7 @@ export class PlayerDetail {
   );
 
   // Petites listes pour afficher des “stats” de manière groupée
-  offense(player: Player) {
+  offense(player: Player): GaugeStat[] {
     return [
       {label: '3 pts', value: player.tir3Pts},
       {label: '2 pts', value: player.tir2Pts},
@@ -50,7 +56,7 @@ export class PlayerDetail {
     ];
   }
 
-  defense(player: Player) {
+  defense(player: Player): GaugeStat[] {
     return [
       {label: 'Déf. extérieur', value: player.defExterieur},
       {label: 'Déf. poste', value: player.defPoste},
@@ -61,18 +67,18 @@ export class PlayerDetail {
     ];
   }
 
-  physique(player: Player) {
+  physique(player: Player): GaugeStat[] {
     return [
       {label: 'Physique', value: player.physique},
       {label: 'Endurance', value: player.endurance},
       {label: 'Solidité', value: player.solidite},
       {label: 'Speed', value: player.speed},
-      {label: 'Size', value: player.size},
-      {label: 'Weight', value: player.weight},
+      {label: 'Size', value: player.size, displayValue: formatSize(player.size)},
+      {label: 'Weight', value: player.weight, displayValue: formatWeight(player.weight)},
     ];
   }
 
-  mental(player: Player) {
+  mental(player: Player): GaugeStat[] {
     return [
       {label: 'IQ (global)', value: player.iq},
       {label: 'IQ Off', value: player.basketballIqOff},
@@ -84,7 +90,7 @@ export class PlayerDetail {
     ];
   }
 
-  potentiel(player: Player) {
+  potentiel(player: Player): GaugeStat[] {
     return [
       {label: 'Potentiel skill', value: player.potentielSkill},
       {label: 'Potentiel physique', value: player.potentielPhysique},
@@ -132,7 +138,15 @@ export class PlayerDetail {
   }
 
 
-  trackByLabel = (_: number, item: { label: string; value: number }) => item.label;
+  trackByLabel = (_: number, item: GaugeStat) => item.label;
+
+  formatSizeValue(value: number): string {
+    return formatSize(value);
+  }
+
+  formatWeightValue(value: number): string {
+    return formatWeight(value);
+  }
 
   trackByBadgeId = (_: number, badge: Badge) => badge.id;
 
@@ -142,6 +156,26 @@ export class PlayerDetail {
 
   badgeDescription(name: string): string {
     return BADGE_DESCRIPTION_BY_NAME[name] ?? DEFAULT_BADGE_DESCRIPTION;
+  }
+
+  badgesWithParentheses(badges: Badge[]): Badge[] {
+    return filterBadgesWithParentheses(badges);
+  }
+
+  badgesWithoutParentheses(badges: Badge[]): Badge[] {
+    return filterBadgesWithoutParentheses(badges);
+  }
+
+  goBack(): void {
+    if (this.hasHistory()) {
+      this.location.back();
+      return;
+    }
+    this.router.navigate(['/players']);
+  }
+
+  private hasHistory(): boolean {
+    return window.history.length > 1;
   }
 }
 

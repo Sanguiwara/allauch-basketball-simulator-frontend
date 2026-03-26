@@ -45,7 +45,7 @@ describe('TrainingApiService', () => {
   it('uses userId from token to fetch next training', () => {
     let result: TrainingDTO | null | undefined;
 
-    service.getNextTrainingForTeam('team-1').subscribe((training) => {
+    service.getNextTrainingForTeam().subscribe((training) => {
       result = training;
     });
 
@@ -58,6 +58,66 @@ describe('TrainingApiService', () => {
       id: 'training-1',
       executeAt: '2026-02-28T10:00:00Z',
       trainingType: 'SHOOTING',
+      team: {
+        id: 'team-1',
+        name: 'Allauch',
+        ageCategory: 'SENIOR',
+        gender: 'M',
+        players: [],
+      },
+      playerProgressions: [],
+    };
+
+    request.flush(payload);
+    expect(result).toEqual(payload);
+  });
+
+  it('fetches trainings for current user', () => {
+    let result: TrainingDTO[] | undefined;
+
+    service.getTrainingsForUser().subscribe((trainings) => {
+      result = trainings;
+    });
+
+    const request = httpMock.expectOne(
+      `${apiBaseUrl}/trainings/userSub/auth0|user-123`
+    );
+    expect(request.request.method).toBe('GET');
+
+    const payload: TrainingDTO[] = [
+      {
+        id: 'training-1',
+        executeAt: '2026-02-28T10:00:00Z',
+        trainingType: 'SHOOTING',
+        team: {
+          id: 'team-1',
+          name: 'Allauch',
+          ageCategory: 'SENIOR',
+          gender: 'M',
+          players: [],
+        },
+        playerProgressions: [],
+      },
+    ];
+
+    request.flush(payload);
+    expect(result).toEqual(payload);
+  });
+
+  it('fetches a training by id', () => {
+    let result: TrainingDTO | undefined;
+
+    service.getTrainingById('training-42').subscribe((training) => {
+      result = training;
+    });
+
+    const request = httpMock.expectOne(`${apiBaseUrl}/trainings/training-42`);
+    expect(request.request.method).toBe('GET');
+
+    const payload: TrainingDTO = {
+      id: 'training-42',
+      executeAt: '2026-03-01T09:00:00Z',
+      trainingType: 'TACTICAL',
       team: {
         id: 'team-1',
         name: 'Allauch',

@@ -1,0 +1,77 @@
+<div class="page">
+  <section class="panel">
+    <div class="panel__header">
+      <div class="panel__header-left">
+        <h2 class="panel__title">Training detail</h2>
+        <span class="pill">Gestion entrainement</span>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="state">Chargement...</div>
+    } @else if (errorMsg()) {
+      <div class="state error">{{ errorMsg() }}</div>
+    } @else if (!training()) {
+      <div class="state">Aucun entrainement trouve.</div>
+    } @else {
+      <div class="detail">
+        <div class="detail__row">
+          <div class="detail__label">Equipe</div>
+          <div class="detail__value">{{ training()?.team?.name ?? 'Equipe inconnue' }}</div>
+        </div>
+        <div class="detail__row">
+          <div class="detail__label">Date / heure</div>
+          <div class="detail__value">{{ training()?.executeAt | date: 'medium' }}</div>
+        </div>
+        <div class="detail__row">
+          <div class="detail__label">Type actuel</div>
+          <div class="detail__value type">
+            <mat-icon>{{ getTypeUi(training()?.trainingType).icon }}</mat-icon>
+            <span>{{ getTypeUi(training()?.trainingType).label }}</span>
+          </div>
+        </div>
+
+        <div class="detail__row">
+          <div class="detail__label">Modifier le type</div>
+          <mat-button-toggle-group
+            class="type-selector"
+            [value]="selectedType() ?? training()?.trainingType"
+            (change)="onTypeChange($event.value)"
+            [disabled]="isUpdating()"
+          >
+            @for (type of trainingTypeOptions; track type) {
+              <mat-button-toggle [value]="type">
+                <mat-icon>{{ getTypeUi(type).icon }}</mat-icon>
+                <span>{{ getTypeUi(type).label }}</span>
+              </mat-button-toggle>
+            }
+          </mat-button-toggle-group>
+        </div>
+
+        <div class="detail__row">
+          <div class="detail__label"></div>
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="saveType()"
+            [disabled]="
+              isUpdating() ||
+              !selectedType() ||
+              selectedType() === training()?.trainingType
+            "
+          >
+            Sauvegarder
+          </button>
+        </div>
+
+        @if (isUpdating()) {
+          <div class="state small">Mise a jour en cours...</div>
+        }
+        @if (updateErrorMsg()) {
+          <div class="state error small">{{ updateErrorMsg() }}</div>
+        }
+      </div>
+    }
+  </section>
+</div>

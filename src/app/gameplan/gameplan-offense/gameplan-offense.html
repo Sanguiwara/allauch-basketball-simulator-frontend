@@ -2,84 +2,184 @@
   <mat-tab-group class="tabs">
     <mat-tab label="Usage">
       <div class="tab-body">
-        <button mat-raised-button class="save-btn" (click)="saveActivePlayers()">
-          Sauvegarder
-        </button>
+        <div class="toolbar">
+          <div class="sort">
+            <span class="sort__label">Tri</span>
+            <button
+              mat-stroked-button
+              class="sort__btn"
+              [class.sort__btn--active]="sortMode === 'default'"
+              (click)="setSortMode('default')"
+            >
+              Défaut
+            </button>
+            <button
+              mat-stroked-button
+              class="sort__btn"
+              [class.sort__btn--active]="sortMode === 'threePtScoreDesc'"
+              (click)="setSortMode('threePtScoreDesc')"
+            >
+              3PTS SCORE ↓
+            </button>
+            <button
+              mat-stroked-button
+              class="sort__btn"
+              [class.sort__btn--active]="sortMode === 'twoPtScoreDesc'"
+              (click)="setSortMode('twoPtScoreDesc')"
+            >
+              2PTS SCORE ↓
+            </button>
+            <button
+              mat-stroked-button
+              class="sort__btn"
+              [class.sort__btn--active]="sortMode === 'driveScoreDesc'"
+              (click)="setSortMode('driveScoreDesc')"
+            >
+              DRIVE SCORE ↓
+            </button>
+          </div>
 
-        @for (inGamePlayer of activePlayers; track inGamePlayer.player.id) {
-          <section class="example-section">
-            <mat-card class="card">
-              <mat-card-content class="card__body">
-                <div class="name">{{ inGamePlayer.player.name }}</div>
+          <div class="save">
+            <button mat-raised-button class="save-btn" (click)="saveActivePlayers()" [disabled]="isSavingUsage">
+              @if (isSavingUsage) {
+                Sauvegarde...
+              } @else {
+                Sauvegarder
+              }
+            </button>
+            @if (saveStatusUsage === 'success') {
+              <span class="save__status save__status--ok">Sauvegardé</span>
+            }
+            @if (saveStatusUsage === 'error') {
+              <span class="save__status save__status--err">Erreur</span>
+            }
+          </div>
+        </div>
 
-                <div class="stats">
-                  <!-- DRIVE -->
-                  <div class="stat">
-                    <div class="label">DRIVE</div>
-                    <div class="value">{{ inGamePlayer.usageDrive }}</div>
+        <div class="usage-summary">
+          <span class="usage-pill">DR Total: {{ totalUsageDrive }} / {{ maxGeneralUsage }}</span>
+          <span class="usage-pill" [class.usage-pill--warn]="remainingUsageDrive !== 0">
+            DR Restant: {{ remainingUsageDrive }}
+          </span>
+          <span class="usage-pill">SH Total: {{ totalUsageShoot }} / {{ maxGeneralUsage }}</span>
+          <span class="usage-pill" [class.usage-pill--warn]="remainingUsageShoot !== 0">
+            SH Restant: {{ remainingUsageShoot }}
+          </span>
+          <span class="usage-pill">PO Total: {{ totalUsagePost }} / {{ maxGeneralUsage }}</span>
+          <span class="usage-pill" [class.usage-pill--warn]="remainingUsagePost !== 0">
+            PO Restant: {{ remainingUsagePost }}
+          </span>
+        </div>
 
-                    <mat-slider min="0" max="30" step="1">
-                      <input
-                        type="range"
-                        [value]="inGamePlayer.usageDrive"
-                        (input)="setUsage(inGamePlayer, 'usageDrive', ($any($event.target).valueAsNumber))"
-                        matSliderThumb
-                      />
-                    </mat-slider>
-
-                    <mat-progress-spinner
-                      [mode]="'determinate'"
-                      [value]="inGamePlayer.usageDrive"
-                      diameter="32">
-                    </mat-progress-spinner>
+        <div class="player-grid">
+          @for (inGamePlayer of displayPlayers; track inGamePlayer.player.id) {
+            <mat-expansion-panel class="player-panel">
+              <mat-expansion-panel-header>
+                <div class="header">
+                  <a class="name player-link" [routerLink]="['/players', inGamePlayer.player.id]">
+                    {{ inGamePlayer.player.name }}
+                  </a>
+                  <div class="minutes">
+                    <span class="minutes__label">Min</span>
+                    <span class="minutes__value">{{ inGamePlayer.minutesPlayed }}</span>
                   </div>
-
-                  <!-- SHOOT -->
-                  <div class="stat">
-                    <div class="label">SHOOT</div>
-                    <div class="value">{{ inGamePlayer.usageShoot }}</div>
-
-                    <mat-slider min="0" max="30" step="1">
-                      <input
-                        type="range"
-                        [value]="inGamePlayer.usageShoot"
-                        (input)="setUsage(inGamePlayer, 'usageShoot', ($any($event.target).valueAsNumber))"
-                        matSliderThumb
-                      />
-                    </mat-slider>
-
-                    <mat-progress-spinner
-                      [mode]="'determinate'"
-                      [value]="inGamePlayer.usageShoot"
-                      diameter="32">
-                    </mat-progress-spinner>
-                  </div>
-
-                  <!-- POST -->
-                  <div class="stat">
-                    <div class="label">POST</div>
-                    <div class="value">{{ inGamePlayer.usagePost }}</div>
-
-                    <mat-slider min="0" max="30" step="1">
-                      <input
-                        type="range"
-                        [value]="inGamePlayer.usagePost"
-                        (input)="setUsage(inGamePlayer, 'usagePost', ($any($event.target).valueAsNumber))"
-                        matSliderThumb
-                      />
-                    </mat-slider>
-
-                    <mat-progress-spinner
-                      [mode]="'determinate'"
-                      [value]="inGamePlayer.usagePost"
-                      diameter="32">
-                    </mat-progress-spinner>
+                  <div class="usage-badges">
+                    <span class="usage-badge">DR {{ inGamePlayer.usageDrive }}</span>
+                    <span class="usage-badge">SH {{ inGamePlayer.usageShoot }}</span>
+                    <span class="usage-badge">PO {{ inGamePlayer.usagePost }}</span>
                   </div>
                 </div>
-              </mat-card-content>
-            </mat-card>
-          </section>
-        }
+              </mat-expansion-panel-header>
+
+              <mat-card class="card">
+                <mat-card-content class="card__body">
+                  <div class="stats stats--compact">
+                    <!-- DRIVE -->
+                    <div class="stat stat--compact">
+                      <div class="label">DRIVE</div>
+                      <div class="value">{{ inGamePlayer.usageDrive }}</div>
+
+                      <div class="stat__controls">
+                        <mat-slider min="0" max="30" step="1">
+                          <input
+                            type="range"
+                            [value]="inGamePlayer.usageDrive"
+                            (input)="setUsage(inGamePlayer, 'usageDrive', ($any($event.target).valueAsNumber))"
+                            matSliderThumb
+                          />
+                        </mat-slider>
+                        <mat-progress-spinner
+                          [mode]="'determinate'"
+                          [value]="inGamePlayer.usageDrive"
+                          diameter="28">
+                        </mat-progress-spinner>
+                      </div>
+
+                      <div class="stat__score">
+                        <span class="stat__score-label">Score</span>
+                        <span class="stat__score-value">{{ inGamePlayer.driveScore | number: '1.0-0' }}</span>
+                      </div>
+                    </div>
+
+                    <!-- SHOOT -->
+                    <div class="stat stat--compact">
+                      <div class="label">SHOOT</div>
+                      <div class="value">{{ inGamePlayer.usageShoot }}</div>
+
+                      <div class="stat__controls">
+                        <mat-slider min="0" max="30" step="1">
+                          <input
+                            type="range"
+                            [value]="inGamePlayer.usageShoot"
+                            (input)="setUsage(inGamePlayer, 'usageShoot', ($any($event.target).valueAsNumber))"
+                            matSliderThumb
+                          />
+                        </mat-slider>
+                        <mat-progress-spinner
+                          [mode]="'determinate'"
+                          [value]="inGamePlayer.usageShoot"
+                          diameter="28">
+                        </mat-progress-spinner>
+                      </div>
+
+                      <div class="stat__score">
+                        <span class="stat__score-label">Score</span>
+                        <span class="stat__score-value">{{ inGamePlayer.threePtScore | number: '1.0-0' }}</span>
+                      </div>
+                    </div>
+
+                    <!-- POST -->
+                    <div class="stat stat--compact">
+                      <div class="label">POST</div>
+                      <div class="value">{{ inGamePlayer.usagePost }}</div>
+
+                      <div class="stat__controls">
+                        <mat-slider min="0" max="30" step="1">
+                          <input
+                            type="range"
+                            [value]="inGamePlayer.usagePost"
+                            (input)="setUsage(inGamePlayer, 'usagePost', ($any($event.target).valueAsNumber))"
+                            matSliderThumb
+                          />
+                        </mat-slider>
+                        <mat-progress-spinner
+                          [mode]="'determinate'"
+                          [value]="inGamePlayer.usagePost"
+                          diameter="28">
+                        </mat-progress-spinner>
+                      </div>
+
+                      <div class="stat__score">
+                        <span class="stat__score-label">Score</span>
+                        <span class="stat__score-value">{{ inGamePlayer.twoPtScore | number: '1.0-0' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </mat-expansion-panel>
+          }
+        </div>
       </div>
     </mat-tab>
 
@@ -157,14 +257,26 @@
                   }
                 </div>
 
-                <button
-                  mat-raised-button
-                  class="save-btn"
-                  [disabled]="isShotMixInvalid"
-                  (click)="saveShotMix()"
-                >
-                  Sauvegarder
-                </button>
+                <div class="save">
+                  <button
+                    mat-raised-button
+                    class="save-btn"
+                    [disabled]="isShotMixInvalid || isSavingShotMix"
+                    (click)="saveShotMix()"
+                  >
+                    @if (isSavingShotMix) {
+                      Sauvegarde...
+                    } @else {
+                      Sauvegarder
+                    }
+                  </button>
+                  @if (saveStatusShotMix === 'success') {
+                    <span class="save__status save__status--ok">Sauvegardé</span>
+                  }
+                  @if (saveStatusShotMix === 'error') {
+                    <span class="save__status save__status--err">Erreur</span>
+                  }
+                </div>
               </div>
             </mat-card-content>
           </mat-card>

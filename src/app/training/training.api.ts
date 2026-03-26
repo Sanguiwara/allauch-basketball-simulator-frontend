@@ -12,7 +12,7 @@ export class TrainingApiService {
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 
-  getNextTrainingForTeam(teamId: string): Observable<TrainingDTO | null> {
+  getNextTrainingForTeam(): Observable<TrainingDTO | null> {
     return this.auth.getAccessTokenSilently().pipe(
       switchMap((token) => {
         const sub = this.extractUserSub(token);
@@ -25,6 +25,19 @@ export class TrainingApiService {
         return throwError(() => error);
       })
     );
+  }
+
+  getTrainingsForUser(): Observable<TrainingDTO[]> {
+    return this.auth.getAccessTokenSilently().pipe(
+      switchMap((token) => {
+        const sub = this.extractUserSub(token);
+        return this.http.get<TrainingDTO[]>(`${this.baseUrl}/userSub/${sub}`);
+      })
+    );
+  }
+
+  getTrainingById(id: string): Observable<TrainingDTO> {
+    return this.http.get<TrainingDTO>(`${this.baseUrl}/${id}`);
   }
 
   updateTrainingType(id: string, trainingType: TrainingType): Observable<TrainingDTO> {

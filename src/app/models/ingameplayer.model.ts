@@ -25,6 +25,16 @@ export interface InGamePlayer {
   usageShoot: number;
   usageDrive: number;
   usagePost: number;
+  threePtScore: number;
+  twoPtScore: number;
+  driveScore: number;
+
+  minutesPlayed: number;
 
   starter:boolean;
+
+  offensiveRebounds?: number;
+  defensiveRebounds?: number;
+  steals?: number;
+  blocks?: number;
 }

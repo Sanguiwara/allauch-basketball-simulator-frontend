@@ -6,25 +6,63 @@
     <section class="panel">
       <div class="panel__header">
         <h2 class="panel__title">Home Pool</h2>
-        <span class="pill">{{ homePool.length }}</span>
+        <span class="pill">{{ ownerPool.length }}</span>
+      </div>
+
+      <div class="pool-toolbar">
+        <div class="sort">
+          <span class="sort__label">Tri</span>
+          <button
+            mat-stroked-button
+            class="sort__btn"
+            [class.sort__btn--active]="sortMode === 'default'"
+            (click)="setSortMode('default')"
+          >
+            Défaut
+          </button>
+          <button
+            mat-stroked-button
+            class="sort__btn"
+            [class.sort__btn--active]="sortMode === 'defExtDesc'"
+            (click)="setSortMode('defExtDesc')"
+          >
+            DEF EXT ↓
+          </button>
+          <button
+            mat-stroked-button
+            class="sort__btn"
+            [class.sort__btn--active]="sortMode === 'defPostDesc'"
+            (click)="setSortMode('defPostDesc')"
+          >
+            DEF POSTE ↓
+          </button>
+          <button
+            mat-stroked-button
+            class="sort__btn"
+            [class.sort__btn--active]="sortMode === 'speedDesc'"
+            (click)="setSortMode('speedDesc')"
+          >
+            SPEED ↓
+          </button>
+        </div>
       </div>
 
       <div
         cdkDropList
-        [cdkDropListData]="homePool"
+        [cdkDropListData]="ownerPool"
         (cdkDropListDropped)="dropPool($event)"
         class="list list--pool"
       >
-        @if (homePool.length === 0) {
+        @if (ownerPool.length === 0) {
           <mat-card class="card card--empty">
             <mat-card-content class="card__body">
               <div class="card__title">Pool vide</div>
-              <div class="card__hint">Glisse un dÃ©fenseur ici pour le remettre dans le pool.</div>
+              <div class="card__hint">Glisse un défenseur ici pour le remettre dans le pool.</div>
             </mat-card-content>
           </mat-card>
         }
 
-        @for (p of homePool; track p.id) {
+        @for (p of ownerPool; track p.id) {
           <div class="list__item">
             <mat-card
               class="card"
@@ -33,7 +71,7 @@
             >
               <mat-card-content class="card__body">
                 <div class="card__top">
-                  <div class="name">{{ p.name }}</div>
+                  <a class="name player-link" [routerLink]="['/players', p.id]">{{ p.name }}</a>
                   <span class="tag">HOME</span>
                 </div>
 
@@ -43,7 +81,7 @@
                   <div class="stat"><div class="label">RIM</div><div class="value">{{ p.protectionCercle }}</div></div>
                   <div class="stat"><div class="label">REB T</div><div class="value">{{ p.timingRebond }}</div></div>
                   <div class="stat"><div class="label">REB A</div><div class="value">{{ p.agressiviteRebond }}</div></div>
-                  <div class="stat"><div class="label">STL</div><div class="value">{{ p.steal }}</div></div>
+                  <div class="stat"><div class="label">SPEED</div><div class="value">{{ p.speed }}</div></div>
                 </div>
               </mat-card-content>
             </mat-card>
@@ -64,7 +102,7 @@
       <div class="matchups__header">
         <div class="matchups__col-title">
           <span class="pill pill--ghost">HOME</span>
-          <span>DÃ©fenseur</span>
+          <span>Défenseur</span>
         </div>
         <div class="matchups__col-title">
           <span class="pill pill--ghost">VISITOR</span>
@@ -91,7 +129,7 @@
                 >
                   <mat-card-content class="card__body">
                     <div class="card__top">
-                      <div class="name">{{ m.home.name }}</div>
+                      <a class="name player-link" [routerLink]="['/players', m.home.id]">{{ m.home.name }}</a>
                       <span class="tag">HOME</span>
                     </div>
 
@@ -101,7 +139,7 @@
                       <div class="stat"><div class="label">RIM</div><div class="value">{{ m.home.protectionCercle }}</div></div>
                       <div class="stat"><div class="label">REB T</div><div class="value">{{ m.home.timingRebond }}</div></div>
                       <div class="stat"><div class="label">REB A</div><div class="value">{{ m.home.agressiviteRebond }}</div></div>
-                      <div class="stat"><div class="label">STL</div><div class="value">{{ m.home.steal }}</div></div>
+                      <div class="stat"><div class="label">SPEED</div><div class="value">{{ m.home.speed }}</div></div>
                     </div>
 
                     <div class="card__footer-hint">Drag vers le pool pour retirer</div>
@@ -114,7 +152,7 @@
                       <div class="name muted">Slot vide</div>
                       <span class="tag">HOME</span>
                     </div>
-                    <div class="card__hint">DÃ©pose un dÃ©fenseur ici.</div>
+                    <div class="card__hint">Dépose un défenseur ici.</div>
                   </mat-card-content>
                 </mat-card>
               }
@@ -124,7 +162,7 @@
             <mat-card class="card card--visitor">
               <mat-card-content class="card__body">
                 <div class="card__top">
-                  <div class="name">{{ m.visitor.name }}</div>
+                  <a class="name player-link" [routerLink]="['/players', m.visitor.id]">{{ m.visitor.name }}</a>
                   <span class="tag">VISITOR</span>
                 </div>
 
@@ -144,12 +182,24 @@
 
       <div class="panel__footer">
         <div class="hint">
-          Tip: Pool â†’ Slot (assigne), Slot â†’ Pool (retire), Slot â†’ Slot (swap)
+          Astuce : Pool → Slot (assigne), Slot → Pool (retire), Slot → Slot (échange)
         </div>
 
-        <button mat-stroked-button class="save-btn" (click)="saveMatchups()">
-          Sauvegarder
-        </button>
+        <div class="save">
+          <button mat-stroked-button class="save-btn" (click)="saveMatchups()" [disabled]="isSaving">
+            @if (isSaving) {
+              Sauvegarde...
+            } @else {
+              Sauvegarder
+            }
+          </button>
+          @if (saveStatus === 'success') {
+            <span class="save__status save__status--ok">Sauvegardé</span>
+          }
+          @if (saveStatus === 'error') {
+            <span class="save__status save__status--err">Erreur</span>
+          }
+        </div>
       </div>
     </section>
   </div>

@@ -1,0 +1,83 @@
+<section class="panel">
+  <div class="panel__header">
+    <div class="panel__header-left">
+      <h2 class="panel__title">Minutes Played</h2>
+      <span class="pill">{{ viewPlayers.length }}</span>
+      <span class="pill">Total: {{ totalSelectedMinutes }} / {{ totalMinutes }}</span>
+      <span class="pill" [class.pill--warn]="remainingMinutes !== 0">Restant: {{ remainingMinutes }}</span>
+    </div>
+
+    <div class="save">
+      <button mat-raised-button class="save-btn" (click)="saveMinutes()" [disabled]="!canSave || isSaving">
+        @if (isSaving) {
+          Sauvegarde...
+        } @else {
+          Sauvegarder
+        }
+      </button>
+      @if (saveStatus === 'success') {
+        <span class="save__status save__status--ok">Sauvegardé</span>
+      }
+      @if (saveStatus === 'error') {
+        <span class="save__status save__status--err">Erreur</span>
+      }
+    </div>
+  </div>
+
+  @if (viewPlayers.length === 0) {
+    <div class="state">Selectionne d'abord les joueurs dans l'onglet Selection.</div>
+  } @else {
+    @if (hasInvalidMinutes) {
+      <div class="state state--warn">Chaque joueur doit avoir un nombre entier entre 0 et 40 minutes.</div>
+    }
+    @if (remainingMinutes !== 0) {
+      <div class="state state--warn">Le total doit faire exactement 200 minutes.</div>
+    }
+
+    <div class="list">
+      @for (p of viewPlayers; track p.id) {
+        <mat-card class="card">
+          <mat-card-content class="card__body">
+            <div class="row">
+              <div class="left">
+                <div class="identity">
+                  <a class="name player-link" [routerLink]="['/players', p.player.id]">{{ p.player.name }}</a>
+                  <div class="overall">
+                    <span class="overall__label">OVR</span>
+                    <span class="overall__value">{{ overall(p.player) }}</span>
+                  </div>
+                </div>
+
+                <div class="stats">
+                  @for (stat of overviewStats(p.player); track stat.label) {
+                    <div class="stat">
+                      <div class="label">{{ stat.label }}</div>
+                      <div class="value">{{ stat.value }}</div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="right">
+                <div class="minutes">
+                  <div class="minutes__value">{{ p.minutes }} min</div>
+                  <mat-slider [min]="minMinutes" [max]="maxMinutes" [step]="1">
+                    <input
+                      type="range"
+                      [value]="p.minutes"
+                      (input)="setMinutes(p.id, ($any($event.target).valueAsNumber))"
+                      matSliderThumb
+                    />
+                  </mat-slider>
+                  @if (p.invalid) {
+                    <div class="minutes__error">Valeur invalide</div>
+                  }
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</section>

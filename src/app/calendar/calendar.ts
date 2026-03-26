@@ -84,7 +84,7 @@ export class Calendar implements OnInit {
     match: SimplifiedGame,
     clubId: string | null,
   ): { commands: string[]; extras?: NavigationExtras } | null {
-    if (this.isUpcomingMatch(match) && this.isUserClubMatch(match, clubId)) {
+    if (this.isUpcomingMatch(match) && this.isUserClubMatch(match, clubId) && (!match.gameResult || !match.gameResult.homeScore || !match.gameResult.awayScore)) {
       const gamePlanId = this.resolveGamePlanIdForUser(match, clubId);
       if (!gamePlanId) return null;
       return { commands: ['/gameplan'], extras: { queryParams: { id: gamePlanId } } };

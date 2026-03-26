@@ -75,6 +75,40 @@
   width: 100%;
 }
 
+.filter-panel {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.group-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.group-toggle {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.group-toggle.is-active {
+  border-color: rgba(120, 180, 255, 0.5);
+  background: rgba(120, 180, 255, 0.12);
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
 /* Bouton refresh */
 .btn {
   border-radius: 14px !important;
@@ -115,12 +149,13 @@
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.10);
   background: rgba(255, 255, 255, 0.03);
-  overflow: hidden;
+  overflow: auto;
 }
 
 /* Table */
 .table {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   background: transparent;
 }
 
@@ -136,6 +171,9 @@
   font-size: 11px !important;
   letter-spacing: 0.25px;
   border-bottom-color: rgba(255, 255, 255, 0.10) !important;
+  white-space: normal !important;
+  line-height: 1.2;
+  padding: 8px 10px !important;
 }
 
 /* Body cells */
@@ -143,6 +181,8 @@
   color: rgba(233, 238, 252, 0.88) !important;
   border-bottom-color: rgba(255, 255, 255, 0.08) !important;
   font-size: 12px !important;
+  white-space: nowrap;
+  padding: 6px 10px !important;
 }
 
 /* Row hover + clickable */
@@ -163,6 +203,10 @@
 
 :host ::ng-deep .mat-sort-header-content {
   color: rgba(233, 238, 252, 0.75) !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: initial !important;
+  line-height: 1.2;
 }
 
 /* Mat form field (outline) dark */

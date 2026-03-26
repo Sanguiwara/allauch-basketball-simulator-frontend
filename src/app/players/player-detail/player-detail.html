@@ -1,6 +1,6 @@
 
 
-<button mat-stroked-button routerLink="/players">← Retour</button>
+<button mat-stroked-button (click)="goBack()">← Retour</button>
 
 @if (player$ | async; as player) {
   @if (player === null) {
@@ -13,18 +13,41 @@
         <div class="player-card__info">
           <div class="player-name">{{ player.name }}</div>
           <div class="player-meta">
-            Né en {{ player.birthDate }} • {{ player.size }} cm • {{ player.weight }} kg
+            Né en {{ player.birthDate }} • {{ formatSizeValue(player.size) }} • {{ formatWeightValue(player.weight) }}
           </div>
 
           @if (player.badges?.length) {
-            <div class="badge-list">
-              @for (badge of player.badges; track badge.id) {
-                <div class="badge-item" [matTooltip]="badgeDescription(badge.name)">
-                  <mat-icon class="badge-icon">{{ badgeIcon(badge.name) }}</mat-icon>
-                  <span class="badge-name">{{ badge.name }}</span>
-                </div>
-              }
-            </div>
+            <mat-tab-group class="badge-tabs">
+              <mat-tab label="Badges">
+                @if (badgesWithoutParentheses(player.badges).length) {
+                  <div class="badge-list">
+                    @for (badge of badgesWithoutParentheses(player.badges); track badge.id) {
+                      <div class="badge-item" [matTooltip]="badgeDescription(badge.name)">
+                        <mat-icon class="badge-icon">{{ badgeIcon(badge.name) }}</mat-icon>
+                        <span class="badge-name">{{ badge.name }}</span>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="badge-empty">Aucun badge dans cette catÃ©gorie.</div>
+                }
+              </mat-tab>
+
+              <mat-tab label="Badges (Automatiques)">
+                @if (badgesWithParentheses(player.badges).length) {
+                  <div class="badge-list">
+                    @for (badge of badgesWithParentheses(player.badges); track badge.id) {
+                      <div class="badge-item" [matTooltip]="badgeDescription(badge.name)">
+                        <mat-icon class="badge-icon">{{ badgeIcon(badge.name) }}</mat-icon>
+                        <span class="badge-name">{{ badge.name }}</span>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="badge-empty">Aucun badge dans cette catÃ©gorie.</div>
+                }
+              </mat-tab>
+            </mat-tab-group>
           } @else {
             <div class="badge-empty">Aucun badge pour le moment.</div>
           }
@@ -60,8 +83,8 @@
           <div class="profile-grid">
             <div><span class="label">Nom</span> <span class="value">{{ player.name }}</span></div>
             <div><span class="label">Année</span> <span class="value">{{ player.birthDate }}</span></div>
-            <div><span class="label">Taille</span> <span class="value">{{ player.size }} cm</span></div>
-            <div><span class="label">Poids</span> <span class="value">{{ player.weight }} kg</span></div>
+            <div><span class="label">Taille</span> <span class="value">{{ formatSizeValue(player.size) }}</span></div>
+            <div><span class="label">Poids</span> <span class="value">{{ formatWeightValue(player.weight) }}</span></div>
           </div>
         </mat-card>
       </mat-tab>
@@ -79,7 +102,7 @@
                     [strokeWidth]="8">
                   </mat-progress-spinner>
 
-                  <div class="gauge-value">{{ s.value }}</div>
+                  <div class="gauge-value">{{ s.displayValue ?? s.value }}</div>
                 </div>
 
                 <div class="gauge-label">{{ s.label }}</div>
@@ -102,7 +125,7 @@
                     [strokeWidth]="8">
                   </mat-progress-spinner>
 
-                  <div class="gauge-value">{{ s.value }}</div>
+                  <div class="gauge-value">{{ s.displayValue ?? s.value }}</div>
                 </div>
 
                 <div class="gauge-label">{{ s.label }}</div>
@@ -125,7 +148,7 @@
                     [strokeWidth]="8">
                   </mat-progress-spinner>
 
-                  <div class="gauge-value">{{ s.value }}</div>
+                  <div class="gauge-value">{{ s.displayValue ?? s.value }}</div>
                 </div>
 
                 <div class="gauge-label">{{ s.label }}</div>
@@ -148,7 +171,7 @@
                     [strokeWidth]="8">
                   </mat-progress-spinner>
 
-                  <div class="gauge-value">{{ s.value }}</div>
+                  <div class="gauge-value">{{ s.displayValue ?? s.value }}</div>
                 </div>
 
                 <div class="gauge-label">{{ s.label }}</div>
@@ -171,7 +194,7 @@
                     [strokeWidth]="8">
                   </mat-progress-spinner>
 
-                  <div class="gauge-value">{{ s.value }}</div>
+                  <div class="gauge-value">{{ s.displayValue ?? s.value }}</div>
                 </div>
 
                 <div class="gauge-label">{{ s.label }}</div>

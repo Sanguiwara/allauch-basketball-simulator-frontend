@@ -1,19 +1,25 @@
 <div class="team-detail">
-  <ng-container *ngIf="state$ | async as state">
-    <div class="state" *ngIf="state.status === 'loading'">
-      <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
-      <div>Chargement de l equipe...</div>
-    </div>
+  @if (state$ | async; as state) {
+    @if (state.status === 'loading') {
+      <div class="state">
+        <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+        <div>Chargement de l equipe...</div>
+      </div>
+    }
 
-    <div class="state error" *ngIf="state.status === 'error'">
-      {{ state.message }}
-    </div>
+    @if (state.status === 'error') {
+      <div class="state error">
+        {{ state.message }}
+      </div>
+    }
 
-    <div class="state" *ngIf="state.status === 'notfound'">
-      Equipe introuvable.
-    </div>
+    @if (state.status === 'notfound') {
+      <div class="state">
+        Equipe introuvable.
+      </div>
+    }
 
-    <div *ngIf="state.status === 'loaded'">
+    @if (state.status === 'loaded') {
       <div class="header">
         <button mat-stroked-button routerLink="/teams">Retour</button>
         <div class="title">
@@ -22,26 +28,63 @@
         </div>
       </div>
 
-      <div class="players" *ngIf="state.team.players.length; else noPlayers">
-        <a class="player-card" *ngFor="let player of state.team.players; trackBy: trackByPlayerId" [routerLink]="['/players', player.id]">
-          <mat-card>
-            <div class="player-name">{{ player.name }}</div>
-            <div class="player-stats">
-              <div class="stat"><span>Attack</span><strong>{{ player.attack }}</strong></div>
-              <div class="stat"><span>Defense</span><strong>{{ player.defense }}</strong></div>
-              <div class="stat"><span>Overall</span><strong>{{ player.overall }}</strong></div>
-              <div class="stat"><span>Morale</span><strong>{{ player.morale }}</strong></div>
-            </div>
-            <mat-chip-set *ngIf="player.badges.length">
-              <mat-chip *ngFor="let badge of player.badges; trackBy: trackByBadge">{{ badge }}</mat-chip>
-            </mat-chip-set>
-          </mat-card>
-        </a>
+      <div class="team-stats">
+        <div class="stat-card">
+          <div class="label">3 pts</div>
+          <div class="value">{{ state.team.stats.threePts }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">2 pts</div>
+          <div class="value">{{ state.team.stats.twoPts }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Drive</div>
+          <div class="value">{{ state.team.stats.drive }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Def</div>
+          <div class="value">{{ state.team.stats.defense }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Rebond</div>
+          <div class="value">{{ state.team.stats.rebound }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Steal</div>
+          <div class="value">{{ state.team.stats.steal }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Morale</div>
+          <div class="value">{{ state.team.stats.morale }}</div>
+        </div>
       </div>
 
-      <ng-template #noPlayers>
+      @if (state.team.players.length) {
+        <div class="players">
+          @for (player of state.team.players; track player.id) {
+            <a class="player-card" [routerLink]="['/players', player.id]">
+              <mat-card>
+                <div class="player-name">{{ player.name }}</div>
+                <div class="player-stats">
+                  <div class="stat"><span>Attack</span><strong>{{ player.attack }}</strong></div>
+                  <div class="stat"><span>Defense</span><strong>{{ player.defense }}</strong></div>
+                  <div class="stat"><span>Overall</span><strong>{{ player.overall }}</strong></div>
+                  <div class="stat"><span>Morale</span><strong>{{ player.morale }}</strong></div>
+                </div>
+                @if (visibleBadges(player.badges).length) {
+                  <mat-chip-set>
+                    @for (badge of visibleBadges(player.badges); track badge) {
+                      <mat-chip class="badge-chip">{{ badge }}</mat-chip>
+                    }
+                  </mat-chip-set>
+                }
+              </mat-card>
+            </a>
+          }
+        </div>
+      } @else {
         <div class="state">Aucun joueur dans cette equipe.</div>
-      </ng-template>
-    </div>
-  </ng-container>
+      }
+    }
+  }
 </div>
