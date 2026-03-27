@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators} from '@angular/forms';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MatSlider, MatSliderThumb} from '@angular/material/slider';
@@ -9,9 +9,13 @@ import {GamePlanApiService} from '../gameplan-service';
 import {InGamePlayer} from '../../models/ingameplayer.model';
 import {MatButton} from '@angular/material/button';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {RouterLink} from '@angular/router';
+import {catchError, finalize, of} from 'rxjs';
 
 type UsageKey = 'usageDrive' | 'usageShoot' | 'usagePost';
 type ShotMixKey = 'threePoint' | 'midRange' | 'drive';
+type SortMode = 'default' | 'threePtScoreDesc' | 'twoPtScoreDesc' | 'driveScoreDesc';
 
 @Component({
   selector: 'app-gameplan-offense',
@@ -26,17 +30,26 @@ type ShotMixKey = 'threePoint' | 'midRange' | 'drive';
     MatButton,
     MatTabGroup,
     MatTab,
+    MatExpansionModule,
+    RouterLink,
   ],
   templateUrl: './gameplan-offense.html',
   styleUrl: './gameplan-offense.scss',
 })
 export class GameplanOffense implements OnChanges {
   @Input({required: true}) gamePlan!: GamePlan;
+  @Input('activePlayers') activePlayersInput: InGamePlayer[] | null = null;
 
   activePlayers: InGamePlayer[] = [];
+  sortMode: SortMode = 'default';
 
   maxGeneralUsage = 100;
   maxPerPlayerUsage = 30;
+
+  isSavingUsage = false;
+  saveStatusUsage: 'idle' | 'success' | 'error' = 'idle';
+  isSavingShotMix = false;
+  saveStatusShotMix: 'idle' | 'success' | 'error' = 'idle';
 
   shotMixForm = new FormGroup(
     {
@@ -47,18 +60,27 @@ export class GameplanOffense implements OnChanges {
     {validators: [this.totalShareValidator()]},
   );
 
-  constructor(private api: GamePlanApiService) {
+  constructor(private api: GamePlanApiService, private cdr: ChangeDetectorRef) {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['gamePlan'] && this.gamePlan) {
-      this.activePlayers = (this.gamePlan.activePlayers ?? []).map((p) => ({...p}));
       this.hydrateShotMix();
     }
 
-
+    if ((changes['gamePlan'] || changes['activePlayersInput']) && this.gamePlan) {
+      const source = this.activePlayersInput ?? this.gamePlan.activePlayers ?? [];
+      this.activePlayers = source.map((p) => ({...p}));
+    }
   }
 
+  get displayPlayers(): InGamePlayer[] {
+    return this.getSortedPlayers();
+  }
+
+  setSortMode(mode: SortMode): void {
+    this.sortMode = mode;
+  }
 
   /** Somme en excluant un joueur (utile pour calculer ce qu'il reste) */
   private getTotalExcluding(key: UsageKey, exclude: InGamePlayer): number {
@@ -96,7 +118,27 @@ export class GameplanOffense implements OnChanges {
     if (!this.gamePlan) return;
     this.gamePlan.activePlayers = this.activePlayers;
 
-    this.api.saveGamePlan(this.gamePlan).subscribe();
+    this.isSavingUsage = true;
+    this.saveStatusUsage = 'idle';
+
+    this.api.saveGamePlan(this.gamePlan).pipe(
+      catchError(() => {
+        this.saveStatusUsage = 'error';
+        this.cdr.markForCheck();
+        return of(null);
+      }),
+      finalize(() => {
+        this.isSavingUsage = false;
+        if (this.saveStatusUsage !== 'error') {
+          this.saveStatusUsage = 'success';
+        }
+        this.cdr.markForCheck();
+        setTimeout(() => {
+          this.saveStatusUsage = 'idle';
+          this.cdr.markForCheck();
+        }, 2000);
+      })
+    ).subscribe();
   }
 
   get totalPercent(): number {
@@ -106,6 +148,30 @@ export class GameplanOffense implements OnChanges {
 
   get isShotMixInvalid(): boolean {
     return this.shotMixForm.invalid;
+  }
+
+  get totalUsageDrive(): number {
+    return this.sumUsage('usageDrive');
+  }
+
+  get totalUsageShoot(): number {
+    return this.sumUsage('usageShoot');
+  }
+
+  get totalUsagePost(): number {
+    return this.sumUsage('usagePost');
+  }
+
+  get remainingUsageDrive(): number {
+    return this.maxGeneralUsage - this.totalUsageDrive;
+  }
+
+  get remainingUsageShoot(): number {
+    return this.maxGeneralUsage - this.totalUsageShoot;
+  }
+
+  get remainingUsagePost(): number {
+    return this.maxGeneralUsage - this.totalUsagePost;
   }
 
   saveShotMix(): void {
@@ -121,7 +187,27 @@ export class GameplanOffense implements OnChanges {
     this.gamePlan.midRangeAttemptShare = this.percentToDecimal(values.midRange);
     this.gamePlan.driveAttemptShare = this.percentToDecimal(values.drive);
 
-    this.api.saveGamePlan(this.gamePlan).subscribe();
+    this.isSavingShotMix = true;
+    this.saveStatusShotMix = 'idle';
+
+    this.api.saveGamePlan(this.gamePlan).pipe(
+      catchError(() => {
+        this.saveStatusShotMix = 'error';
+        this.cdr.markForCheck();
+        return of(null);
+      }),
+      finalize(() => {
+        this.isSavingShotMix = false;
+        if (this.saveStatusShotMix !== 'error') {
+          this.saveStatusShotMix = 'success';
+        }
+        this.cdr.markForCheck();
+        setTimeout(() => {
+          this.saveStatusShotMix = 'idle';
+          this.cdr.markForCheck();
+        }, 2000);
+      })
+    ).subscribe();
   }
 
   setShotMixValue(key: ShotMixKey, value: number): void {
@@ -163,5 +249,36 @@ export class GameplanOffense implements OnChanges {
 
   private roundToInt(value: number): number {
     return Math.round(value);
+  }
+
+  private sumUsage(key: UsageKey): number {
+    return this.activePlayers.reduce((total, player) => total + (player[key] ?? 0), 0);
+  }
+
+  private getSortedPlayers(): InGamePlayer[] {
+    if (this.sortMode === 'default') {
+      return [...this.activePlayers];
+    }
+
+    const sorted = [...this.activePlayers];
+    sorted.sort((a, b) => {
+      const valueA = this.getSortValue(a);
+      const valueB = this.getSortValue(b);
+      return valueB - valueA;
+    });
+    return sorted;
+  }
+
+  private getSortValue(player: InGamePlayer): number {
+    switch (this.sortMode) {
+      case 'threePtScoreDesc':
+        return player.threePtScore ?? 0;
+      case 'twoPtScoreDesc':
+        return player.twoPtScore ?? 0;
+      case 'driveScoreDesc':
+        return player.driveScore ?? 0;
+      default:
+        return 0;
+    }
   }
 }

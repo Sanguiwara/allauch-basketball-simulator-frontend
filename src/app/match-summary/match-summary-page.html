@@ -16,225 +16,325 @@
         </div>
       </div>
 
-      <div class="section">
-        <div class="section__title">Statistiques Equipes</div>
-        <div class="table-wrapper">
-          <table mat-table [dataSource]="vm.teamStats" class="table team-stats">
-            <ng-container matColumnDef="home">
-              <th mat-header-cell *matHeaderCellDef class="cell-home">
-                {{ vm.game.homeTeamName }}
-              </th>
-              <td mat-cell *matCellDef="let row" class="cell-home">
-                {{ row.home }}
-              </td>
-            </ng-container>
+      <mat-tab-group class="summary-tabs">
+        <mat-tab label="Résumé">
+          <div class="tab-content">
+            <div class="section">
+              <div class="section__title">Statistiques Equipes</div>
+              <div class="table-wrapper">
+                <table mat-table [dataSource]="vm.teamStats" class="table team-stats">
+                  <ng-container matColumnDef="home">
+                    <th mat-header-cell *matHeaderCellDef class="cell-home">
+                      {{ vm.game.homeTeamName }}
+                    </th>
+                    <td mat-cell *matCellDef="let row" class="cell-home">
+                      {{ row.home }}
+                    </td>
+                  </ng-container>
 
-            <ng-container matColumnDef="label">
-              <th mat-header-cell *matHeaderCellDef class="cell-label">Stat</th>
-              <td mat-cell *matCellDef="let row" class="cell-label">{{ row.label }}</td>
-            </ng-container>
+                  <ng-container matColumnDef="label">
+                    <th mat-header-cell *matHeaderCellDef class="cell-label">Stat</th>
+                    <td mat-cell *matCellDef="let row" class="cell-label">{{ row.label }}</td>
+                  </ng-container>
 
-            <ng-container matColumnDef="away">
-              <th mat-header-cell *matHeaderCellDef class="cell-away">
-                {{ vm.game.awayTeamName }}
-              </th>
-              <td mat-cell *matCellDef="let row" class="cell-away">
-                {{ row.away }}
-              </td>
-            </ng-container>
+                  <ng-container matColumnDef="away">
+                    <th mat-header-cell *matHeaderCellDef class="cell-away">
+                      {{ vm.game.awayTeamName }}
+                    </th>
+                    <td mat-cell *matCellDef="let row" class="cell-away">
+                      {{ row.away }}
+                    </td>
+                  </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="teamStatsColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: teamStatsColumns;"></tr>
-          </table>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section__title">Stats Individuelles</div>
-
-        <div class="team-block">
-          <div class="team-block__title">{{ vm.game.homeTeamName }}</div>
-          @if (vm.homeActivePlayers.length > 0) {
-            <div class="table-wrapper scroll">
-              <table mat-table [dataSource]="vm.homeActivePlayers" class="table player-stats">
-                <ng-container matColumnDef="player">
-                  <th mat-header-cell *matHeaderCellDef class="cell-player">Joueur</th>
-                  <td mat-cell *matCellDef="let row" class="cell-player">{{ row.player.name }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="starter">
-                  <th mat-header-cell *matHeaderCellDef>Starter</th>
-                  <td mat-cell *matCellDef="let row">{{ row.starter ? 'Oui' : 'Non' }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="points">
-                  <th mat-header-cell *matHeaderCellDef>PTS</th>
-                  <td mat-cell *matCellDef="let row">{{ row.points }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="assists">
-                  <th mat-header-cell *matHeaderCellDef>AST</th>
-                  <td mat-cell *matCellDef="let row">{{ row.assists }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="fgm">
-                  <th mat-header-cell *matHeaderCellDef>FGM</th>
-                  <td mat-cell *matCellDef="let row">{{ row.fgm }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="fga">
-                  <th mat-header-cell *matHeaderCellDef>FGA</th>
-                  <td mat-cell *matCellDef="let row">{{ row.fga }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="twoPm">
-                  <th mat-header-cell *matHeaderCellDef>2PM</th>
-                  <td mat-cell *matCellDef="let row">{{ row.twoPointMade }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="twoPa">
-                  <th mat-header-cell *matHeaderCellDef>2PA</th>
-                  <td mat-cell *matCellDef="let row">{{ row.twoPointAttempts }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="tpm">
-                  <th mat-header-cell *matHeaderCellDef>3PM</th>
-                  <td mat-cell *matCellDef="let row">{{ row.threePointMade }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="tpa">
-                  <th mat-header-cell *matHeaderCellDef>3PA</th>
-                  <td mat-cell *matCellDef="let row">{{ row.threePointAttempt }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="usageShoot">
-                  <th mat-header-cell *matHeaderCellDef>Usage Shoot</th>
-                  <td mat-cell *matCellDef="let row">{{ row.usageShoot }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="usageDrive">
-                  <th mat-header-cell *matHeaderCellDef>Usage Drive</th>
-                  <td mat-cell *matCellDef="let row">{{ row.usageDrive }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="usagePost">
-                  <th mat-header-cell *matHeaderCellDef>Usage Post</th>
-                  <td mat-cell *matCellDef="let row">{{ row.usagePost }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="playmakingContribution">
-                  <th mat-header-cell *matHeaderCellDef>Playmaking</th>
-                  <td mat-cell *matCellDef="let row">{{ row.playmakingContribution }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="assistWeight">
-                  <th mat-header-cell *matHeaderCellDef>Assist Wt</th>
-                  <td mat-cell *matCellDef="let row">{{ row.assistWeight }}</td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="playerColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: playerColumns;"></tr>
-              </table>
+                  <tr mat-header-row *matHeaderRowDef="teamStatsColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: teamStatsColumns;"></tr>
+                </table>
+              </div>
             </div>
-          } @else {
-            <div class="state small">Aucune statistique individuelle disponible.</div>
-          }
-        </div>
 
-        <div class="team-block">
-          <div class="team-block__title">{{ vm.game.awayTeamName }}</div>
-          @if (vm.awayActivePlayers.length > 0) {
-            <div class="table-wrapper scroll">
-              <table mat-table [dataSource]="vm.awayActivePlayers" class="table player-stats">
-                <ng-container matColumnDef="player">
-                  <th mat-header-cell *matHeaderCellDef class="cell-player">Joueur</th>
-                  <td mat-cell *matCellDef="let row" class="cell-player">{{ row.player.name }}</td>
-                </ng-container>
+            <div class="section">
+              <div class="section__title">Stats Individuelles</div>
 
-                <ng-container matColumnDef="starter">
-                  <th mat-header-cell *matHeaderCellDef>Starter</th>
-                  <td mat-cell *matCellDef="let row">{{ row.starter ? 'Oui' : 'Non' }}</td>
-                </ng-container>
+              <div class="team-block">
+                <div class="team-block__title">{{ vm.game.homeTeamName }}</div>
+                @if (vm.homeActivePlayers.length > 0) {
+                  <div class="table-wrapper scroll">
+                    <table mat-table [dataSource]="vm.homeActivePlayers" class="table player-stats">
+                      <ng-container matColumnDef="player">
+                        <th mat-header-cell *matHeaderCellDef class="cell-player">Joueur</th>
+                        <td mat-cell *matCellDef="let row" class="cell-player">
+                          <a class="player-link" [routerLink]="['/players', row.player.id]">{{ row.player.name }}</a>
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef class="cell-player">Total</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="points">
-                  <th mat-header-cell *matHeaderCellDef>PTS</th>
-                  <td mat-cell *matCellDef="let row">{{ row.points }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="starter">
+                        <th mat-header-cell *matHeaderCellDef>Starter</th>
+                        <td mat-cell *matCellDef="let row">{{ row.starter ? 'Oui' : 'Non' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>&mdash;</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="assists">
-                  <th mat-header-cell *matHeaderCellDef>AST</th>
-                  <td mat-cell *matCellDef="let row">{{ row.assists }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="minutesPlayed">
+                        <th mat-header-cell *matHeaderCellDef>MIN</th>
+                        <td mat-cell *matCellDef="let row">{{ row.minutesPlayed ?? 'â€”' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.minutesPlayed }}</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="fgm">
-                  <th mat-header-cell *matHeaderCellDef>FGM</th>
-                  <td mat-cell *matCellDef="let row">{{ row.fgm }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="points">
+                        <th mat-header-cell *matHeaderCellDef>PTS</th>
+                        <td mat-cell *matCellDef="let row">{{ row.points }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.points }}</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="fga">
-                  <th mat-header-cell *matHeaderCellDef>FGA</th>
-                  <td mat-cell *matCellDef="let row">{{ row.fga }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="assists">
+                        <th mat-header-cell *matHeaderCellDef>AST</th>
+                        <td mat-cell *matCellDef="let row">{{ row.assists }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.assists }}</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="twoPm">
-                  <th mat-header-cell *matHeaderCellDef>2PM</th>
-                  <td mat-cell *matCellDef="let row">{{ row.twoPointMade }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="offensiveRebounds">
+                        <th mat-header-cell *matHeaderCellDef>ORB</th>
+                        <td mat-cell *matCellDef="let row">{{ row.offensiveRebounds ?? 'â€”' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.offensiveRebounds }}</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="twoPa">
-                  <th mat-header-cell *matHeaderCellDef>2PA</th>
-                  <td mat-cell *matCellDef="let row">{{ row.twoPointAttempts }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="defensiveRebounds">
+                        <th mat-header-cell *matHeaderCellDef>DRB</th>
+                        <td mat-cell *matCellDef="let row">{{ row.defensiveRebounds ?? 'â€”' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.defensiveRebounds }}</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="tpm">
-                  <th mat-header-cell *matHeaderCellDef>3PM</th>
-                  <td mat-cell *matCellDef="let row">{{ row.threePointMade }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="steals">
+                        <th mat-header-cell *matHeaderCellDef>STL</th>
+                        <td mat-cell *matCellDef="let row">{{ row.steals ?? 'â€”' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.steals }}</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="tpa">
-                  <th mat-header-cell *matHeaderCellDef>3PA</th>
-                  <td mat-cell *matCellDef="let row">{{ row.threePointAttempt }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="blocks">
+                        <th mat-header-cell *matHeaderCellDef>BLK</th>
+                        <td mat-cell *matCellDef="let row">{{ row.blocks ?? 'â€”' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.blocks }}</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="usageShoot">
-                  <th mat-header-cell *matHeaderCellDef>Usage Shoot</th>
-                  <td mat-cell *matCellDef="let row">{{ row.usageShoot }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="fgm">
+                        <th mat-header-cell *matHeaderCellDef>FGM</th>
+                        <td mat-cell *matCellDef="let row">{{ row.fgm }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.fgm }}</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="usageDrive">
-                  <th mat-header-cell *matHeaderCellDef>Usage Drive</th>
-                  <td mat-cell *matCellDef="let row">{{ row.usageDrive }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="fga">
+                        <th mat-header-cell *matHeaderCellDef>FGA</th>
+                        <td mat-cell *matCellDef="let row">{{ row.fga }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.fga }}</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="usagePost">
-                  <th mat-header-cell *matHeaderCellDef>Usage Post</th>
-                  <td mat-cell *matCellDef="let row">{{ row.usagePost }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="twoPm">
+                        <th mat-header-cell *matHeaderCellDef>2PM</th>
+                        <td mat-cell *matCellDef="let row">{{ row.twoPointMade }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.twoPointMade }}</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="playmakingContribution">
-                  <th mat-header-cell *matHeaderCellDef>Playmaking</th>
-                  <td mat-cell *matCellDef="let row">{{ row.playmakingContribution }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="twoPa">
+                        <th mat-header-cell *matHeaderCellDef>2PA</th>
+                        <td mat-cell *matCellDef="let row">{{ row.twoPointAttempts }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.twoPointAttempts }}</td>
+                      </ng-container>
 
-                <ng-container matColumnDef="assistWeight">
-                  <th mat-header-cell *matHeaderCellDef>Assist Wt</th>
-                  <td mat-cell *matCellDef="let row">{{ row.assistWeight }}</td>
-                </ng-container>
+                      <ng-container matColumnDef="tpm">
+                        <th mat-header-cell *matHeaderCellDef>3PM</th>
+                        <td mat-cell *matCellDef="let row">{{ row.threePointMade }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.threePointMade }}</td>
+                      </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="playerColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: playerColumns;"></tr>
-              </table>
+                      <ng-container matColumnDef="tpa">
+                        <th mat-header-cell *matHeaderCellDef>3PA</th>
+                        <td mat-cell *matCellDef="let row">{{ row.threePointAttempt }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.threePointAttempt }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="usageShoot">
+                        <th mat-header-cell *matHeaderCellDef>Usage Shoot</th>
+                        <td mat-cell *matCellDef="let row">{{ row.usageShoot }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.usageShoot }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="usageDrive">
+                        <th mat-header-cell *matHeaderCellDef>Usage Drive</th>
+                        <td mat-cell *matCellDef="let row">{{ row.usageDrive }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.usageDrive }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="usagePost">
+                        <th mat-header-cell *matHeaderCellDef>Usage Post</th>
+                        <td mat-cell *matCellDef="let row">{{ row.usagePost }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.usagePost }}</td>
+                      </ng-container>
+
+                      <tr mat-header-row *matHeaderRowDef="playerColumns"></tr>
+                      <tr mat-row *matRowDef="let row; columns: playerColumns;"></tr>
+                      <tr mat-footer-row *matFooterRowDef="playerColumns"></tr>
+                    </table>
+                  </div>
+                } @else {
+                  <div class="state small">Aucune statistique individuelle disponible.</div>
+                }
+              </div>
+
+              <div class="team-block">
+                <div class="team-block__title">{{ vm.game.awayTeamName }}</div>
+                @if (vm.awayActivePlayers.length > 0) {
+                  <div class="table-wrapper scroll">
+                    <table mat-table [dataSource]="vm.awayActivePlayers" class="table player-stats">
+                      <ng-container matColumnDef="player">
+                        <th mat-header-cell *matHeaderCellDef class="cell-player">Joueur</th>
+                        <td mat-cell *matCellDef="let row" class="cell-player">
+                          <a class="player-link" [routerLink]="['/players', row.player.id]">{{ row.player.name }}</a>
+                        </td>
+                        <td mat-footer-cell *matFooterCellDef class="cell-player">Total</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="starter">
+                        <th mat-header-cell *matHeaderCellDef>Starter</th>
+                        <td mat-cell *matCellDef="let row">{{ row.starter ? 'Oui' : 'Non' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>&mdash;</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="minutesPlayed">
+                        <th mat-header-cell *matHeaderCellDef>MIN</th>
+                        <td mat-cell *matCellDef="let row">{{ row.minutesPlayed ?? 'â€”' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.minutesPlayed }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="points">
+                        <th mat-header-cell *matHeaderCellDef>PTS</th>
+                        <td mat-cell *matCellDef="let row">{{ row.points }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.points }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="assists">
+                        <th mat-header-cell *matHeaderCellDef>AST</th>
+                        <td mat-cell *matCellDef="let row">{{ row.assists }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.assists }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="offensiveRebounds">
+                        <th mat-header-cell *matHeaderCellDef>ORB</th>
+                        <td mat-cell *matCellDef="let row">{{ row.offensiveRebounds ?? 'â€”' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.offensiveRebounds }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="defensiveRebounds">
+                        <th mat-header-cell *matHeaderCellDef>DRB</th>
+                        <td mat-cell *matCellDef="let row">{{ row.defensiveRebounds ?? 'â€”' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.defensiveRebounds }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="steals">
+                        <th mat-header-cell *matHeaderCellDef>STL</th>
+                        <td mat-cell *matCellDef="let row">{{ row.steals ?? 'â€”' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.steals }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="blocks">
+                        <th mat-header-cell *matHeaderCellDef>BLK</th>
+                        <td mat-cell *matCellDef="let row">{{ row.blocks ?? 'â€”' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.blocks }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="fgm">
+                        <th mat-header-cell *matHeaderCellDef>FGM</th>
+                        <td mat-cell *matCellDef="let row">{{ row.fgm }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.fgm }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="fga">
+                        <th mat-header-cell *matHeaderCellDef>FGA</th>
+                        <td mat-cell *matCellDef="let row">{{ row.fga }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.fga }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="twoPm">
+                        <th mat-header-cell *matHeaderCellDef>2PM</th>
+                        <td mat-cell *matCellDef="let row">{{ row.twoPointMade }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.twoPointMade }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="twoPa">
+                        <th mat-header-cell *matHeaderCellDef>2PA</th>
+                        <td mat-cell *matCellDef="let row">{{ row.twoPointAttempts }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.twoPointAttempts }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="tpm">
+                        <th mat-header-cell *matHeaderCellDef>3PM</th>
+                        <td mat-cell *matCellDef="let row">{{ row.threePointMade }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.threePointMade }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="tpa">
+                        <th mat-header-cell *matHeaderCellDef>3PA</th>
+                        <td mat-cell *matCellDef="let row">{{ row.threePointAttempt }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.threePointAttempt }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="usageShoot">
+                        <th mat-header-cell *matHeaderCellDef>Usage Shoot</th>
+                        <td mat-cell *matCellDef="let row">{{ row.usageShoot }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.usageShoot }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="usageDrive">
+                        <th mat-header-cell *matHeaderCellDef>Usage Drive</th>
+                        <td mat-cell *matCellDef="let row">{{ row.usageDrive }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.usageDrive }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="usagePost">
+                        <th mat-header-cell *matHeaderCellDef>Usage Post</th>
+                        <td mat-cell *matCellDef="let row">{{ row.usagePost }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.usagePost }}</td>
+                      </ng-container>
+
+                      <tr mat-header-row *matHeaderRowDef="playerColumns"></tr>
+                      <tr mat-row *matRowDef="let row; columns: playerColumns;"></tr>
+                      <tr mat-footer-row *matFooterRowDef="playerColumns"></tr>
+                    </table>
+                  </div>
+                } @else {
+                  <div class="state small">Aucune statistique individuelle disponible.</div>
+                }
+              </div>
             </div>
-          } @else {
-            <div class="state small">Aucune statistique individuelle disponible.</div>
-          }
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section__title">Progression Joueurs</div>
-        <app-player-progression-tabs [game]="vm.game"></app-player-progression-tabs>
-      </div>
+          </div>
+        </mat-tab>
+        <mat-tab label="Progressions">
+          <div class="tab-content">
+            <div class="section">
+              <div class="section__title">Progression Joueurs</div>
+              <mat-tab-group class="team-tabs">
+                <mat-tab [label]="vm.game.homeTeamName">
+                  <div class="tab-content">
+                    <app-player-progression-table
+                      [playerProgressions]="vm.homeProgressions ?? []"
+                      [players]="vm.homeProgressionPlayers"
+                      emptyLabel="Aucune progression disponible pour ce match."
+                    ></app-player-progression-table>
+                  </div>
+                </mat-tab>
+                <mat-tab [label]="vm.game.awayTeamName">
+                  <div class="tab-content">
+                    <app-player-progression-table
+                      [playerProgressions]="vm.awayProgressions ?? []"
+                      [players]="vm.awayProgressionPlayers"
+                      emptyLabel="Aucune progression disponible pour ce match."
+                    ></app-player-progression-table>
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
     } @else {
       <div class="panel__header">
         <div class="panel__header-left">

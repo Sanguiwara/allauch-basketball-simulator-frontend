@@ -1,16 +1,17 @@
 import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {MatTableModule} from '@angular/material/table';
+import {MatTabsModule} from '@angular/material/tabs';
 import {Observable, of} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {MatchSummaryService, MatchSummaryVm} from './match-summary.service';
-import {PlayerProgressionTabsComponent} from './player-progression-tabs/player-progression-tabs.component';
+import {PlayerProgressionTableComponent} from '../training/player-progression-table/player-progression-table.component';
 
 @Component({
   selector: 'app-match-summary-page',
   standalone: true,
-  imports: [CommonModule, MatTableModule, PlayerProgressionTabsComponent],
+  imports: [CommonModule, MatTableModule, MatTabsModule, PlayerProgressionTableComponent, RouterLink],
   templateUrl: './match-summary-page.html',
   styleUrl: './match-summary-page.scss',
 })
@@ -19,8 +20,13 @@ export class MatchSummaryPage implements OnInit {
   readonly playerColumns: string[] = [
     'player',
     'starter',
+    'minutesPlayed',
     'points',
     'assists',
+    'offensiveRebounds',
+    'defensiveRebounds',
+    'steals',
+    'blocks',
     'fgm',
     'fga',
     'twoPm',
@@ -30,8 +36,6 @@ export class MatchSummaryPage implements OnInit {
     'usageShoot',
     'usageDrive',
     'usagePost',
-    'playmakingContribution',
-    'assistWeight',
   ];
 
   vm$!: Observable<MatchSummaryVm | null>;

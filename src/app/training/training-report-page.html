@@ -1,0 +1,42 @@
+<div class="page">
+  <section class="panel">
+    <div class="panel__header">
+      <div class="panel__header-left">
+        <h2 class="panel__title">Training report</h2>
+        <span class="pill">Progressions joueurs</span>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="state">Chargement...</div>
+    } @else if (errorMsg()) {
+      <div class="state error">{{ errorMsg() }}</div>
+    } @else if (!training()) {
+      <div class="state">Aucun rapport disponible.</div>
+    } @else {
+      <div class="report__summary">
+        <div class="report__row">
+          <div class="report__label">Equipe</div>
+          <div class="report__value">{{ training()?.team?.name ?? 'Equipe inconnue' }}</div>
+        </div>
+        <div class="report__row">
+          <div class="report__label">Date</div>
+          <div class="report__value">{{ training()?.executeAt | date: 'medium' }}</div>
+        </div>
+        <div class="report__row">
+          <div class="report__label">Type</div>
+          <div class="report__value type">
+            <mat-icon>{{ getTypeUi(training()?.trainingType).icon }}</mat-icon>
+            <span>{{ getTypeUi(training()?.trainingType).label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <app-player-progression-table
+        [playerProgressions]="training()?.playerProgressions ?? []"
+        [players]="training()?.team?.players ?? []"
+        emptyLabel="Aucune progression disponible pour cet entrainement."
+      ></app-player-progression-table>
+    }
+  </section>
+</div>

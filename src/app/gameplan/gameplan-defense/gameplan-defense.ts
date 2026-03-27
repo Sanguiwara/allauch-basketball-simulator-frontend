@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatRadioModule} from '@angular/material/radio';
 
@@ -8,6 +8,8 @@ import {ZoneDefenseType} from '../../models/zone-defense-type.enum';
 import {GamePlanApiService} from '../gameplan-service';
 import {GameplanMatchupComponent} from '../gameplan-matchups/gameplan-matchup';
 import {GameplanZoneDefenseComponent} from '../gameplan-zone-defense/gameplan-zone-defense';
+import {catchError, finalize, of} from 'rxjs';
+import {InGamePlayer} from '../../models/ingameplayer.model';
 
 type DefenseFamily = 'MAN_TO_MAN' | 'ZONE';
 
@@ -20,11 +22,14 @@ type DefenseFamily = 'MAN_TO_MAN' | 'ZONE';
 })
 export class GameplanDefenseComponent implements OnChanges {
   @Input({required: true}) gamePlan!: GamePlan;
+  @Input() activePlayers: InGamePlayer[] | null = null;
 
   defenseFamily: DefenseFamily = 'MAN_TO_MAN';
   zoneType: ZoneDefenseType | null = null;
+  isSaving = false;
+  saveStatus: 'idle' | 'success' | 'error' = 'idle';
 
-  constructor(private api: GamePlanApiService) {}
+  constructor(private api: GamePlanApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['gamePlan'] && this.gamePlan) {
@@ -60,7 +65,27 @@ export class GameplanDefenseComponent implements OnChanges {
   saveDefense(): void {
     if (!this.gamePlan || this.isZoneInvalid) return;
     this.applyDefenseSelection();
-    this.api.saveGamePlan(this.gamePlan).subscribe();
+    this.isSaving = true;
+    this.saveStatus = 'idle';
+
+    this.api.saveGamePlan(this.gamePlan).pipe(
+      catchError(() => {
+        this.saveStatus = 'error';
+        this.cdr.markForCheck();
+        return of(null);
+      }),
+      finalize(() => {
+        this.isSaving = false;
+        if (this.saveStatus !== 'error') {
+          this.saveStatus = 'success';
+        }
+        this.cdr.markForCheck();
+        setTimeout(() => {
+          this.saveStatus = 'idle';
+          this.cdr.markForCheck();
+        }, 2000);
+      })
+    ).subscribe();
   }
 
   private hydrateFromPlan(): void {

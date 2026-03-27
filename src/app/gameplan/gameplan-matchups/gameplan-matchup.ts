@@ -1,11 +1,14 @@
-import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
-import {CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, moveItemInArray,} from '@angular/cdk/drag-drop';
+import {ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges} from '@angular/core';
+import {CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup, moveItemInArray} from '@angular/cdk/drag-drop';
 import {MatCard, MatCardContent} from '@angular/material/card';
+import {RouterLink} from '@angular/router';
+import {catchError, finalize, of} from 'rxjs';
 
 import {GamePlan} from '../../models/gameplan.model';
 import {Player} from '../../models/player.model';
 import {GamePlanApiService} from '../gameplan-service';
 import {MatButton} from '@angular/material/button';
+import {InGamePlayer} from '../../models/ingameplayer.model';
 
 type Matchup = {
   visitor: Player;
@@ -15,6 +18,8 @@ type Matchup = {
 type DragPayload =
   | { from: 'pool'; player: Player }
   | { from: 'slot'; player: Player; slotIndex: number };
+
+type PoolSortMode = 'default' | 'defExtDesc' | 'defPostDesc' | 'speedDesc';
 
 @Component({
   selector: 'gameplan-matchup-component',
@@ -26,6 +31,7 @@ type DragPayload =
     MatCardContent,
     MatCard,
     MatButton,
+    RouterLink,
   ],
   templateUrl: './gameplan-matchup.html',
   styleUrl: './gameplan-matchup.scss',
@@ -33,31 +39,34 @@ type DragPayload =
 export class GameplanMatchupComponent implements OnChanges {
   @Input({required: true}) gamePlan!: GamePlan;
   @Input() embedded = false;
+  @Input() activePlayers: InGamePlayer[] | null = null;
 
-
-  homePlayers: Player[] = [];
-  visitorsPlayers: Player[] = [];
+  ownerPlayers: Player[] = [];
+  opponentPlayers: Player[] = [];
 
   matchupsUI: Matchup[] = [];
 
-  homePool: Player[] = [];
+  ownerPool: Player[] = [];
+  sortMode: PoolSortMode = 'default';
 
   loading = true;
   error?: string;
+  isSaving = false;
+  saveStatus: 'idle' | 'success' | 'error' = 'idle';
 
-  constructor(private api: GamePlanApiService) {
-  }
+  constructor(private api: GamePlanApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['gamePlan'] && this.gamePlan) {
-
-      this.homePlayers = this.gamePlan.ownerTeam?.players ?? [];
-      this.visitorsPlayers = this.gamePlan.opponentTeam?.players ?? [];
+    if ((changes['gamePlan'] || changes['activePlayers']) && this.gamePlan) {
+      this.ownerPlayers = this.activePlayers
+        ? this.activePlayers.map((p) => p.player)
+        : this.gamePlan.ownerTeam?.players ?? [];
+      this.opponentPlayers = this.gamePlan.opponentTeam?.players ?? [];
 
       const record = (this.gamePlan.matchups ?? {}) as Record<string, string>;
 
-      const homeById = new Map(this.homePlayers.map(h => [h.id, h]));
-      const visitorById = new Map(this.visitorsPlayers.map(v => [v.id, v]));
+      const homeById = new Map(this.ownerPlayers.map(h => [h.id, h]));
+      const visitorById = new Map(this.opponentPlayers.map(v => [v.id, v]));
       const existingMatchups: Matchup[] = Object.entries(record)
         .map(([homeId, visitorId]) => {
           const home = homeById.get(homeId) ?? null;
@@ -67,26 +76,30 @@ export class GameplanMatchupComponent implements OnChanges {
         .filter((x): x is Matchup => x !== null);
 
       const matchedVisitorIds = new Set(existingMatchups.map(m => m.visitor.id));
-      const emptyMatchups: Matchup[] = this.visitorsPlayers
+      const emptyMatchups: Matchup[] = this.opponentPlayers
         .filter(player => !matchedVisitorIds.has(player.id))
         .map(player => ({visitor: player, home: null}));
 
       this.matchupsUI = [...existingMatchups, ...emptyMatchups];
 
-      // 3) pool = homes non utilisés
+      // pool = homes non utilises
       this.recomputeHomePool();
+      this.applyPoolSort();
 
       this.loading = false;
-
     }
   }
 
+  setSortMode(mode: PoolSortMode): void {
+    this.sortMode = mode;
+    this.applyPoolSort();
+  }
 
   private recomputeHomePool(): void {
     const usedHomeIds = new Set(
       this.matchupsUI.map(m => m.home?.id).filter((id): id is string => !!id)
     );
-    this.homePool = this.homePlayers.filter(h => !usedHomeIds.has(h.id));
+    this.ownerPool = this.ownerPlayers.filter(h => !usedHomeIds.has(h.id));
   }
 
   // -------------------------
@@ -98,11 +111,12 @@ export class GameplanMatchupComponent implements OnChanges {
 
     // Reorder dans le pool
     if (payload.from === 'pool' && event.previousContainer === event.container) {
-      moveItemInArray(this.homePool, event.previousIndex, event.currentIndex);
+      moveItemInArray(this.ownerPool, event.previousIndex, event.currentIndex);
+      this.applyPoolSort();
       return;
     }
 
-    // Slot -> Pool (désassignation)
+    // Slot -> Pool (desassignation)
     if (payload.from === 'slot') {
       const originIndex = payload.slotIndex;
 
@@ -111,30 +125,32 @@ export class GameplanMatchupComponent implements OnChanges {
         this.matchupsUI[originIndex].home = null;
       }
 
-      // insère dans le pool à la position de drop
-      const insertAt = Math.min(Math.max(event.currentIndex, 0), this.homePool.length);
-      this.homePool.splice(insertAt, 0, payload.player);
+      // insere dans le pool a la position de drop
+      const insertAt = Math.min(Math.max(event.currentIndex, 0), this.ownerPool.length);
+      this.ownerPool.splice(insertAt, 0, payload.player);
+      this.applyPoolSort();
       return;
     }
 
     // Pool -> Pool via autre container (normalement n'arrive pas)
   }
 
-  dropOnSlot(event: CdkDragDrop<any>, targetIndex: number): void { //TODO enlever le any
+  dropOnSlot(event: CdkDragDrop<any>, targetIndex: number): void { // TODO enlever le any
     const payload = event.item.data as DragPayload;
     const targetMatchup = this.matchupsUI[targetIndex];
 
     // Pool -> Slot
     if (payload.from === 'pool') {
       // retire du pool
-      const idx = this.homePool.findIndex(p => p.id === payload.player.id);
-      if (idx >= 0) this.homePool.splice(idx, 1);
+      const idx = this.ownerPool.findIndex(p => p.id === payload.player.id);
+      if (idx >= 0) this.ownerPool.splice(idx, 1);
 
-      // si le slot avait déjà un home, on le remet au pool
-      if (targetMatchup.home) this.homePool.push(targetMatchup.home);
+      // si le slot avait deja un home, on le remet au pool
+      if (targetMatchup.home) this.ownerPool.push(targetMatchup.home);
 
       // assigne
       targetMatchup.home = payload.player;
+      this.applyPoolSort();
       return;
     }
 
@@ -148,6 +164,7 @@ export class GameplanMatchupComponent implements OnChanges {
       const temp = targetMatchup.home;
       targetMatchup.home = source.home;
       source.home = temp;
+      this.applyPoolSort();
       return;
     }
   }
@@ -165,6 +182,44 @@ export class GameplanMatchupComponent implements OnChanges {
     }
 
     this.gamePlan.matchups = record;
-    this.api.saveGamePlan(this.gamePlan).subscribe();
+    this.isSaving = true;
+    this.saveStatus = 'idle';
+
+    this.api.saveGamePlan(this.gamePlan).pipe(
+      catchError(() => {
+        this.saveStatus = 'error';
+        this.cdr.markForCheck();
+        return of(null);
+      }),
+      finalize(() => {
+        this.isSaving = false;
+        if (this.saveStatus !== 'error') {
+          this.saveStatus = 'success';
+        }
+        this.cdr.markForCheck();
+        setTimeout(() => {
+          this.saveStatus = 'idle';
+          this.cdr.markForCheck();
+        }, 2000);
+      })
+    ).subscribe();
+  }
+
+  private applyPoolSort(): void {
+    if (this.sortMode === 'default') return;
+    this.ownerPool = [...this.ownerPool].sort((a, b) => this.getSortValue(b) - this.getSortValue(a));
+  }
+
+  private getSortValue(player: Player): number {
+    switch (this.sortMode) {
+      case 'defExtDesc':
+        return player.defExterieur ?? 0;
+      case 'defPostDesc':
+        return player.defPoste ?? 0;
+      case 'speedDesc':
+        return player.speed ?? 0;
+      default:
+        return 0;
+    }
   }
 }

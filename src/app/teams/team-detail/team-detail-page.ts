@@ -9,7 +9,8 @@ import {catchError, distinctUntilChanged, map, of, startWith, switchMap} from 'r
 import {TeamsApiService} from '../teams-api.service';
 import {TeamDTO} from '../teams.api';
 import {PlayerSummaryMapper} from '../player-summary.mapper';
-import {PlayerSummaryVM, TeamDetailVM} from '../teams.view-models';
+import {PlayerSummaryVM, TeamDetailVM, TeamStatsVM} from '../teams.view-models';
+import {filterBadgeNamesWithoutParentheses} from '../../utils/badge-name';
 
 @Component({
   selector: 'app-team-detail-page',
@@ -30,9 +31,6 @@ export class TeamDetailPageComponent {
     switchMap(teamId => (teamId ? this.loadTeam(teamId) : of({ status: 'notfound' } as const))),
   );
 
-  trackByPlayerId = (_: number, player: PlayerSummaryVM) => player.id;
-  trackByBadge = (_: number, badge: string) => badge;
-
   private loadTeam(teamId: string) {
     return this.api.getTeamById(teamId).pipe(
       map(team => ({ status: 'loaded', team: this.toTeamDetailVm(team) } as const)),
@@ -47,13 +45,38 @@ export class TeamDetailPageComponent {
 
   private toTeamDetailVm(team: TeamDTO): TeamDetailVM {
     const category = (team.category ?? team.ageCategory ?? '').trim() || 'N/A';
-
+    const players = (team.players ?? []).map(player => this.summaryMapper.toSummary(player));
     return {
       id: team.id,
       name: (team.name ?? '').trim() || 'Equipe sans nom',
       category,
       gender: team.gender,
-      players: (team.players ?? []).map(player => this.summaryMapper.toSummary(player)),
+      players,
+      stats: this.toTeamStats(team, players),
     };
+  }
+
+  private toTeamStats(team: TeamDTO, players: PlayerSummaryVM[]): TeamStatsVM {
+    const roster = team.players ?? [];
+
+    return {
+      threePts: this.avg(roster.map(player => player.tir3Pts)),
+      twoPts: this.avg(roster.map(player => player.tir2Pts)),
+      drive: this.avg(roster.flatMap(player => [player.finitionAuCercle, player.floater, player.ballhandling, player.speed])),
+      defense: this.avg(roster.flatMap(player => [player.defExterieur, player.defPoste, player.protectionCercle])),
+      rebound: this.avg(roster.flatMap(player => [player.timingRebond, player.agressiviteRebond])),
+      steal: this.avg(roster.map(player => player.steal)),
+      morale: this.avg(players.map(player => player.morale)),
+    };
+  }
+
+  private avg(values: number[]): number {
+    if (!values.length) return 0;
+    const sum = values.reduce((total, value) => total + value, 0);
+    return Math.round(sum / values.length);
+  }
+
+  visibleBadges(badges: string[]): string[] {
+    return filterBadgeNamesWithoutParentheses(badges ?? []);
   }
 }

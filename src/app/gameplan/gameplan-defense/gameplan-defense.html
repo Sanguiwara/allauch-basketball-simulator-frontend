@@ -43,20 +43,36 @@
             }
           </div>
 
-          <button
-            mat-raised-button
-            class="save-btn"
-            [disabled]="isZoneInvalid"
-            (click)="saveDefense()"
-          >
-            Sauvegarder
-          </button>
+          <div class="save">
+            <button
+              mat-raised-button
+              class="save-btn"
+              [disabled]="isZoneInvalid || isSaving"
+              (click)="saveDefense()"
+            >
+              @if (isSaving) {
+                Sauvegarde...
+              } @else {
+                Sauvegarder
+              }
+            </button>
+            @if (saveStatus === 'success') {
+              <span class="save__status save__status--ok">Sauvegardé</span>
+            }
+            @if (saveStatus === 'error') {
+              <span class="save__status save__status--err">Erreur</span>
+            }
+          </div>
         </div>
       }
     </section>
   </div>
 
   @if (!isZone) {
-    <gameplan-matchup-component [gamePlan]="gamePlan" [embedded]="true"></gameplan-matchup-component>
+    <gameplan-matchup-component
+      [gamePlan]="gamePlan"
+      [activePlayers]="activePlayers"
+      [embedded]="true"
+    ></gameplan-matchup-component>
   }
 </div>

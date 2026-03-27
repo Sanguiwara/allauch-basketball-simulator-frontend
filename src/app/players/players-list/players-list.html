@@ -8,12 +8,47 @@
 
       <div class="toolbar">
         <mat-form-field appearance="outline" class="filter">
-          <mat-label>Rechercher</mat-label>
-          <input matInput #filterInput (keyup)="applyFilter(filterInput.value)" placeholder="Nom, id..." />
+          <mat-label>Recherche globale</mat-label>
+          <input
+            matInput
+            #filterInput
+            (input)="applyFilter($any($event.target).value)"
+            placeholder="Nom..."
+          />
         </mat-form-field>
 
         <button mat-stroked-button class="btn" (click)="loadPlayers()">Rafraîchir</button>
       </div>
+    </div>
+
+    <div class="filter-panel">
+      <div class="group-toggles">
+        <button type="button" class="group-toggle" [class.is-active]="showIdentity()" (click)="toggleGroup('identity')">
+          Identité
+        </button>
+        <button type="button" class="group-toggle" [class.is-active]="showShooting()" (click)="toggleGroup('shooting')">
+          Shooting
+        </button>
+        <button type="button" class="group-toggle" [class.is-active]="showDefense()" (click)="toggleGroup('defense')">
+          Défense
+        </button>
+        <button type="button" class="group-toggle" [class.is-active]="showPhysical()" (click)="toggleGroup('physical')">
+          Physique
+        </button>
+        <button type="button" class="group-toggle" [class.is-active]="showPlaymaking()" (click)="toggleGroup('playmaking')">
+          Playmaking
+        </button>
+        <button type="button" class="group-toggle" [class.is-active]="showMental()" (click)="toggleGroup('mental')">
+          Mental
+        </button>
+        <button type="button" class="group-toggle" [class.is-active]="showPotential()" (click)="toggleGroup('potential')">
+          Potentiel
+        </button>
+        <button type="button" class="group-toggle" [class.is-active]="showBadges()" (click)="toggleGroup('badges')">
+          Badges
+        </button>
+      </div>
+
     </div>
 
     @if (isLoading) {
@@ -27,11 +62,6 @@
     <div class="table-wrapper">
       <table mat-table [dataSource]="dataSource" matSort class="table">
         <!-- tes colonnes inchangées -->
-        <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-          <td mat-cell *matCellDef="let row">{{ row.id }}</td>
-        </ng-container>
-
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Nom</th>
           <td mat-cell *matCellDef="let row">{{ row.name }}</td>
@@ -57,6 +87,11 @@
           <td mat-cell *matCellDef="let row">{{ row.lancerFranc }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="floater">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Floater</th>
+          <td mat-cell *matCellDef="let row">{{ row.floater }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="finitionAuCercle">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Finition</th>
           <td mat-cell *matCellDef="let row">{{ row.finitionAuCercle }}</td>
@@ -67,9 +102,29 @@
           <td mat-cell *matCellDef="let row">{{ row.defExterieur }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="defPoste">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Def poste</th>
+          <td mat-cell *matCellDef="let row">{{ row.defPoste }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="protectionCercle">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Protection</th>
           <td mat-cell *matCellDef="let row">{{ row.protectionCercle }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="timingRebond">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Timing rebond</th>
+          <td mat-cell *matCellDef="let row">{{ row.timingRebond }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="agressiviteRebond">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>AgressivitÃ© rebond</th>
+          <td mat-cell *matCellDef="let row">{{ row.agressiviteRebond }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="steal">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Steal</th>
+          <td mat-cell *matCellDef="let row">{{ row.steal }}</td>
         </ng-container>
 
         <ng-container matColumnDef="physique">
@@ -77,9 +132,74 @@
           <td mat-cell *matCellDef="let row">{{ row.physique }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="speed">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Speed</th>
+          <td mat-cell *matCellDef="let row">{{ row.speed }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="endurance">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Endurance</th>
+          <td mat-cell *matCellDef="let row">{{ row.endurance }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="solidite">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>SoliditÃ©</th>
+          <td mat-cell *matCellDef="let row">{{ row.solidite }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="size">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Taille</th>
+          <td mat-cell *matCellDef="let row">{{ row.size }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="weight">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Poids</th>
+          <td mat-cell *matCellDef="let row">{{ row.weight }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="agressivite">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>AgressivitÃ©</th>
+          <td mat-cell *matCellDef="let row">{{ row.agressivite }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="ballhandling">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Ballhandling</th>
+          <td mat-cell *matCellDef="let row">{{ row.ballhandling }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="passingSkills">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Passing</th>
+          <td mat-cell *matCellDef="let row">{{ row.passingSkills }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="basketballIqOff">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>IQ off</th>
+          <td mat-cell *matCellDef="let row">{{ row.basketballIqOff }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="basketballIqDef">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>IQ def</th>
+          <td mat-cell *matCellDef="let row">{{ row.basketballIqDef }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="iq">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>IQ</th>
           <td mat-cell *matCellDef="let row">{{ row.iq }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="coachability">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Coachability</th>
+          <td mat-cell *matCellDef="let row">{{ row.coachability }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="ego">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Ego</th>
+          <td mat-cell *matCellDef="let row">{{ row.ego }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="softSkills">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Soft skills</th>
+          <td mat-cell *matCellDef="let row">{{ row.softSkills }}</td>
         </ng-container>
 
         <ng-container matColumnDef="potentielSkill">
@@ -87,9 +207,25 @@
           <td mat-cell *matCellDef="let row">{{ row.potentielSkill }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="potentielPhysique">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Pot. Physique</th>
+          <td mat-cell *matCellDef="let row">{{ row.potentielPhysique }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="leadership">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Leadership</th>
           <td mat-cell *matCellDef="let row">{{ row.leadership }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="badges">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Badges</th>
+          <td mat-cell *matCellDef="let row">
+            @if (row.badges?.length) {
+              {{ badgeLabels(row.badges) }}
+            } @else {
+              <span class="badge-empty">Aucun</span>
+            }
+          </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

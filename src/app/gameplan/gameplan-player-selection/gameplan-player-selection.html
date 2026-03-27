@@ -6,66 +6,186 @@
         <div class="panel__header-left">
           <h2 class="panel__title">Player Selection</h2>
           <span class="pill">{{ homePlayers.length }}</span>
+          <span class="pill">Total: {{ totalSelectedMinutes }} / {{ totalMinutes }}</span>
+          <span class="pill" [class.pill--warn]="remainingMinutes !== 0">Restant: {{ remainingMinutes }}</span>
         </div>
 
-        <button mat-raised-button class="save-btn" (click)="saveActivePlayers()">
-          Sauvegarder
-        </button>
+        <div class="panel__actions">
+          <div class="sort">
+            <span class="sort__label">Tri</span>
+            <button
+              mat-stroked-button
+              class="sort__btn"
+              [class.sort__btn--active]="sortMode === 'default'"
+              (click)="setSortMode('default')"
+            >
+              Défaut
+            </button>
+            <button
+              mat-stroked-button
+              class="sort__btn"
+              [class.sort__btn--active]="sortMode === 'overallDesc'"
+              (click)="setSortMode('overallDesc')"
+            >
+              OVR ↓
+            </button>
+            <button
+              mat-stroked-button
+              class="sort__btn"
+              [class.sort__btn--active]="sortMode === 'attackDesc'"
+              (click)="setSortMode('attackDesc')"
+            >
+              ATT ↓
+            </button>
+            <button
+              mat-stroked-button
+              class="sort__btn"
+              [class.sort__btn--active]="sortMode === 'defenseDesc'"
+              (click)="setSortMode('defenseDesc')"
+            >
+              DEF ↓
+            </button>
+            <button
+              mat-stroked-button
+              class="sort__btn"
+              [class.sort__btn--active]="sortMode === 'playmakingDesc'"
+              (click)="setSortMode('playmakingDesc')"
+            >
+              PM ↓
+            </button>
+            <button
+              mat-stroked-button
+              class="sort__btn"
+              [class.sort__btn--active]="sortMode === 'reboundDesc'"
+              (click)="setSortMode('reboundDesc')"
+            >
+              REB ↓
+            </button>
+            <button
+              mat-stroked-button
+              class="sort__btn"
+              [class.sort__btn--active]="sortMode === 'stealDesc'"
+              (click)="setSortMode('stealDesc')"
+            >
+              STL ↓
+            </button>
+          </div>
+
+          <div class="save">
+            <button mat-raised-button class="save-btn" (click)="saveActivePlayers()" [disabled]="!canSave || isSaving">
+              @if (isSaving) {
+                Sauvegarde...
+              } @else {
+                Sauvegarder
+              }
+            </button>
+            @if (saveStatus === 'success') {
+              <span class="save__status save__status--ok">Sauvegardé</span>
+            }
+            @if (saveStatus === 'error') {
+              <span class="save__status save__status--err">Erreur</span>
+            }
+          </div>
+        </div>
       </div>
 
-      <div class="list">
-        @for (p of homePlayers; track p.id) {
-          <mat-card class="card">
-            <mat-card-content class="card__body">
-              <div class="row">
-                <div class="left">
-                  <div class="name">{{ p.name }}</div>
+      @if (hasInvalidMinutes) {
+        <div class="state state--warn">Chaque joueur doit avoir un nombre entier entre 0 et 40 minutes.</div>
+      }
+      @if (remainingMinutes !== 0) {
+        <div class="state state--warn">Le total doit faire exactement 200 minutes.</div>
+      }
 
-                  <div class="stats">
-                    <div class="stat"><div class="label">DEF EXT</div><div class="value">{{ p.defExterieur }}</div></div>
-                    <div class="stat"><div class="label">POSTE</div><div class="value">{{ p.defPoste }}</div></div>
-                    <div class="stat"><div class="label">RIM</div><div class="value">{{ p.protectionCercle }}</div></div>
-                  </div>
+      <div class="list player-grid">
+        @for (p of displayPlayers; track p.id) {
+          <mat-expansion-panel class="player-panel">
+            <mat-expansion-panel-header>
+              <div class="header">
+                <a class="name player-link" [routerLink]="['/players', p.id]">{{ p.name }}</a>
+                <div class="badges">
+                  <span class="badge">OVR {{ overall(p) }}</span>
+                  <span class="badge">Min {{ getMinutes(p.id) }}</span>
+                  <span class="badge" [class.badge--muted]="getChoice(p.id) === 'noPlay'">
+                    {{ getChoice(p.id) === 'play' ? 'Play' : 'No play' }}
+                  </span>
                 </div>
+              </div>
+            </mat-expansion-panel-header>
 
-                <div class="right">
-                  <!-- Colonne 1 : Play / Don't play -->
-                  <mat-radio-group
-                    class="radios"
-                    [value]="getChoice(p.id)"
-                    (change)="setChoice(p.id, $event.value)"
-                  >
-                    <mat-radio-button class="radio" value="play">Play</mat-radio-button>
-                    <mat-radio-button class="radio" value="noPlay">Don't play</mat-radio-button>
-                  </mat-radio-group>
+            <mat-card class="card">
+              <mat-card-content class="card__body">
+                <div class="row">
+                  <div class="left">
+                    <div class="identity">
+                      <a class="name player-link" [routerLink]="['/players', p.id]">{{ p.name }}</a>
+                      <div class="overall">
+                        <span class="overall__label">OVR</span>
+                        <span class="overall__value">{{ overall(p) }}</span>
+                      </div>
+                    </div>
 
-                  <!-- Colonne 2 : Starter / Bench -->
-                  <div class="starter-col">
+                    <div class="stats-chips">
+                      @for (stat of overviewStats(p); track stat.label) {
+                        <div class="stat-chip">
+                          <span class="stat-chip__label">{{ stat.label }}</span>
+                          <span class="stat-chip__value">{{ stat.value }}</span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="right">
+                    <!-- Colonne 1 : Play / Don't play -->
                     <mat-radio-group
                       class="radios"
-                      [disabled]="getChoice(p.id) !== 'play'"
-                      [value]="getStarterChoice(p.id)"
-                      (change)="setStarterChoice(p.id, $event.value)"
+                      [value]="getChoice(p.id)"
+                      (change)="setChoice(p.id, $event.value)"
                     >
-                      <mat-radio-button
-                        class="radio"
-                        value="starter"
-                        [disabled]="!canSelectStarter(p.id)"
-                      >
-                        Starter
-                      </mat-radio-button>
-
-                      <mat-radio-button class="radio" value="bench">Bench</mat-radio-button>
+                      <mat-radio-button class="radio" value="play">Play</mat-radio-button>
+                      <mat-radio-button class="radio" value="noPlay">Don't play</mat-radio-button>
                     </mat-radio-group>
 
+                    <!-- Colonne 2 : Starter / Bench -->
+                  <div class="starter-col" [class.starter-col--disabled]="getChoice(p.id) !== 'play'">
+                      <mat-radio-group
+                        class="radios"
+                        [disabled]="getChoice(p.id) !== 'play'"
+                        [value]="getStarterChoice(p.id)"
+                        (change)="setStarterChoice(p.id, $event.value)"
+                      >
+                        <mat-radio-button
+                          class="radio"
+                          value="starter"
+                          [disabled]="!canSelectStarter(p.id)"
+                        >
+                          Starter
+                        </mat-radio-button>
 
+                        <mat-radio-button class="radio" value="bench">Bench</mat-radio-button>
+                      </mat-radio-group>
+                    </div>
+                    <div class="minutes-col" [class.minutes-col--disabled]="getChoice(p.id) !== 'play'">
+                      <div class="minutes">
+                        <div class="minutes__value">{{ getMinutes(p.id) }} min</div>
+                        <mat-slider [min]="minMinutes" [max]="maxMinutes" [step]="1" [disabled]="getChoice(p.id) !== 'play'">
+                          <input
+                            type="range"
+                            [value]="getMinutes(p.id)"
+                            [disabled]="getChoice(p.id) !== 'play'"
+                            (input)="setMinutes(p.id, ($any($event.target).valueAsNumber))"
+                            matSliderThumb
+                          />
+                        </mat-slider>
+                        @if (isMinutesInvalid(p.id)) {
+                          <div class="minutes__error">Valeur invalide</div>
+                        }
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-
-              </div>
-            </mat-card-content>
-          </mat-card>
+              </mat-card-content>
+            </mat-card>
+          </mat-expansion-panel>
         }
       </div>
     </section>

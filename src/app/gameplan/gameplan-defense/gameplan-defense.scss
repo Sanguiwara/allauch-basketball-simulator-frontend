@@ -120,6 +120,31 @@
     0 0 0 1px rgba(255, 255, 255, 0.10) inset !important;
 }
 
+.save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.save__status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+
+.save__status--ok {
+  color: rgba(120, 255, 180, 0.95);
+  border-color: rgba(120, 255, 180, 0.35);
+  background: rgba(120, 255, 180, 0.12);
+}
+
+.save__status--err {
+  color: rgba(255, 160, 160, 0.95);
+  border-color: rgba(255, 160, 160, 0.35);
+  background: rgba(255, 160, 160, 0.12);
+}
+
 :host ::ng-deep .radios .mdc-form-field > label {
   color: rgba(233, 238, 252, 0.90) !important;
 }

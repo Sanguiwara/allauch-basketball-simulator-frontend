@@ -10,6 +10,7 @@
 }
 
 .panel {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   border-radius: 18px;
@@ -19,6 +20,18 @@
   box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
   padding: 12px;
   min-width: 0;
+}
+
+@media (min-width: 1200px) {
+  .panel {
+    max-width: 1600px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .panel {
+    max-width: 1900px;
+  }
 }
 
 .panel__header {
@@ -93,6 +106,14 @@
 
 .section {
   margin-top: 12px;
+}
+
+.summary-tabs {
+  margin-top: 10px;
+}
+
+.tab-content {
+  padding-top: 8px;
 }
 
 .section__title {
@@ -187,6 +208,43 @@
   white-space: nowrap;
 }
 
+:host ::ng-deep .player-stats .mat-mdc-footer-row {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+:host ::ng-deep .player-stats .mat-mdc-footer-cell {
+  font-weight: 900;
+  border-top-color: rgba(255, 255, 255, 0.12) !important;
+  text-align: center;
+  color: rgba(233, 238, 252, 0.88) !important;
+}
+
 :host ::ng-deep .player-stats .cell-player {
   text-align: left !important;
+}
+
+:host ::ng-deep .mat-mdc-tab-group {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px;
+}
+
+:host ::ng-deep .mat-mdc-tab .mdc-tab__text-label,
+:host ::ng-deep .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: rgba(233, 238, 252, 0.9);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+:host ::ng-deep .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: #ffffff;
+}
+
+:host ::ng-deep .mat-mdc-tab .mdc-tab-indicator__content--underline {
+  border-color: #5ad38a;
+}
+
+.team-tabs {
+  margin-top: 6px;
 }

@@ -37,6 +37,34 @@
   color: #b00020;
 }
 
+.team-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 16px 0 20px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: rgba(233, 238, 252, 0.96);
+}
+
+.stat-card .label {
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(233, 238, 252, 0.70);
+}
+
+.stat-card .value {
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
 .players {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -82,6 +110,23 @@
 
 .stat span {
   color: rgba(233, 238, 252, 0.70);
+}
+
+.badge-chip {
+  --mdc-chip-label-text-color: #ffffff;
+  --mdc-chip-elevated-container-color: #1f4aa8;
+  --mdc-chip-outline-color: #173b86;
+  background: #1f4aa8;
+  border: 1px solid #173b86;
+  color: #ffffff !important;
+}
+
+.badge-chip.mat-mdc-chip {
+  font-weight: 600;
+}
+
+::ng-deep .badge-chip.mat-mdc-chip .mdc-evolution-chip__text-label {
+  color: #ffffff !important;
 }
 
 @media (max-width: 600px) {

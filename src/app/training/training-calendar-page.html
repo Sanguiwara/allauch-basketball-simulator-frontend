@@ -1,0 +1,51 @@
+<div class="page">
+  <section class="calendar">
+    <header class="calendar__header">
+      <div>
+        <h2 class="calendar__title">Calendrier des entrainements</h2>
+        <p class="calendar__subtitle">Clique un entrainement pour ouvrir le detail ou le rapport.</p>
+      </div>
+      <div class="calendar__nav">
+        <button mat-icon-button type="button" (click)="goToPreviousMonth()" aria-label="Mois precedent">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <div class="calendar__month">{{ month() | date: 'MMMM yyyy' }}</div>
+        <button mat-icon-button type="button" (click)="goToNextMonth()" aria-label="Mois suivant">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    @if (errorMsg()) {
+      <div class="calendar__error">{{ errorMsg() }}</div>
+    }
+
+    <div class="calendar__weekdays">
+      @for (day of weekDays; track day) {
+        <div class="calendar__weekday">{{ day }}</div>
+      }
+    </div>
+
+    <div class="calendar__grid">
+      @for (day of days(); track day.key) {
+        <div class="calendar__day" [class.is-outside]="!day.inMonth" [class.is-today]="day.key === todayKey">
+          <div class="calendar__day-header">
+            <span>{{ day.date | date: 'd' }}</span>
+          </div>
+          <div class="calendar__events">
+            @if (day.trainings.length === 0) {
+              <div class="calendar__empty">Aucun entrainement</div>
+            } @else {
+              @for (training of day.trainings; track training.id) {
+                <button type="button" class="calendar__event" (click)="openTraining(training)">
+                  <span class="calendar__event-time">{{ training.executeAt | date: 'HH:mm' }}</span>
+                  <span class="calendar__event-type">{{ getTypeUi(training.trainingType).label }}</span>
+                </button>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+</div>

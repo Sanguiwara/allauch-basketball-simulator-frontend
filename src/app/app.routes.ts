@@ -6,7 +6,9 @@ import { PlayersList } from './players/players-list/players-list';
 import { GameplanPage } from './gameplan/gameplan-page';
 import { Calendar } from './calendar/calendar';
 import { MatchSummaryPage } from './match-summary/match-summary-page';
-import { TrainingPage } from './training/training-page';
+import { TrainingCalendarPage } from './training/training-calendar-page';
+import { TrainingDetailPage } from './training/training-detail-page';
+import { TrainingReportPage } from './training/training-report-page';
 import { TeamsPageComponent } from './teams/teams-page';
 import { TeamDetailPageComponent } from './teams/team-detail/team-detail-page';
 
@@ -40,8 +42,9 @@ export const routes: Routes = [
 
       { path: 'gameplan', component: GameplanPage, canActivate: [AuthGuard] },
       { path: 'calendar', component: Calendar, canActivate: [AuthGuard] },
-      { path: 'training/:teamId', component: TrainingPage, canActivate: [AuthGuard] },
-      { path: 'training', component: TrainingPage, canActivate: [AuthGuard] },
+      { path: 'training', component: TrainingCalendarPage, canActivate: [AuthGuard] },
+      { path: 'training/report/:trainingId', component: TrainingReportPage, canActivate: [AuthGuard] },
+      { path: 'training/:trainingId', component: TrainingDetailPage, canActivate: [AuthGuard] },
       { path: 'match-summary', component: MatchSummaryPage, canActivate: [AuthGuard] },
     ],
   },
