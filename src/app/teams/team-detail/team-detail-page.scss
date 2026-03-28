@@ -25,6 +25,52 @@
   font-size: 13px;
 }
 
+.name-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.name-editor .mat-mdc-form-field {
+  min-width: 240px;
+  flex: 1;
+}
+
+.save-btn {
+  height: 40px;
+}
+
+.save-error {
+  margin-top: 6px;
+  color: #b00020;
+  font-size: 12px;
+}
+
+::ng-deep .name-editor .mat-mdc-form-field {
+  width: 100%;
+}
+
+::ng-deep .name-editor .mdc-text-field--outlined {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+::ng-deep .name-editor .mat-mdc-form-field-label,
+::ng-deep .name-editor .mdc-floating-label {
+  color: rgba(233, 238, 252, 0.75) !important;
+}
+
+::ng-deep .name-editor input.mat-mdc-input-element {
+  color: rgba(233, 238, 252, 0.95) !important;
+}
+
+::ng-deep .name-editor .mdc-notched-outline__leading,
+::ng-deep .name-editor .mdc-notched-outline__notch,
+::ng-deep .name-editor .mdc-notched-outline__trailing {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
 .state {
   display: flex;
   align-items: center;

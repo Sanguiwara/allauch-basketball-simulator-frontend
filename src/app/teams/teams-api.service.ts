@@ -17,4 +17,8 @@ export class TeamsApiService {
   getTeamById(id: string): Observable<TeamDTO> {
     return this.http.get<TeamDTO>(`${this.baseUrl}/${id}`);
   }
+
+  updateTeamName(id: string, name: string): Observable<TeamDTO> {
+    return this.http.put<TeamDTO>(`${this.baseUrl}/${id}/name`, {name});
+  }
 }
