@@ -28,6 +28,7 @@ export interface TeamStatsVM {
 
 export interface TeamDetailVM {
   id: string;
+  clubId: string;
   name: string;
   category: string;
   gender: string;
