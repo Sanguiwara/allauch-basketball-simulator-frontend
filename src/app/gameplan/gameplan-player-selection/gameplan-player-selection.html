@@ -172,7 +172,7 @@
                             type="range"
                             [value]="getMinutes(p.id)"
                             [disabled]="getChoice(p.id) !== 'play'"
-                            (input)="setMinutes(p.id, ($any($event.target).valueAsNumber))"
+                            (input)="setMinutes(p.id, $any($event.target).valueAsNumber)"
                             matSliderThumb
                           />
                         </mat-slider>

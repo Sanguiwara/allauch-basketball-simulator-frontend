@@ -121,7 +121,7 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
       }
     }
     if (choice === 'noPlay') {
-      this.minutesById.delete(playerId);
+      this.minutesById.set(playerId, 0);
     } else if (!this.minutesById.has(playerId)) {
       this.minutesById.set(playerId, 0);
     }
@@ -165,9 +165,11 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
     return this.minutesById.get(playerId) ?? 0;
   }
 
-  setMinutes(playerId: string, value: number): void {
+  setMinutes(playerId: string, value: number | null | undefined): void {
     if (this.getChoice(playerId) !== 'play') return;
-    this.minutesById.set(playerId, value);
+    const minutes = Number(value);
+    if (!Number.isFinite(minutes)) return;
+    this.minutesById.set(playerId, minutes);
     this.recalculateSummary();
     this.syncActivePlayers();
   }
