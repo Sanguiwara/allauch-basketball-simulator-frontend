@@ -167,13 +167,17 @@
                     <div class="minutes-col" [class.minutes-col--disabled]="getChoice(p.id) !== 'play'">
                       <div class="minutes">
                         <div class="minutes__value">{{ getMinutes(p.id) }} min</div>
-                        <mat-slider [min]="minMinutes" [max]="maxMinutes" [step]="1" [disabled]="getChoice(p.id) !== 'play'">
+                        <mat-slider
+                          [min]="minMinutes"
+                          [max]="maxMinutes"
+                          [step]="1"
+                          [disabled]="getChoice(p.id) !== 'play'"
+                        >
                           <input
-                            type="range"
-                            [value]="getMinutes(p.id)"
-                            [disabled]="getChoice(p.id) !== 'play'"
-                            (input)="setMinutes(p.id, $any($event.target).valueAsNumber)"
                             matSliderThumb
+                            [value]="getMinutes(p.id)"
+                            (input)="setMinutes(p.id, $any($event.target).valueAsNumber)"
+                            (change)="setMinutes(p.id, $any($event.target).valueAsNumber)"
                           />
                         </mat-slider>
                         @if (isMinutesInvalid(p.id)) {
