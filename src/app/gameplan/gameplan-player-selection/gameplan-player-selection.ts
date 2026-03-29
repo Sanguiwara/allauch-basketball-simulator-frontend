@@ -169,6 +169,7 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
     if (this.getChoice(playerId) !== 'play') return;
     const minutes = Number(value);
     if (!Number.isFinite(minutes)) return;
+    console.log('[gameplan] slider minutes change', {playerId, minutes});
     this.minutesById.set(playerId, minutes);
     this.recalculateSummary();
     this.syncActivePlayers();
