@@ -9,6 +9,7 @@ import {Player} from '../../models/player.model';
 import {GamePlanApiService} from '../gameplan-service';
 import {MatButton} from '@angular/material/button';
 import {InGamePlayer} from '../../models/ingameplayer.model';
+import {DecimalPipe} from '@angular/common';
 
 type Matchup = {
   visitor: Player;
@@ -19,19 +20,96 @@ type DragPayload =
   | { from: 'pool'; player: Player }
   | { from: 'slot'; player: Player; slotIndex: number };
 
-type PoolSortMode =
-  | 'default'
-  | 'defExtDesc'
-  | 'defPostDesc'
-  | 'sizeDesc'
-  | 'speedDesc'
-  | 'defIqDesc'
-  | 'enduranceDesc';
-type DefensiveStatKey = 'defExterieur' | 'defPoste' | 'size' | 'speed' | 'basketballIqDef' | 'endurance';
-type DefensiveStat = {
-  label: string;
-  key: DefensiveStatKey;
+type PoolSortMode = 'default' | 'driveDefenseDesc' | 'twoPtDefenseDesc' | 'threePtDefenseDesc';
+type MatchupScoreSet = {
+  driveOffense: number;
+  driveDefense: number;
+  twoPtOffense: number;
+  twoPtDefense: number;
+  threePtOffense: number;
+  threePtDefense: number;
 };
+
+function roundScore(value: number): number {
+  return Math.round(value * 10) / 10;
+}
+
+export function getDriveOffenseScore(player: Player): number {
+  return roundScore(
+    player.speed * 0.18 +
+    player.size * 0.08 +
+    player.endurance * 0.05 +
+    player.ballhandling * 0.20 +
+    player.finitionAuCercle * 0.35 +
+    player.floater * 0.10 +
+    player.iq * 0.04
+  );
+}
+
+export function getDriveDefenseScore(player: Player): number {
+  return roundScore(
+    player.speed * 0.18 +
+    player.size * 0.22 +
+    player.defExterieur * 0.22 +
+    player.endurance * 0.10 +
+    player.iq * 0.12 +
+    player.steal * 0.10 +
+    player.defPoste * 0.06
+  );
+}
+
+export function getTwoPtOffenseScore(player: Player): number {
+  return roundScore(
+    player.speed * 0.08 +
+    player.size * 0.22 +
+    player.endurance * 0.12 +
+    player.finitionAuCercle * 0.15 +
+    player.tir2Pts * 0.28 +
+    player.iq * 0.15
+  );
+}
+
+export function getTwoPtDefenseScore(player: Player): number {
+  return roundScore(
+    player.defPoste * 0.27 +
+    player.speed * 0.10 +
+    player.size * 0.28 +
+    player.endurance * 0.12 +
+    player.iq * 0.18 +
+    player.steal * 0.05
+  );
+}
+
+export function getThreePtOffenseScore(player: Player): number {
+  return roundScore(
+    player.speed * 0.10 +
+    player.size * 0.15 +
+    player.endurance * 0.10 +
+    player.tir3Pts * 0.50 +
+    player.iq * 0.15
+  );
+}
+
+export function getThreePtDefenseScore(player: Player): number {
+  return roundScore(
+    player.speed * 0.10 +
+    player.size * 0.10 +
+    player.defExterieur * 0.65 +
+    player.endurance * 0.05 +
+    player.iq * 0.10
+  );
+}
+
+export function getMatchupScores(player: Player): MatchupScoreSet {
+  return {
+    driveOffense: getDriveOffenseScore(player),
+    driveDefense: getDriveDefenseScore(player),
+    twoPtOffense: getTwoPtOffenseScore(player),
+    twoPtDefense: getTwoPtDefenseScore(player),
+    threePtOffense: getThreePtOffenseScore(player),
+    threePtDefense: getThreePtDefenseScore(player),
+  };
+}
 
 @Component({
   selector: 'gameplan-matchup-component',
@@ -44,6 +122,7 @@ type DefensiveStat = {
     MatCard,
     MatButton,
     RouterLink,
+    DecimalPipe,
   ],
   templateUrl: './gameplan-matchup.html',
   styleUrl: './gameplan-matchup.scss',
@@ -65,14 +144,7 @@ export class GameplanMatchupComponent implements OnChanges {
   error?: string;
   isSaving = false;
   saveStatus: 'idle' | 'success' | 'error' = 'idle';
-  readonly defensiveStats: DefensiveStat[] = [
-    {label: 'DEF EXT', key: 'defExterieur'},
-    {label: 'DEF POSTE', key: 'defPoste'},
-    {label: 'SIZE', key: 'size'},
-    {label: 'SPEED', key: 'speed'},
-    {label: 'DEF IQ', key: 'basketballIqDef'},
-    {label: 'ENDURANCE', key: 'endurance'},
-  ];
+  readonly getMatchupScores = getMatchupScores;
 
   constructor(private api: GamePlanApiService, private cdr: ChangeDetectorRef) {}
 
@@ -232,24 +304,14 @@ export class GameplanMatchupComponent implements OnChanges {
 
   private getSortValue(player: Player): number {
     switch (this.sortMode) {
-      case 'defExtDesc':
-        return player.defExterieur ?? 0;
-      case 'defPostDesc':
-        return player.defPoste ?? 0;
-      case 'sizeDesc':
-        return player.size ?? 0;
-      case 'speedDesc':
-        return player.speed ?? 0;
-      case 'defIqDesc':
-        return player.basketballIqDef ?? 0;
-      case 'enduranceDesc':
-        return player.endurance ?? 0;
+      case 'driveDefenseDesc':
+        return getDriveDefenseScore(player);
+      case 'twoPtDefenseDesc':
+        return getTwoPtDefenseScore(player);
+      case 'threePtDefenseDesc':
+        return getThreePtDefenseScore(player);
       default:
         return 0;
     }
-  }
-
-  getPlayerStat(player: Player, key: DefensiveStatKey): number {
-    return player[key];
   }
 }

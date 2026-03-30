@@ -1,24 +1,29 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {SimpleChange} from '@angular/core';
-import {By} from '@angular/platform-browser';
-import {GameplanMatchupComponent} from './gameplan-matchup';
+import '@angular/compiler';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {of} from 'rxjs';
+import {
+  GameplanMatchupComponent,
+  getDriveDefenseScore,
+  getDriveOffenseScore,
+  getMatchupScores,
+  getThreePtDefenseScore,
+  getThreePtOffenseScore,
+  getTwoPtDefenseScore,
+  getTwoPtOffenseScore,
+} from './gameplan-matchup';
 import {GamePlan} from '../../models/gameplan.model';
 import {Player} from '../../models/player.model';
 import {InGamePlayer} from '../../models/ingameplayer.model';
 
 describe('GameplanMatchupComponent', () => {
   let component: GameplanMatchupComponent;
-  let fixture: ComponentFixture<GameplanMatchupComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [GameplanMatchupComponent],
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(GameplanMatchupComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+  beforeEach(() => {
+    component = new GameplanMatchupComponent(
+      {saveGamePlan: vi.fn(() => of(null))} as never,
+      {markForCheck: vi.fn()} as never,
+    );
   });
 
   it('filters home players based on active selection', () => {
@@ -37,11 +42,11 @@ describe('GameplanMatchupComponent', () => {
     expect(component.ownerPlayers.map((p) => p.id)).toEqual(['h2']);
   });
 
-  it('sorts pool by defensive stats', () => {
+  it('sorts pool by drive, 2pt, and 3pt defense scores', () => {
     const homePlayers = [
-      buildPlayer('h1', {defExterieur: 70, defPoste: 40, size: 85, speed: 60, basketballIqDef: 65, endurance: 55}),
-      buildPlayer('h2', {defExterieur: 60, defPoste: 80, size: 75, speed: 40, basketballIqDef: 95, endurance: 45}),
-      buildPlayer('h3', {defExterieur: 50, defPoste: 30, size: 65, speed: 90, basketballIqDef: 75, endurance: 99}),
+      buildPlayer('h1', {speed: 90, size: 65, endurance: 70, defExterieur: 55, defPoste: 40, iq: 60, steal: 85}),
+      buildPlayer('h2', {speed: 50, size: 88, endurance: 70, defExterieur: 45, defPoste: 92, iq: 72, steal: 35}),
+      buildPlayer('h3', {speed: 62, size: 58, endurance: 74, defExterieur: 94, defPoste: 38, iq: 68, steal: 40}),
     ];
     const visitors = [buildPlayer('v1'), buildPlayer('v2')];
     const plan = buildGamePlan(homePlayers, visitors);
@@ -51,111 +56,46 @@ describe('GameplanMatchupComponent', () => {
       gamePlan: new SimpleChange(null, plan, true),
     });
 
-    component.setSortMode('defExtDesc');
-    expect(component.ownerPool.map((p) => p.id)).toEqual(['h1', 'h2', 'h3']);
+    component.setSortMode('driveDefenseDesc');
+    expect(component.ownerPool.map((p) => p.id)).toEqual(['h1', 'h3', 'h2']);
 
-    component.setSortMode('defPostDesc');
+    component.setSortMode('twoPtDefenseDesc');
     expect(component.ownerPool.map((p) => p.id)).toEqual(['h2', 'h1', 'h3']);
 
-    component.setSortMode('speedDesc');
-    expect(component.ownerPool.map((p) => p.id)).toEqual(['h3', 'h1', 'h2']);
-
-    component.setSortMode('sizeDesc');
-    expect(component.ownerPool.map((p) => p.id)).toEqual(['h1', 'h2', 'h3']);
-
-    component.setSortMode('defIqDesc');
-    expect(component.ownerPool.map((p) => p.id)).toEqual(['h2', 'h3', 'h1']);
-
-    component.setSortMode('enduranceDesc');
+    component.setSortMode('threePtDefenseDesc');
     expect(component.ownerPool.map((p) => p.id)).toEqual(['h3', 'h1', 'h2']);
   });
 
-  it('renders the defensive stats requested for home cards', () => {
-    const homePlayers = [
-      buildPlayer('h1', {
-        defExterieur: 71,
-        defPoste: 72,
-        size: 73,
-        speed: 74,
-        basketballIqDef: 75,
-        endurance: 76,
-      }),
-    ];
-    const visitors = [buildPlayer('v1')];
-    const plan = buildGamePlan(homePlayers, visitors);
-
-    component.gamePlan = plan;
-    component.ngOnChanges({
-      gamePlan: new SimpleChange(null, plan, true),
+  it('computes drive, 2pt and 3pt offense and defense scores', () => {
+    const player = buildPlayer('p1', {
+      speed: 80,
+      size: 70,
+      endurance: 60,
+      ballhandling: 90,
+      finitionAuCercle: 85,
+      floater: 50,
+      iq: 75,
+      defExterieur: 65,
+      steal: 40,
+      defPoste: 55,
+      tir2Pts: 82,
+      tir3Pts: 88,
     });
-    fixture.detectChanges();
 
-    const labels = fixture.debugElement.queryAll(By.css('.stats .label')).map((element) =>
-      (element.nativeElement.textContent ?? '').trim()
-    );
-    const values = fixture.debugElement.queryAll(By.css('.stats .value')).map((element) =>
-      (element.nativeElement.textContent ?? '').trim()
-    );
-
-    expect(labels).toContain('DEF EXT');
-    expect(labels).toContain('DEF POSTE');
-    expect(labels).toContain('SIZE');
-    expect(labels).toContain('SPEED');
-    expect(labels).toContain('DEF IQ');
-    expect(labels).toContain('ENDURANCE');
-
-    expect(values).toContain('71');
-    expect(values).toContain('72');
-    expect(values).toContain('73');
-    expect(values).toContain('74');
-    expect(values).toContain('75');
-    expect(values).toContain('76');
-  });
-
-  it('renders visitor attack cards with ballhandling and size instead of free throws', () => {
-    const homePlayers = [buildPlayer('h1')];
-    const visitors = [
-      buildPlayer('v1', {
-        tir3Pts: 61,
-        tir2Pts: 62,
-        ballhandling: 63,
-        floater: 64,
-        finitionAuCercle: 65,
-        size: 66,
-        lancerFranc: 99,
-      }),
-    ];
-    const plan = buildGamePlan(homePlayers, visitors);
-
-    component.gamePlan = plan;
-    component.ngOnChanges({
-      gamePlan: new SimpleChange(null, plan, true),
+    expect(getDriveOffenseScore(player)).toBe(78.8);
+    expect(getDriveDefenseScore(player)).toBe(66.4);
+    expect(getTwoPtOffenseScore(player)).toBe(76);
+    expect(getTwoPtDefenseScore(player)).toBe(65.2);
+    expect(getThreePtOffenseScore(player)).toBe(79.8);
+    expect(getThreePtDefenseScore(player)).toBe(67.8);
+    expect(getMatchupScores(player)).toEqual({
+      driveOffense: 78.8,
+      driveDefense: 66.4,
+      twoPtOffense: 76,
+      twoPtDefense: 65.2,
+      threePtOffense: 79.8,
+      threePtDefense: 67.8,
     });
-    fixture.detectChanges();
-
-    const visitorCard = fixture.debugElement.query(By.css('.card--visitor'));
-    const labels = visitorCard.queryAll(By.css('.label')).map((element) =>
-      (element.nativeElement.textContent ?? '').trim()
-    );
-    const values = visitorCard.queryAll(By.css('.value')).map((element) =>
-      (element.nativeElement.textContent ?? '').trim()
-    );
-
-    expect(labels).toContain('3PT');
-    expect(labels).toContain('2PT');
-    expect(labels).toContain('BALLHANDLING');
-    expect(labels).toContain('FLT');
-    expect(labels).toContain('RIM');
-    expect(labels).toContain('SIZE');
-    expect(labels).not.toContain('FT');
-
-    expect(values).toContain('61');
-    expect(values).toContain('62');
-    expect(values).toContain('63');
-    expect(values).toContain('64');
-    expect(values).toContain('65');
-    expect(values).toContain('66');
-    expect(values).not.toContain('99');
   });
 });
 
@@ -219,7 +159,6 @@ function buildPlayer(id: string, overrides: Partial<Player> = {}): Player {
     potentielPhysique: 0,
     coachability: 0,
     ego: 0,
-    morale: 0,
     softSkills: 0,
     leadership: 0,
     badges: [],
@@ -243,9 +182,6 @@ function buildInGamePlayer(player: Player): InGamePlayer {
     usageShoot: 0,
     usageDrive: 0,
     usagePost: 0,
-    threePtScore: 0,
-    twoPtScore: 0,
-    driveScore: 0,
     minutesPlayed: 0,
     starter: false,
   };
