@@ -19,7 +19,19 @@ type DragPayload =
   | { from: 'pool'; player: Player }
   | { from: 'slot'; player: Player; slotIndex: number };
 
-type PoolSortMode = 'default' | 'defExtDesc' | 'defPostDesc' | 'speedDesc';
+type PoolSortMode =
+  | 'default'
+  | 'defExtDesc'
+  | 'defPostDesc'
+  | 'sizeDesc'
+  | 'speedDesc'
+  | 'defIqDesc'
+  | 'enduranceDesc';
+type DefensiveStatKey = 'defExterieur' | 'defPoste' | 'size' | 'speed' | 'basketballIqDef' | 'endurance';
+type DefensiveStat = {
+  label: string;
+  key: DefensiveStatKey;
+};
 
 @Component({
   selector: 'gameplan-matchup-component',
@@ -53,6 +65,14 @@ export class GameplanMatchupComponent implements OnChanges {
   error?: string;
   isSaving = false;
   saveStatus: 'idle' | 'success' | 'error' = 'idle';
+  readonly defensiveStats: DefensiveStat[] = [
+    {label: 'DEF EXT', key: 'defExterieur'},
+    {label: 'DEF POSTE', key: 'defPoste'},
+    {label: 'SIZE', key: 'size'},
+    {label: 'SPEED', key: 'speed'},
+    {label: 'DEF IQ', key: 'basketballIqDef'},
+    {label: 'ENDURANCE', key: 'endurance'},
+  ];
 
   constructor(private api: GamePlanApiService, private cdr: ChangeDetectorRef) {}
 
@@ -216,10 +236,20 @@ export class GameplanMatchupComponent implements OnChanges {
         return player.defExterieur ?? 0;
       case 'defPostDesc':
         return player.defPoste ?? 0;
+      case 'sizeDesc':
+        return player.size ?? 0;
       case 'speedDesc':
         return player.speed ?? 0;
+      case 'defIqDesc':
+        return player.basketballIqDef ?? 0;
+      case 'enduranceDesc':
+        return player.endurance ?? 0;
       default:
         return 0;
     }
+  }
+
+  getPlayerStat(player: Player, key: DefensiveStatKey): number {
+    return player[key];
   }
 }

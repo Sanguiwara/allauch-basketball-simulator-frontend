@@ -39,10 +39,34 @@
           <button
             mat-stroked-button
             class="sort__btn"
+            [class.sort__btn--active]="sortMode === 'sizeDesc'"
+            (click)="setSortMode('sizeDesc')"
+          >
+            SIZE ↓
+          </button>
+          <button
+            mat-stroked-button
+            class="sort__btn"
             [class.sort__btn--active]="sortMode === 'speedDesc'"
             (click)="setSortMode('speedDesc')"
           >
             SPEED ↓
+          </button>
+          <button
+            mat-stroked-button
+            class="sort__btn"
+            [class.sort__btn--active]="sortMode === 'defIqDesc'"
+            (click)="setSortMode('defIqDesc')"
+          >
+            DEF IQ ↓
+          </button>
+          <button
+            mat-stroked-button
+            class="sort__btn"
+            [class.sort__btn--active]="sortMode === 'enduranceDesc'"
+            (click)="setSortMode('enduranceDesc')"
+          >
+            ENDURANCE ↓
           </button>
         </div>
       </div>
@@ -57,7 +81,7 @@
           <mat-card class="card card--empty">
             <mat-card-content class="card__body">
               <div class="card__title">Pool vide</div>
-              <div class="card__hint">Glisse un défenseur ici pour le remettre dans le pool.</div>
+              <div class="card__hint">Glisse un defenseur ici pour le remettre dans le pool.</div>
             </mat-card-content>
           </mat-card>
         }
@@ -76,12 +100,12 @@
                 </div>
 
                 <div class="stats">
-                  <div class="stat"><div class="label">DEF EXT</div><div class="value">{{ p.defExterieur }}</div></div>
-                  <div class="stat"><div class="label">POSTE</div><div class="value">{{ p.defPoste }}</div></div>
-                  <div class="stat"><div class="label">RIM</div><div class="value">{{ p.protectionCercle }}</div></div>
-                  <div class="stat"><div class="label">REB T</div><div class="value">{{ p.timingRebond }}</div></div>
-                  <div class="stat"><div class="label">REB A</div><div class="value">{{ p.agressiviteRebond }}</div></div>
-                  <div class="stat"><div class="label">SPEED</div><div class="value">{{ p.speed }}</div></div>
+                  @for (stat of defensiveStats; track stat.label) {
+                    <div class="stat">
+                      <div class="label">{{ stat.label }}</div>
+                      <div class="value">{{ getPlayerStat(p, stat.key) }}</div>
+                    </div>
+                  }
                 </div>
               </mat-card-content>
             </mat-card>
@@ -102,7 +126,7 @@
       <div class="matchups__header">
         <div class="matchups__col-title">
           <span class="pill pill--ghost">HOME</span>
-          <span>Défenseur</span>
+          <span>Defenseur</span>
         </div>
         <div class="matchups__col-title">
           <span class="pill pill--ghost">VISITOR</span>
@@ -134,12 +158,12 @@
                     </div>
 
                     <div class="stats">
-                      <div class="stat"><div class="label">DEF EXT</div><div class="value">{{ m.home.defExterieur }}</div></div>
-                      <div class="stat"><div class="label">POSTE</div><div class="value">{{ m.home.defPoste }}</div></div>
-                      <div class="stat"><div class="label">RIM</div><div class="value">{{ m.home.protectionCercle }}</div></div>
-                      <div class="stat"><div class="label">REB T</div><div class="value">{{ m.home.timingRebond }}</div></div>
-                      <div class="stat"><div class="label">REB A</div><div class="value">{{ m.home.agressiviteRebond }}</div></div>
-                      <div class="stat"><div class="label">SPEED</div><div class="value">{{ m.home.speed }}</div></div>
+                      @for (stat of defensiveStats; track stat.label) {
+                        <div class="stat">
+                          <div class="label">{{ stat.label }}</div>
+                          <div class="value">{{ getPlayerStat(m.home, stat.key) }}</div>
+                        </div>
+                      }
                     </div>
 
                     <div class="card__footer-hint">Drag vers le pool pour retirer</div>
@@ -152,7 +176,7 @@
                       <div class="name muted">Slot vide</div>
                       <span class="tag">HOME</span>
                     </div>
-                    <div class="card__hint">Dépose un défenseur ici.</div>
+                    <div class="card__hint">Depose un defenseur ici.</div>
                   </mat-card-content>
                 </mat-card>
               }
@@ -169,9 +193,10 @@
                 <div class="stats stats--visitor">
                   <div class="stat"><div class="label">3PT</div><div class="value">{{ m.visitor.tir3Pts }}</div></div>
                   <div class="stat"><div class="label">2PT</div><div class="value">{{ m.visitor.tir2Pts }}</div></div>
-                  <div class="stat"><div class="label">FT</div><div class="value">{{ m.visitor.lancerFranc }}</div></div>
+                  <div class="stat"><div class="label">BALLHANDLING</div><div class="value">{{ m.visitor.ballhandling }}</div></div>
                   <div class="stat"><div class="label">FLT</div><div class="value">{{ m.visitor.floater }}</div></div>
                   <div class="stat"><div class="label">RIM</div><div class="value">{{ m.visitor.finitionAuCercle }}</div></div>
+                  <div class="stat"><div class="label">SIZE</div><div class="value">{{ m.visitor.size }}</div></div>
                 </div>
               </mat-card-content>
             </mat-card>
@@ -182,7 +207,7 @@
 
       <div class="panel__footer">
         <div class="hint">
-          Astuce : Pool → Slot (assigne), Slot → Pool (retire), Slot → Slot (échange)
+          Astuce : Pool -> Slot (assigne), Slot -> Pool (retire), Slot -> Slot (echange)
         </div>
 
         <div class="save">
@@ -194,7 +219,7 @@
             }
           </button>
           @if (saveStatus === 'success') {
-            <span class="save__status save__status--ok">Sauvegardé</span>
+            <span class="save__status save__status--ok">Sauvegarde</span>
           }
           @if (saveStatus === 'error') {
             <span class="save__status save__status--err">Erreur</span>
