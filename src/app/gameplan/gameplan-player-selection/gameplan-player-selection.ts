@@ -216,7 +216,9 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
       minutesPlayed: 0,
       threePtScore: 0,
       twoPtScore: 0,
-      driveScore : 0
+      driveScore : 0,
+      driveAttempts : 0,
+      driveMade : 0
     };
   }
 

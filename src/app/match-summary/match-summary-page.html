@@ -140,6 +140,18 @@
                         <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.twoPointAttempts }}</td>
                       </ng-container>
 
+                      <ng-container matColumnDef="driveAttempts">
+                        <th mat-header-cell *matHeaderCellDef>Drives tentés</th>
+                        <td mat-cell *matCellDef="let row">{{ row.driveAttempts ?? '—' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.driveAttempts }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="driveMade">
+                        <th mat-header-cell *matHeaderCellDef>Drives réussis</th>
+                        <td mat-cell *matCellDef="let row">{{ row.driveMade ?? '—' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.driveMade }}</td>
+                      </ng-container>
+
                       <ng-container matColumnDef="tpm">
                         <th mat-header-cell *matHeaderCellDef>3PM</th>
                         <td mat-cell *matCellDef="let row">{{ row.threePointMade }}</td>
@@ -263,6 +275,18 @@
                         <th mat-header-cell *matHeaderCellDef>2PA</th>
                         <td mat-cell *matCellDef="let row">{{ row.twoPointAttempts }}</td>
                         <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.twoPointAttempts }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="driveAttempts">
+                        <th mat-header-cell *matHeaderCellDef>Drives tentés</th>
+                        <td mat-cell *matCellDef="let row">{{ row.driveAttempts ?? '—' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.driveAttempts }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="driveMade">
+                        <th mat-header-cell *matHeaderCellDef>Drives réussis</th>
+                        <td mat-cell *matCellDef="let row">{{ row.driveMade ?? '—' }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.driveMade }}</td>
                       </ng-container>
 
                       <ng-container matColumnDef="tpm">

@@ -42,6 +42,8 @@ export interface PlayerTotals {
   twoPointAttempts: number;
   threePointMade: number;
   threePointAttempt: number;
+  driveMade: number;
+  driveAttempts: number;
   usageShoot: number;
   usageDrive: number;
   usagePost: number;
@@ -111,6 +113,8 @@ export class MatchSummaryService {
       twoPointAttempts: 0,
       threePointMade: 0,
       threePointAttempt: 0,
+      driveMade: 0,
+      driveAttempts: 0,
       usageShoot: 0,
       usageDrive: 0,
       usagePost: 0,
@@ -130,6 +134,8 @@ export class MatchSummaryService {
       totals.twoPointAttempts += player.twoPointAttempts ?? 0;
       totals.threePointMade += player.threePointMade ?? 0;
       totals.threePointAttempt += player.threePointAttempt ?? 0;
+      totals.driveMade += player.driveMade ?? 0;
+      totals.driveAttempts += player.driveAttempts ?? 0;
       totals.usageShoot += player.usageShoot ?? 0;
       totals.usageDrive += player.usageDrive ?? 0;
       totals.usagePost += player.usagePost ?? 0;

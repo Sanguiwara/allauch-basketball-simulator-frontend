@@ -21,6 +21,8 @@ export interface InGamePlayer {
 
   twoPointAttempts: number;
   twoPointMade: number;
+  driveAttempts: number;
+  driveMade: number;
 
   usageShoot: number;
   usageDrive: number;

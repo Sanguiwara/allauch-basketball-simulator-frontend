@@ -31,6 +31,8 @@ export class MatchSummaryPage implements OnInit {
     'fga',
     'twoPm',
     'twoPa',
+    'driveAttempts',
+    'driveMade',
     'tpm',
     'tpa',
     'usageShoot',
