@@ -1,0 +1,72 @@
+<div class="matchups-tab">
+  @if (matchups.length > 0) {
+    <div class="matchups__header">
+      <div class="matchups__col-title">
+        <span class="pill pill--ghost">{{ defenderLabel }}</span>
+        <span>Defenseur</span>
+      </div>
+      <div class="matchups__col-title">
+        <span class="pill pill--ghost">{{ attackerLabel }}</span>
+        <span>Attaquant</span>
+      </div>
+    </div>
+
+    <div class="matchups__list">
+      @for (matchup of matchups; track matchup.visitor.id) {
+        <div class="matchup-row">
+          <div class="slot">
+            @if (matchup.home) {
+              <mat-card class="card">
+                <mat-card-content class="card__body">
+                  <div class="card__top">
+                    <a class="name player-link" [routerLink]="['/players', matchup.home.id]">{{ matchup.home.name }}</a>
+                    <span class="tag">{{ defenderLabel }}</span>
+                  </div>
+
+                  <div class="stats">
+                    @for (stat of defensiveStats; track stat.label) {
+                      <div class="stat">
+                        <div class="label">{{ stat.label }}</div>
+                        <div class="value">{{ getPlayerStat(matchup.home, stat.key) }}</div>
+                      </div>
+                    }
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            } @else {
+              <mat-card class="card card--empty">
+                <mat-card-content class="card__body">
+                    <div class="card__top">
+                      <div class="name muted">Non assigne</div>
+                      <span class="tag">{{ defenderLabel }}</span>
+                    </div>
+                  <div class="card__hint">Aucun defenseur associe a ce matchup.</div>
+                </mat-card-content>
+              </mat-card>
+            }
+          </div>
+
+          <mat-card class="card card--visitor">
+            <mat-card-content class="card__body">
+              <div class="card__top">
+                <a class="name player-link" [routerLink]="['/players', matchup.visitor.id]">{{ matchup.visitor.name }}</a>
+                <span class="tag">{{ attackerLabel }}</span>
+              </div>
+
+              <div class="stats stats--visitor">
+                <div class="stat"><div class="label">3PT</div><div class="value">{{ matchup.visitor.tir3Pts }}</div></div>
+                <div class="stat"><div class="label">2PT</div><div class="value">{{ matchup.visitor.tir2Pts }}</div></div>
+                <div class="stat"><div class="label">BALLHANDLING</div><div class="value">{{ matchup.visitor.ballhandling }}</div></div>
+                <div class="stat"><div class="label">FLT</div><div class="value">{{ matchup.visitor.floater }}</div></div>
+                <div class="stat"><div class="label">RIM</div><div class="value">{{ matchup.visitor.finitionAuCercle }}</div></div>
+                <div class="stat"><div class="label">SIZE</div><div class="value">{{ matchup.visitor.size }}</div></div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="state">Aucun matchup disponible pour ce match.</div>
+  }
+</div>

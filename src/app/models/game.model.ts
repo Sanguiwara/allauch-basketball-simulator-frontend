@@ -14,6 +14,8 @@ export interface Game {
   homeClubID: string;
   awayClubID: string;
   gameResult: GameResult;
+  homeMatchups?: Record<string, string>;
+  awayMatchups?: Record<string, string>;
   homeActivePlayers?: InGamePlayer[];
   awayActivePlayers?: InGamePlayer[];
   playerProgressions?: PlayerProgression[];

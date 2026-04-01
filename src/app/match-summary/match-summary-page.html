@@ -358,6 +358,33 @@
             </div>
           </div>
         </mat-tab>
+        <mat-tab label="Matchups">
+          <div class="tab-content">
+            <div class="section">
+              <div class="section__title">Matchups defensifs</div>
+              <mat-tab-group class="team-tabs">
+                <mat-tab [label]="vm.game.homeTeamName">
+                  <div class="tab-content">
+                    <app-match-summary-matchups
+                      [matchups]="vm.homeMatchups"
+                      [defenderLabel]="vm.game.homeTeamName"
+                      [attackerLabel]="vm.game.awayTeamName"
+                    ></app-match-summary-matchups>
+                  </div>
+                </mat-tab>
+                <mat-tab [label]="vm.game.awayTeamName">
+                  <div class="tab-content">
+                    <app-match-summary-matchups
+                      [matchups]="vm.awayMatchups"
+                      [defenderLabel]="vm.game.awayTeamName"
+                      [attackerLabel]="vm.game.homeTeamName"
+                    ></app-match-summary-matchups>
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
+            </div>
+          </div>
+        </mat-tab>
       </mat-tab-group>
     } @else {
       <div class="panel__header">

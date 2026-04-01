@@ -7,11 +7,12 @@ import {Observable, of} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {MatchSummaryService, MatchSummaryVm} from './match-summary.service';
 import {PlayerProgressionTableComponent} from '../training/player-progression-table/player-progression-table.component';
+import {MatchSummaryMatchupsComponent} from './match-summary-matchups/match-summary-matchups.component';
 
 @Component({
   selector: 'app-match-summary-page',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatTabsModule, PlayerProgressionTableComponent, RouterLink],
+  imports: [CommonModule, MatTableModule, MatTabsModule, PlayerProgressionTableComponent, RouterLink, MatchSummaryMatchupsComponent],
   templateUrl: './match-summary-page.html',
   styleUrl: './match-summary-page.scss',
 })

@@ -1,0 +1,158 @@
+:host {
+  display: block;
+}
+
+.matchups-tab {
+  padding-top: 8px;
+}
+
+.matchups__header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.matchups__col-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(233, 238, 252, 0.82);
+}
+
+.matchups__list {
+  display: grid;
+  gap: 12px;
+}
+
+.matchup-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 960px) {
+  .matchup-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.slot {
+  min-width: 0;
+}
+
+.card {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e9eefc;
+  box-shadow: none;
+}
+
+.card--empty {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card--visitor {
+  background: rgba(90, 211, 138, 0.08);
+  border-color: rgba(90, 211, 138, 0.24);
+}
+
+.card__body {
+  padding: 14px;
+}
+
+.card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.name {
+  font-weight: 800;
+  color: #f5f8ff;
+  text-decoration: none;
+}
+
+.name:hover {
+  text-decoration: underline;
+}
+
+.muted {
+  color: rgba(233, 238, 252, 0.58);
+}
+
+.tag,
+.pill,
+.pill--ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tag {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(233, 238, 252, 0.82);
+}
+
+.pill {
+  color: rgba(233, 238, 252, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pill--ghost {
+  background: transparent;
+}
+
+.stats {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stat {
+  border-radius: 12px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: rgba(233, 238, 252, 0.66);
+}
+
+.value {
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.card__hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(233, 238, 252, 0.66);
+}
+
+.state {
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.03);
+  opacity: 0.9;
+}

@@ -100,6 +100,70 @@ describe('MatchSummaryService', () => {
       usagePost: 8,
     });
   });
+
+  it('builds matchups from a record and keeps unmatched attackers visible', () => {
+    const calendarApiStub = {} as CalendarApiService;
+    const service = new MatchSummaryService(calendarApiStub);
+
+    const homeOne = buildPlayer('h1');
+    const homeTwo = buildPlayer('h2');
+    const awayOne = buildPlayer('a1');
+    const awayTwo = buildPlayer('a2');
+
+    const matchups = service.buildMatchups(
+      [homeOne, homeTwo],
+      [awayOne, awayTwo],
+      {
+        h1: 'a1',
+      },
+    );
+
+    expect(matchups).toEqual([
+      {home: homeOne, visitor: awayOne},
+      {home: null, visitor: awayTwo},
+    ]);
+  });
+
+  it('builds both home and away matchup lists in the vm', () => {
+    const calendarApiStub = {} as CalendarApiService;
+    const service = new MatchSummaryService(calendarApiStub);
+
+    const homeOne = buildPlayer('h1');
+    const awayOne = buildPlayer('a1');
+
+    const result = (service as unknown as {buildVm: (game: any) => any}).buildVm({
+      id: 'game-1',
+      executeAt: '2026-04-01T10:00:00Z',
+      homeGamePlanId: 'home-plan',
+      awayGamePlanId: 'away-plan',
+      homeTeamId: 'home-team',
+      homeTeamName: 'Home',
+      awayTeamId: 'away-team',
+      awayTeamName: 'Away',
+      homeClubID: 'home-club',
+      awayClubID: 'away-club',
+      gameResult: {
+        homeScore: {
+          threePointShootingResult: {attempts: 0, made: 0},
+          twoPointShootingResult: {attempts: 0, made: 0},
+          driveResult: {attempts: 0, made: 0},
+        },
+        awayScore: {
+          threePointShootingResult: {attempts: 0, made: 0},
+          twoPointShootingResult: {attempts: 0, made: 0},
+          driveResult: {attempts: 0, made: 0},
+        },
+      },
+      homeMatchups: {h1: 'a1'},
+      awayMatchups: {a1: 'h1'},
+      homeActivePlayers: [buildInGamePlayer('h1', {player: homeOne})],
+      awayActivePlayers: [buildInGamePlayer('a1', {player: awayOne})],
+      playerProgressions: [],
+    });
+
+    expect(result.homeMatchups).toEqual([{home: homeOne, visitor: awayOne}]);
+    expect(result.awayMatchups).toEqual([{home: awayOne, visitor: homeOne}]);
+  });
 });
 
 function buildPlayer(id: string, overrides: Partial<Player> = {}): Player {

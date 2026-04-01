@@ -16,6 +16,8 @@ export interface TeamStatRow {
 export interface MatchSummaryVm {
   game: Game;
   teamStats: TeamStatRow[];
+  homeMatchups: MatchSummaryMatchup[];
+  awayMatchups: MatchSummaryMatchup[];
   homeActivePlayers: InGamePlayer[];
   awayActivePlayers: InGamePlayer[];
   homeTotals: PlayerTotals;
@@ -26,6 +28,11 @@ export interface MatchSummaryVm {
   awayProgressionPlayers: Player[];
   homeProgressions: Game['playerProgressions'];
   awayProgressions: Game['playerProgressions'];
+}
+
+export interface MatchSummaryMatchup {
+  visitor: Player;
+  home: Player | null;
 }
 
 export interface PlayerTotals {
@@ -144,6 +151,31 @@ export class MatchSummaryService {
     return totals;
   }
 
+  buildMatchups(
+    defenders: Player[],
+    attackers: Player[],
+    record: Record<string, string>,
+  ): MatchSummaryMatchup[] {
+    const defenderById = new Map(defenders.map((player) => [player.id, player]));
+    const attackerById = new Map(attackers.map((player) => [player.id, player]));
+
+    const existingMatchups = Object.entries(record)
+      .map(([defenderId, attackerId]) => {
+        const home = defenderById.get(defenderId) ?? null;
+        const visitor = attackerById.get(attackerId);
+        return visitor ? {visitor, home} : null;
+      })
+      .filter((matchup): matchup is MatchSummaryMatchup => matchup !== null);
+
+    const matchedVisitorIds = new Set(existingMatchups.map((matchup) => matchup.visitor.id));
+
+    const remainingVisitors = attackers
+      .filter((player) => !matchedVisitorIds.has(player.id))
+      .map((visitor) => ({visitor, home: null}));
+
+    return [...existingMatchups, ...remainingVisitors];
+  }
+
   private formatTotalShots(score: GameResult['homeScore']): string {
     const threePoint = score.threePointShootingResult.attempts ?? 0;
     const twoPoint = score.twoPointShootingResult.attempts ?? 0;
@@ -154,6 +186,8 @@ export class MatchSummaryService {
   private buildVm(game: Game): MatchSummaryVm {
     const homeActivePlayers = game.homeActivePlayers ?? [];
     const awayActivePlayers = game.awayActivePlayers ?? [];
+    const homePlayers = homeActivePlayers.map((player) => player.player);
+    const awayPlayers = awayActivePlayers.map((player) => player.player);
     const homeProgressionPlayers = this.buildProgressionPlayers(homeActivePlayers);
     const awayProgressionPlayers = this.buildProgressionPlayers(awayActivePlayers);
     const {homeProgressions, awayProgressions} = this.buildTeamProgressions(
@@ -165,6 +199,8 @@ export class MatchSummaryService {
     return {
       game,
       teamStats: this.buildTeamStats(game.gameResult),
+      homeMatchups: this.buildMatchups(homePlayers, awayPlayers, game.homeMatchups ?? {}),
+      awayMatchups: this.buildMatchups(awayPlayers, homePlayers, game.awayMatchups ?? {}),
       homeActivePlayers,
       awayActivePlayers,
       homeTotals: this.buildPlayerTotals(homeActivePlayers),
