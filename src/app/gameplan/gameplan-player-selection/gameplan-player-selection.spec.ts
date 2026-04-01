@@ -188,6 +188,7 @@ function makePlayer(id: string, name: string, overrides: Partial<Player> = {}): 
     potentielPhysique: 50,
     coachability: 50,
     ego: 50,
+    morale: 50,
     softSkills: 50,
     leadership: 50,
     badges: [],

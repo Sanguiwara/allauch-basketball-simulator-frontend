@@ -99,7 +99,7 @@ export class PlayersList implements AfterViewInit{
       columns.push('ballhandling', 'passingSkills', 'basketballIqOff', 'basketballIqDef', 'iq');
     }
     if (this.showMental()) {
-      columns.push('coachability', 'ego', 'softSkills', 'leadership');
+      columns.push('coachability', 'ego', 'morale', 'softSkills', 'leadership');
     }
     if (this.showPotential()) {
       columns.push('potentielSkill', 'potentielPhysique');

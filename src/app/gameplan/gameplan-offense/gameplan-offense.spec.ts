@@ -151,6 +151,7 @@ function buildPlayer(id: string, tir3Pts: number, tir2Pts: number, finitionAuCer
     potentielPhysique: 0,
     coachability: 0,
     ego: 0,
+    morale: 0,
     softSkills: 0,
     leadership: 0,
     badges: [],

@@ -197,6 +197,11 @@
           <td mat-cell *matCellDef="let row">{{ row.ego }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="morale">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Morale</th>
+          <td mat-cell *matCellDef="let row">{{ row.morale }}</td>
+        </ng-container>
+
         <ng-container matColumnDef="softSkills">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Soft skills</th>
           <td mat-cell *matCellDef="let row">{{ row.softSkills }}</td>

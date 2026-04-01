@@ -56,6 +56,7 @@ describe('GameplanMinutesPlayedComponent', () => {
             potentielPhysique: 60,
             coachability: 60,
             ego: 60,
+            morale: 60,
             softSkills: 60,
             leadership: 60,
             badges: [],

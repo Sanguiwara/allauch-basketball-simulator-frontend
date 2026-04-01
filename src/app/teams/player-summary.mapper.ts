@@ -8,7 +8,7 @@ export class PlayerSummaryMapper {
   toSummary(player: PlayerDTO): PlayerSummaryVM {
     const attack = this.attackScore(player);
     const defense = this.defenseScore(player);
-    const morale = this.mentalScore(player);
+    const morale = player.morale;
     const overall = this.overallScore(attack, defense, morale, player);
 
     return {
@@ -48,19 +48,6 @@ export class PlayerSummaryMapper {
       p.timingRebond,
       p.agressiviteRebond,
       p.steal,
-    ]);
-  }
-
-  private mentalScore(p: PlayerDTO): number {
-    const egoScore = 100 - p.ego;
-    return this.avg([
-      p.iq,
-      p.basketballIqOff,
-      p.basketballIqDef,
-      p.leadership,
-      p.coachability,
-      p.softSkills,
-      egoScore,
     ]);
   }
 

@@ -37,6 +37,7 @@ export interface Player {
 
   coachability: number;
   ego: number;
+  morale: number;
   softSkills: number;
   leadership: number;
 

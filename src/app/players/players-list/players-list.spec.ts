@@ -54,14 +54,15 @@ describe('PlayersList', () => {
       potentielPhysique: 78,
       coachability: 80,
       ego: 15,
+      morale: 84,
       softSkills: 42,
       leadership: 90,
       badges: [{id: 1, name: 'Leader', types: []}],
     };
 
     const predicate = component.dataSource.filterPredicate;
-    expect(predicate(player, 'leader')).toBeTrue();
-    expect(predicate(player, 'alex')).toBeFalse();
+    expect(predicate(player, 'leader')).toBeTruthy();
+    expect(predicate(player, 'alex')).toBeFalsy();
   });
 
   it('does not match when name is different', () => {
@@ -96,12 +97,13 @@ describe('PlayersList', () => {
       potentielPhysique: 81,
       coachability: 82,
       ego: 10,
+      morale: 67,
       softSkills: 20,
       leadership: 25,
       badges: [{id: 2, name: 'Anchor', types: []}],
     };
 
     const predicate = component.dataSource.filterPredicate;
-    expect(predicate(player, 'john')).toBeFalse();
+    expect(predicate(player, 'john')).toBeFalsy();
   });
 });
