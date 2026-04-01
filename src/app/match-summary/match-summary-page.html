@@ -369,6 +369,7 @@
                       [matchups]="vm.homeMatchups"
                       [defenderLabel]="vm.game.homeTeamName"
                       [attackerLabel]="vm.game.awayTeamName"
+                      [defenseType]="vm.game.homeDefenseType ?? null"
                     ></app-match-summary-matchups>
                   </div>
                 </mat-tab>
@@ -378,6 +379,7 @@
                       [matchups]="vm.awayMatchups"
                       [defenderLabel]="vm.game.awayTeamName"
                       [attackerLabel]="vm.game.homeTeamName"
+                      [defenseType]="vm.game.awayDefenseType ?? null"
                     ></app-match-summary-matchups>
                   </div>
                 </mat-tab>

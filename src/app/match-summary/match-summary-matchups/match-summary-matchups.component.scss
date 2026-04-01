@@ -6,6 +6,30 @@
   padding-top: 8px;
 }
 
+.defense-state {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(90, 211, 138, 0.22);
+  background:
+    linear-gradient(135deg, rgba(90, 211, 138, 0.16), rgba(90, 211, 138, 0.05)),
+    rgba(255, 255, 255, 0.03);
+}
+
+.defense-state__label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(233, 238, 252, 0.66);
+}
+
+.defense-state__value {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
 .matchups__header {
   display: grid;
   grid-template-columns: 1fr 1fr;

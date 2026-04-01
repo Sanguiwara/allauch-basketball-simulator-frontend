@@ -1,6 +1,7 @@
 import {GameResult} from './game-result.model';
 import {InGamePlayer} from './ingameplayer.model';
 import {PlayerProgression} from './player-progression.model';
+import {DefenseType} from './zone.enum';
 
 export interface Game {
   id: string;               // UUID
@@ -16,6 +17,8 @@ export interface Game {
   gameResult: GameResult;
   homeMatchups?: Record<string, string>;
   awayMatchups?: Record<string, string>;
+  homeDefenseType?: DefenseType;
+  awayDefenseType?: DefenseType;
   homeActivePlayers?: InGamePlayer[];
   awayActivePlayers?: InGamePlayer[];
   playerProgressions?: PlayerProgression[];

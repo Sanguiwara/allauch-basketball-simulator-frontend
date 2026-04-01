@@ -1,5 +1,10 @@
 <div class="matchups-tab">
-  @if (matchups.length > 0) {
+  @if (!isManToMan) {
+    <div class="defense-state">
+      <div class="defense-state__label">Type de defense</div>
+      <div class="defense-state__value">{{ defenseTypeLabel }}</div>
+    </div>
+  } @else if (matchups.length > 0) {
     <div class="matchups__header">
       <div class="matchups__col-title">
         <span class="pill pill--ghost">{{ defenderLabel }}</span>

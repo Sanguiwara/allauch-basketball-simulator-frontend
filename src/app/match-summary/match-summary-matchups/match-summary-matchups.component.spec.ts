@@ -4,6 +4,7 @@ import {By} from '@angular/platform-browser';
 import {MatchSummaryMatchupsComponent} from './match-summary-matchups.component';
 import {MatchSummaryMatchup} from '../match-summary.service';
 import {Player} from '../../models/player.model';
+import {DefenseType} from '../../models/zone.enum';
 
 describe('MatchSummaryMatchupsComponent', () => {
   let component: MatchSummaryMatchupsComponent;
@@ -21,6 +22,7 @@ describe('MatchSummaryMatchupsComponent', () => {
   it('renders a fallback card when a visitor has no assigned home defender', () => {
     component.matchups = [{visitor: buildPlayer('v1'), home: null}];
     component.defenderLabel = 'Home';
+    component.defenseType = DefenseType.MAN_TO_MAN;
     fixture.detectChanges();
 
     const emptyCardText = fixture.debugElement.query(By.css('.card--empty')).nativeElement.textContent;
@@ -42,6 +44,7 @@ describe('MatchSummaryMatchupsComponent', () => {
       home: buildPlayer('h1'),
     } satisfies MatchSummaryMatchup];
     component.attackerLabel = 'Away';
+    component.defenseType = DefenseType.MAN_TO_MAN;
     fixture.detectChanges();
 
     const visitorCard = fixture.debugElement.query(By.css('.card--visitor'));
@@ -73,12 +76,24 @@ describe('MatchSummaryMatchupsComponent', () => {
     component.matchups = [{visitor: buildPlayer('v1'), home: buildPlayer('h1')}];
     component.defenderLabel = 'Allauch';
     component.attackerLabel = 'Marseille';
+    component.defenseType = DefenseType.MAN_TO_MAN;
     fixture.detectChanges();
 
     const text = fixture.debugElement.query(By.css('.matchups__header')).nativeElement.textContent;
 
     expect(text).toContain('Allauch');
     expect(text).toContain('Marseille');
+  });
+
+  it('renders only the defense type when the defense is not man-to-man', () => {
+    component.matchups = [{visitor: buildPlayer('v1'), home: buildPlayer('h1')}];
+    component.defenseType = DefenseType.ZONE_2_3;
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+
+    expect(text).toContain('Zone 2-3');
+    expect(fixture.debugElement.query(By.css('.matchups__list'))).toBeNull();
   });
 });
 
