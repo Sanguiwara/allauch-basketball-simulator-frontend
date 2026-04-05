@@ -21,6 +21,48 @@
           <div class="tab-content">
             <div class="section">
               <div class="section__title">Statistiques Equipes</div>
+              <div class="collective-quality" aria-label="Qualité du jeu collectif">
+                <div class="collective-quality__header">
+                  <span>Qualité du jeu collectif</span>
+                  <span class="collective-quality__legend">Somme des avantages playmaking individuels</span>
+                </div>
+
+                <div class="collective-quality__teams">
+                  <div class="collective-quality__team">
+                    <div class="collective-quality__team-meta">
+                      <span class="collective-quality__team-name">{{ vm.game.homeTeamName }}</span>
+                      <span class="collective-quality__team-value">{{ getCollectivePlayQualityDisplay(vm.homeCollectivePlayQuality) }}</span>
+                    </div>
+                    <div class="collective-quality__track" aria-hidden="true">
+                      <div class="collective-quality__zero"></div>
+                      <div
+                        class="collective-quality__fill collective-quality__fill--home"
+                        [class.collective-quality__fill--negative]="vm.homeCollectivePlayQuality < 0"
+                        [style.left.%]="50"
+                        [style.width.%]="Math.abs(getCollectivePlayQualityOffset(vm.homeCollectivePlayQuality) - 50)"
+                        [style.transform]="vm.homeCollectivePlayQuality < 0 ? 'translateX(-100%)' : 'translateX(0)'"
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div class="collective-quality__team">
+                    <div class="collective-quality__team-meta">
+                      <span class="collective-quality__team-name">{{ vm.game.awayTeamName }}</span>
+                      <span class="collective-quality__team-value">{{ getCollectivePlayQualityDisplay(vm.awayCollectivePlayQuality) }}</span>
+                    </div>
+                    <div class="collective-quality__track" aria-hidden="true">
+                      <div class="collective-quality__zero"></div>
+                      <div
+                        class="collective-quality__fill collective-quality__fill--away"
+                        [class.collective-quality__fill--negative]="vm.awayCollectivePlayQuality < 0"
+                        [style.left.%]="50"
+                        [style.width.%]="Math.abs(getCollectivePlayQualityOffset(vm.awayCollectivePlayQuality) - 50)"
+                        [style.transform]="vm.awayCollectivePlayQuality < 0 ? 'translateX(-100%)' : 'translateX(0)'"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="table-wrapper">
                 <table mat-table [dataSource]="vm.teamStats" class="table team-stats">
                   <ng-container matColumnDef="home">
@@ -78,6 +120,12 @@
                         <th mat-header-cell *matHeaderCellDef>MIN</th>
                         <td mat-cell *matCellDef="let row">{{ row.minutesPlayed ?? 'â€”' }}</td>
                         <td mat-footer-cell *matFooterCellDef>{{ vm.homeTotals.minutesPlayed }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="playmakingContribution">
+                        <th mat-header-cell *matHeaderCellDef>Playmaking contribution</th>
+                        <td mat-cell *matCellDef="let row">{{ getPlaymakingContribution(vm.homePlaymakingContributions, row.player.id) }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.homeCollectivePlayQuality }}</td>
                       </ng-container>
 
                       <ng-container matColumnDef="points">
@@ -215,6 +263,12 @@
                         <th mat-header-cell *matHeaderCellDef>MIN</th>
                         <td mat-cell *matCellDef="let row">{{ row.minutesPlayed ?? 'â€”' }}</td>
                         <td mat-footer-cell *matFooterCellDef>{{ vm.awayTotals.minutesPlayed }}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="playmakingContribution">
+                        <th mat-header-cell *matHeaderCellDef>Playmaking contribution</th>
+                        <td mat-cell *matCellDef="let row">{{ getPlaymakingContribution(vm.awayPlaymakingContributions, row.player.id) }}</td>
+                        <td mat-footer-cell *matFooterCellDef>{{ vm.awayCollectivePlayQuality }}</td>
                       </ng-container>
 
                       <ng-container matColumnDef="points">
@@ -370,6 +424,8 @@
                       [defenderLabel]="vm.game.homeTeamName"
                       [attackerLabel]="vm.game.awayTeamName"
                       [defenseType]="vm.game.homeDefenseType ?? null"
+                      [defenders]="vm.homeActivePlayers"
+                      [attackers]="vm.awayActivePlayers"
                     ></app-match-summary-matchups>
                   </div>
                 </mat-tab>
@@ -380,6 +436,8 @@
                       [defenderLabel]="vm.game.awayTeamName"
                       [attackerLabel]="vm.game.homeTeamName"
                       [defenseType]="vm.game.awayDefenseType ?? null"
+                      [defenders]="vm.awayActivePlayers"
+                      [attackers]="vm.homeActivePlayers"
                     ></app-match-summary-matchups>
                   </div>
                 </mat-tab>

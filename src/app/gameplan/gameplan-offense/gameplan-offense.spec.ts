@@ -1,30 +1,14 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import '@angular/compiler';
 import {SimpleChange} from '@angular/core';
+import {describe, expect, it, vi} from 'vitest';
 import {GameplanOffense} from './gameplan-offense';
 import {GamePlan} from '../../models/gameplan.model';
 import {InGamePlayer} from '../../models/ingameplayer.model';
 import {Player} from '../../models/player.model';
 
 describe('GameplanOffense', () => {
-  let component: GameplanOffense;
-  let fixture: ComponentFixture<GameplanOffense>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [GameplanOffense],
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(GameplanOffense);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
   it('sorts players by threePtScore, twoPtScore and driveScore', () => {
+    const component = createComponent();
     const playerA = buildPlayer('a', 0, 0, 0);
     const playerB = buildPlayer('b', 0, 0, 0);
     const playerC = buildPlayer('c', 0, 0, 0);
@@ -51,6 +35,7 @@ describe('GameplanOffense', () => {
   });
 
   it('computes usage totals and remaining values', () => {
+    const component = createComponent();
     const playerA = buildPlayer('a', 0, 0, 0);
     const playerB = buildPlayer('b', 0, 0, 0);
 
@@ -72,13 +57,137 @@ describe('GameplanOffense', () => {
     expect(component.remainingUsageShoot).toBe(75);
     expect(component.remainingUsagePost).toBe(60);
   });
+
+  it('exposes opponent defenders with rotating defense views', () => {
+    const component = createComponent();
+    const defender = buildPlayer('d1', 88, 82, 0);
+    defender.speed = 80;
+    defender.size = 70;
+    defender.endurance = 60;
+    defender.defExterieur = 65;
+    defender.defPoste = 55;
+    defender.basketballIqDef = 68;
+    defender.iq = 75;
+    defender.steal = 40;
+
+    const plan = buildGamePlan([]);
+    plan.opponentTeam = {
+      id: 'team-2',
+      name: 'Away',
+      ageCategory: 'adult',
+      gender: 'M',
+      players: [defender],
+    } as never;
+
+    component.gamePlan = plan;
+    component.ngOnChanges({
+      gamePlan: new SimpleChange(null, plan, true),
+    });
+
+    expect(component.opponentPlayers.map((player) => player.id)).toEqual(['d1']);
+    expect(component.getDefensiveView(defender.id)).toBe('all');
+    expect(component.defensiveDetails(defender, 'all')).toEqual([
+      {label: 'DR DEF', value: 66.4},
+      {label: 'PLAY DEF', value: 64.1},
+      {label: '2PT DEF', value: 65.2},
+      {label: '3PT DEF', value: 67.8},
+    ]);
+
+    component.cycleDefensiveView(defender.id, 1);
+    expect(component.getDefensiveView(defender.id)).toBe('drive');
+    component.cycleDefensiveView(defender.id, -1);
+    expect(component.getDefensiveView(defender.id)).toBe('all');
+  });
+
+  it('sorts opponent defenders by defensive scores and can collapse the sidebar', () => {
+    const component = createComponent();
+    const driveDefender = buildPlayer('d1', 0, 0, 0);
+    driveDefender.speed = 90;
+    driveDefender.size = 85;
+    driveDefender.defExterieur = 40;
+    driveDefender.defPoste = 80;
+    driveDefender.endurance = 70;
+    driveDefender.iq = 75;
+    driveDefender.steal = 60;
+
+    const threePtDefender = buildPlayer('d2', 0, 0, 0);
+    threePtDefender.speed = 70;
+    threePtDefender.size = 60;
+    threePtDefender.defExterieur = 95;
+    threePtDefender.defPoste = 40;
+    threePtDefender.endurance = 60;
+    threePtDefender.iq = 70;
+    threePtDefender.steal = 50;
+    threePtDefender.basketballIqDef = 88;
+
+    const plan = buildGamePlan([]);
+    plan.opponentTeam = {
+      id: 'team-2',
+      name: 'Away',
+      ageCategory: 'adult',
+      gender: 'M',
+      players: [driveDefender, threePtDefender],
+    } as never;
+
+    component.gamePlan = plan;
+    component.ngOnChanges({
+      gamePlan: new SimpleChange(null, plan, true),
+    });
+
+    component.setOpponentSortMode('threePtDesc');
+    expect(component.displayOpponentPlayers.map((player) => player.id)).toEqual(['d2', 'd1']);
+
+    component.setOpponentSortMode('driveDesc');
+    expect(component.displayOpponentPlayers.map((player) => player.id)).toEqual(['d1', 'd2']);
+
+    expect(component.isOpponentSidebarCollapsed).toBe(false);
+    component.toggleOpponentSidebar();
+    expect(component.isOpponentSidebarCollapsed).toBe(true);
+  });
+
+  it('computes indicative opponent defense team score from top scores', () => {
+    const component = createComponent();
+    const defender = buildPlayer('d1', 0, 0, 0);
+    defender.speed = 80;
+    defender.size = 70;
+    defender.endurance = 60;
+    defender.defExterieur = 65;
+    defender.defPoste = 55;
+    defender.basketballIqDef = 68;
+    defender.iq = 75;
+    defender.steal = 40;
+
+    const plan = buildGamePlan([]);
+    plan.opponentTeam = {
+      id: 'team-2',
+      name: 'Away',
+      ageCategory: 'adult',
+      gender: 'M',
+      players: [defender],
+    } as never;
+
+    component.gamePlan = plan;
+    component.ngOnChanges({
+      gamePlan: new SimpleChange(null, plan, true),
+    });
+
+    expect(component.opponentDefenseTeamScore.drive).toBe(66.4);
+    expect(component.opponentDefenseTeamScore.playmaking).toBe(64.1);
+  });
 });
+
+function createComponent(): GameplanOffense {
+  return new GameplanOffense(
+    {saveGamePlan: vi.fn()} as never,
+    {markForCheck: vi.fn()} as never,
+  );
+}
 
 function buildGamePlan(activePlayers: InGamePlayer[]): GamePlan {
   return {
     id: 'plan-1',
-    ownerTeam: {} as never,
-    opponentTeam: {} as never,
+    ownerTeam: {players: []} as never,
+    opponentTeam: {players: []} as never,
     activePlayers,
     threePointAttemptShare: 0.2,
     midRangeAttemptShare: 0.2,
@@ -108,6 +217,8 @@ function buildInGamePlayer(
     threePointMade: 0,
     twoPointAttempts: 0,
     twoPointMade: 0,
+    driveAttempts: 0,
+    driveMade: 0,
     usageShoot: 0,
     usageDrive: 0,
     usagePost: 0,

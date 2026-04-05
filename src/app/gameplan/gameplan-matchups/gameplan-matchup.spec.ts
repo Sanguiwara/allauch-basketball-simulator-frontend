@@ -4,17 +4,21 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {of} from 'rxjs';
 import {
   GameplanMatchupComponent,
-  getDriveDefenseScore,
-  getDriveOffenseScore,
   getMatchupScores,
-  getThreePtDefenseScore,
-  getThreePtOffenseScore,
-  getTwoPtDefenseScore,
-  getTwoPtOffenseScore,
 } from './gameplan-matchup';
 import {GamePlan} from '../../models/gameplan.model';
 import {Player} from '../../models/player.model';
 import {InGamePlayer} from '../../models/ingameplayer.model';
+import {
+  getDriveDefenseScore,
+  getDriveOffenseScore,
+  getPlaymakingDefenseScore,
+  getPlaymakingOffenseScore,
+  getThreePtDefenseScore,
+  getThreePtOffenseScore,
+  getTwoPtDefenseScore,
+  getTwoPtOffenseScore,
+} from '../../utils/team-score';
 
 describe('GameplanMatchupComponent', () => {
   let component: GameplanMatchupComponent;
@@ -72,8 +76,11 @@ describe('GameplanMatchupComponent', () => {
       size: 70,
       endurance: 60,
       ballhandling: 90,
+      passingSkills: 77,
       finitionAuCercle: 85,
       floater: 50,
+      basketballIqOff: 83,
+      basketballIqDef: 68,
       iq: 75,
       defExterieur: 65,
       steal: 40,
@@ -84,6 +91,8 @@ describe('GameplanMatchupComponent', () => {
 
     expect(getDriveOffenseScore(player)).toBe(78.8);
     expect(getDriveDefenseScore(player)).toBe(66.4);
+    expect(getPlaymakingOffenseScore(player)).toBe(80.2);
+    expect(getPlaymakingDefenseScore(player)).toBe(64.1);
     expect(getTwoPtOffenseScore(player)).toBe(76);
     expect(getTwoPtDefenseScore(player)).toBe(65.2);
     expect(getThreePtOffenseScore(player)).toBe(79.8);
@@ -91,11 +100,96 @@ describe('GameplanMatchupComponent', () => {
     expect(getMatchupScores(player)).toEqual({
       driveOffense: 78.8,
       driveDefense: 66.4,
+      playmakingOffense: 80.2,
+      playmakingDefense: 64.1,
       twoPtOffense: 76,
       twoPtDefense: 65.2,
       threePtOffense: 79.8,
       threePtDefense: 67.8,
     });
+  });
+
+  it('cycles offensive and defensive views and exposes the expected raw stats', () => {
+    const player = buildPlayer('p1', {
+      speed: 80,
+      size: 70,
+      endurance: 60,
+      ballhandling: 90,
+      passingSkills: 77,
+      finitionAuCercle: 85,
+      floater: 50,
+      basketballIqOff: 83,
+      basketballIqDef: 68,
+      iq: 75,
+      defExterieur: 65,
+      steal: 40,
+      defPoste: 55,
+      tir2Pts: 82,
+      tir3Pts: 88,
+    });
+
+    expect(component.getOffensiveView(player.id)).toBe('all');
+    component.cycleOffensiveView(player.id, 1);
+    expect(component.getOffensiveView(player.id)).toBe('drive');
+    component.cycleOffensiveView(player.id, 1);
+    expect(component.getOffensiveView(player.id)).toBe('threePt');
+    component.cycleOffensiveView(player.id, 1);
+    expect(component.getOffensiveView(player.id)).toBe('playmaking');
+    expect(component.offensiveDetails(player, component.getOffensiveView(player.id))).toEqual([
+      {label: 'SPD', value: 80},
+      {label: 'SIZE', value: 70},
+      {label: 'END', value: 60},
+      {label: 'PASS', value: 77},
+      {label: 'IQ OFF', value: 83},
+      {label: 'HANDLE', value: 90},
+      {label: '3PT', value: 88},
+      {label: '2PT', value: 82},
+      {label: 'FIN', value: 85},
+      {label: 'FLOAT', value: 50},
+    ]);
+
+    expect(component.offensiveDetails(player, 'all')).toEqual([
+      {label: 'DR OFF', value: 78.8},
+      {label: 'PLAY OFF', value: 80.2},
+      {label: '2PT OFF', value: 76},
+      {label: '3PT OFF', value: 79.8},
+    ]);
+
+    expect(component.getDefensiveView(player.id)).toBe('all');
+    component.cycleDefensiveView(player.id, -1);
+    expect(component.getDefensiveView(player.id)).toBe('twoPt');
+    expect(component.defensiveDetails(player, 'all')).toEqual([
+      {label: 'DR DEF', value: 66.4},
+      {label: 'PLAY DEF', value: 64.1},
+      {label: '2PT DEF', value: 65.2},
+      {label: '3PT DEF', value: 67.8},
+    ]);
+    expect(component.defensiveDetails(player, component.getDefensiveView(player.id))).toEqual([
+      {label: 'DEF POST', value: 55},
+      {label: 'SPD', value: 80},
+      {label: 'SIZE', value: 70},
+      {label: 'END', value: 60},
+      {label: 'IQ', value: 75},
+      {label: 'STL', value: 40},
+    ]);
+  });
+
+  it('computes defense team score from active player minutes and indicative offense score for opponents', () => {
+    const homePlayers = [buildPlayer('h1', {speed: 80, size: 70, endurance: 60, defExterieur: 65, defPoste: 55, iq: 75, steal: 40})];
+    const visitors = [buildPlayer('v1', {speed: 80, size: 70, endurance: 60, ballhandling: 90, finitionAuCercle: 85, floater: 50, iq: 75, tir2Pts: 82, tir3Pts: 88, passingSkills: 77, basketballIqOff: 83})];
+    const plan = buildGamePlan(homePlayers, visitors);
+
+    component.gamePlan = plan;
+    component.activePlayers = [buildInGamePlayer(homePlayers[0], {minutesPlayed: 20})];
+    component.ngOnChanges({
+      gamePlan: new SimpleChange(null, plan, true),
+      activePlayers: new SimpleChange(null, component.activePlayers, true),
+    });
+
+    expect(component.homeDefenseTeamScore.drive).toBe(5);
+    expect(component.homeDefenseTeamScore.playmaking).toBe(4);
+    expect(component.visitorOffenseTeamScore.drive).toBe(78.8);
+    expect(component.visitorOffenseTeamScore.threePt).toBe(79.8);
   });
 });
 
@@ -159,6 +253,7 @@ function buildPlayer(id: string, overrides: Partial<Player> = {}): Player {
     potentielPhysique: 0,
     coachability: 0,
     ego: 0,
+    morale: 0,
     softSkills: 0,
     leadership: 0,
     badges: [],
@@ -166,7 +261,7 @@ function buildPlayer(id: string, overrides: Partial<Player> = {}): Player {
   };
 }
 
-function buildInGamePlayer(player: Player): InGamePlayer {
+function buildInGamePlayer(player: Player, overrides: Partial<InGamePlayer> = {}): InGamePlayer {
   return {
     player,
     playmakingContribution: 0,
@@ -179,10 +274,16 @@ function buildInGamePlayer(player: Player): InGamePlayer {
     threePointMade: 0,
     twoPointAttempts: 0,
     twoPointMade: 0,
+    driveAttempts: 0,
+    driveMade: 0,
     usageShoot: 0,
     usageDrive: 0,
     usagePost: 0,
+    threePtScore: 0,
+    twoPtScore: 0,
+    driveScore: 0,
     minutesPlayed: 0,
     starter: false,
+    ...overrides,
   };
 }

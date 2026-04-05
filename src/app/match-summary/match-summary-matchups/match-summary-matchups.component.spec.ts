@@ -1,99 +1,106 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {By} from '@angular/platform-browser';
+import '@angular/compiler';
+import {describe, expect, it} from 'vitest';
 
 import {MatchSummaryMatchupsComponent} from './match-summary-matchups.component';
-import {MatchSummaryMatchup} from '../match-summary.service';
 import {Player} from '../../models/player.model';
 import {DefenseType} from '../../models/zone.enum';
+import {InGamePlayer} from '../../models/ingameplayer.model';
 
 describe('MatchSummaryMatchupsComponent', () => {
-  let component: MatchSummaryMatchupsComponent;
-  let fixture: ComponentFixture<MatchSummaryMatchupsComponent>;
+  it('uses the summary view by default for attacker and defender', () => {
+    const component = new MatchSummaryMatchupsComponent();
+    const player = buildPlayer('p1');
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [MatchSummaryMatchupsComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(MatchSummaryMatchupsComponent);
-    component = fixture.componentInstance;
+    expect(component.getOffensiveView(player.id)).toBe('all');
+    expect(component.getDefensiveView(player.id)).toBe('all');
   });
 
-  it('renders a fallback card when a visitor has no assigned home defender', () => {
-    component.matchups = [{visitor: buildPlayer('v1'), home: null}];
-    component.defenderLabel = 'Home';
-    component.defenseType = DefenseType.MAN_TO_MAN;
-    fixture.detectChanges();
+  it('cycles attacker and defender views and exposes matching stat groups', () => {
+    const component = new MatchSummaryMatchupsComponent();
+    const player = buildPlayer('p1', {
+      speed: 80,
+      size: 70,
+      endurance: 60,
+      ballhandling: 90,
+      passingSkills: 77,
+      finitionAuCercle: 85,
+      floater: 50,
+      basketballIqOff: 83,
+      basketballIqDef: 68,
+      iq: 75,
+      defExterieur: 65,
+      steal: 40,
+      defPoste: 55,
+      tir2Pts: 82,
+      tir3Pts: 88,
+    });
 
-    const emptyCardText = fixture.debugElement.query(By.css('.card--empty')).nativeElement.textContent;
+    component.cycleOffensiveView(player.id, 1);
+    component.cycleOffensiveView(player.id, 1);
+    expect(component.getOffensiveView(player.id)).toBe('threePt');
 
-    expect(emptyCardText).toContain('Non assigne');
+    component.cycleDefensiveView(player.id, -1);
+    expect(component.getDefensiveView(player.id)).toBe('twoPt');
+
+    expect(component.offensiveDetails(player, 'all')).toEqual([
+      {label: 'DR OFF', value: 78.8},
+      {label: 'PLAY OFF', value: 80.2},
+      {label: '2PT OFF', value: 76},
+      {label: '3PT OFF', value: 79.8},
+    ]);
+    expect(component.defensiveDetails(player, 'all')).toEqual([
+      {label: 'DR DEF', value: 66.4},
+      {label: 'PLAY DEF', value: 64.1},
+      {label: '2PT DEF', value: 65.2},
+      {label: '3PT DEF', value: 67.8},
+    ]);
   });
 
-  it('renders visitor offensive stats without free throws', () => {
-    component.matchups = [{
-      visitor: buildPlayer('v1', {
-        tir3Pts: 61,
-        tir2Pts: 62,
-        ballhandling: 63,
-        floater: 64,
-        finitionAuCercle: 65,
-        size: 66,
-        lancerFranc: 99,
-      }),
-      home: buildPlayer('h1'),
-    } satisfies MatchSummaryMatchup];
-    component.attackerLabel = 'Away';
-    component.defenseType = DefenseType.MAN_TO_MAN;
-    fixture.detectChanges();
+  it('returns readable defense labels', () => {
+    const component = new MatchSummaryMatchupsComponent();
 
-    const visitorCard = fixture.debugElement.query(By.css('.card--visitor'));
-    const labels = visitorCard.queryAll(By.css('.label')).map((element) =>
-      (element.nativeElement.textContent ?? '').trim()
-    );
-    const values = visitorCard.queryAll(By.css('.value')).map((element) =>
-      (element.nativeElement.textContent ?? '').trim()
-    );
-
-    expect(labels).toContain('3PT');
-    expect(labels).toContain('2PT');
-    expect(labels).toContain('BALLHANDLING');
-    expect(labels).toContain('FLT');
-    expect(labels).toContain('RIM');
-    expect(labels).toContain('SIZE');
-    expect(labels).not.toContain('FT');
-
-    expect(values).toContain('61');
-    expect(values).toContain('62');
-    expect(values).toContain('63');
-    expect(values).toContain('64');
-    expect(values).toContain('65');
-    expect(values).toContain('66');
-    expect(values).not.toContain('99');
-  });
-
-  it('renders custom team labels in the header', () => {
-    component.matchups = [{visitor: buildPlayer('v1'), home: buildPlayer('h1')}];
-    component.defenderLabel = 'Allauch';
-    component.attackerLabel = 'Marseille';
-    component.defenseType = DefenseType.MAN_TO_MAN;
-    fixture.detectChanges();
-
-    const text = fixture.debugElement.query(By.css('.matchups__header')).nativeElement.textContent;
-
-    expect(text).toContain('Allauch');
-    expect(text).toContain('Marseille');
-  });
-
-  it('renders only the defense type when the defense is not man-to-man', () => {
-    component.matchups = [{visitor: buildPlayer('v1'), home: buildPlayer('h1')}];
     component.defenseType = DefenseType.ZONE_2_3;
-    fixture.detectChanges();
+    expect(component.isManToMan).toBe(false);
+    expect(component.defenseTypeLabel).toBe('Zone 2-3');
 
-    const text = fixture.nativeElement.textContent;
+    component.defenseType = DefenseType.MAN_TO_MAN;
+    expect(component.isManToMan).toBe(true);
+    expect(component.defenseTypeLabel).toBe('Man-to-man');
+  });
 
-    expect(text).toContain('Zone 2-3');
-    expect(fixture.debugElement.query(By.css('.matchups__list'))).toBeNull();
+  it('computes weighted team scores when minutes are available', () => {
+    const component = new MatchSummaryMatchupsComponent();
+    const defender = buildPlayer('d1', {
+      speed: 80,
+      size: 70,
+      endurance: 60,
+      defExterieur: 65,
+      defPoste: 55,
+      basketballIqDef: 68,
+      iq: 75,
+      steal: 40,
+    });
+    const attacker = buildPlayer('a1', {
+      speed: 80,
+      size: 70,
+      endurance: 60,
+      ballhandling: 90,
+      passingSkills: 77,
+      basketballIqOff: 83,
+      tir3Pts: 88,
+      tir2Pts: 82,
+      finitionAuCercle: 85,
+      floater: 50,
+      iq: 75,
+    });
+
+    component.defenders = [buildInGamePlayer(defender, 20)];
+    component.attackers = [buildInGamePlayer(attacker, 40)];
+
+    expect(component.defenderTeamScore.drive).toBe(5);
+    expect(component.defenderTeamScore.playmaking).toBe(4.8);
+    expect(component.attackerTeamScore.drive).toBe(11.8);
+    expect(component.attackerTeamScore.threePt).toBe(12);
   });
 });
 
@@ -134,5 +141,31 @@ function buildPlayer(id: string, overrides: Partial<Player> = {}): Player {
     leadership: 0,
     badges: [],
     ...overrides,
+  };
+}
+
+function buildInGamePlayer(player: Player, minutesPlayed: number): InGamePlayer {
+  return {
+    player,
+    playmakingContribution: 0,
+    assistWeight: 0,
+    assists: 0,
+    points: 0,
+    fga: 0,
+    fgm: 0,
+    threePointAttempt: 0,
+    threePointMade: 0,
+    twoPointAttempts: 0,
+    twoPointMade: 0,
+    driveAttempts: 0,
+    driveMade: 0,
+    usageShoot: 0,
+    usageDrive: 0,
+    usagePost: 0,
+    threePtScore: 0,
+    twoPtScore: 0,
+    driveScore: 0,
+    minutesPlayed,
+    starter: false,
   };
 }

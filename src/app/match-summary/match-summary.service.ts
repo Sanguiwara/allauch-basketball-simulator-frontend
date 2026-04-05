@@ -6,6 +6,7 @@ import {GameResult, ShootingResult} from '../models/game-result.model';
 import {InGamePlayer} from '../models/ingameplayer.model';
 import {Player} from '../models/player.model';
 import {calculateScore} from '../utils/game-result.utils';
+import {getPlaymakingDefenseScore, getPlaymakingOffenseScore} from '../utils/team-score';
 
 export interface TeamStatRow {
   label: string;
@@ -16,6 +17,10 @@ export interface TeamStatRow {
 export interface MatchSummaryVm {
   game: Game;
   teamStats: TeamStatRow[];
+  homeCollectivePlayQuality: number;
+  awayCollectivePlayQuality: number;
+  homePlaymakingContributions: Record<string, number>;
+  awayPlaymakingContributions: Record<string, number>;
   homeMatchups: MatchSummaryMatchup[];
   awayMatchups: MatchSummaryMatchup[];
   homeActivePlayers: InGamePlayer[];
@@ -151,6 +156,48 @@ export class MatchSummaryService {
     return totals;
   }
 
+  buildCollectivePlayQuality(
+    offensePlayers: InGamePlayer[],
+    opposingDefensePlayers: InGamePlayer[],
+    opposingMatchups: Record<string, string>,
+  ): {total: number; contributions: Record<string, number>} {
+    const averageTeamDefensiveScore = this.getAverageTeamPlaymakingDefensiveScore(opposingDefensePlayers);
+    const attackerToDefenderId = new Map(
+      Object.entries(opposingMatchups ?? {}).map(([defenderId, attackerId]) => [attackerId, defenderId]),
+    );
+    const defenderById = new Map(opposingDefensePlayers.map((player) => [player.player.id, player]));
+    const contributions: Record<string, number> = {};
+
+    const total = offensePlayers.reduce((sum, inGameOff) => {
+      const minutesPlayed = inGameOff.minutesPlayed ?? 0;
+      if (minutesPlayed === 0 || !inGameOff.player?.id) {
+        contributions[inGameOff.player?.id ?? ''] = 0;
+        return sum;
+      }
+
+      const offScore = getPlaymakingOffenseScore(inGameOff.player);
+      const minutesShare = minutesPlayed / 200;
+      const defenderId = attackerToDefenderId.get(inGameOff.player.id);
+      const defender = defenderId ? defenderById.get(defenderId) : undefined;
+      const effectiveDefensiveScore = this.getEffectivePlaymakingDefenseScore(
+        minutesPlayed,
+        defender,
+        averageTeamDefensiveScore,
+      );
+      const rawAdvantage = offScore - effectiveDefensiveScore;
+      const clampedAdvantage = Math.max(-25, Math.min(25, rawAdvantage));
+      const contribution = Math.round(clampedAdvantage * minutesShare * 10) / 10;
+
+      contributions[inGameOff.player.id] = contribution;
+      return sum + contribution;
+    }, 0);
+
+    return {
+      total: Math.round(total * 10) / 10,
+      contributions,
+    };
+  }
+
   buildMatchups(
     defenders: Player[],
     attackers: Player[],
@@ -190,6 +237,16 @@ export class MatchSummaryService {
     const awayPlayers = awayActivePlayers.map((player) => player.player);
     const homeProgressionPlayers = this.buildProgressionPlayers(homeActivePlayers);
     const awayProgressionPlayers = this.buildProgressionPlayers(awayActivePlayers);
+    const homePlaymakingQuality = this.buildCollectivePlayQuality(
+      homeActivePlayers,
+      awayActivePlayers,
+      game.awayMatchups ?? {},
+    );
+    const awayPlaymakingQuality = this.buildCollectivePlayQuality(
+      awayActivePlayers,
+      homeActivePlayers,
+      game.homeMatchups ?? {},
+    );
     const {homeProgressions, awayProgressions} = this.buildTeamProgressions(
       game.playerProgressions ?? [],
       homeActivePlayers,
@@ -199,6 +256,10 @@ export class MatchSummaryService {
     return {
       game,
       teamStats: this.buildTeamStats(game.gameResult),
+      homeCollectivePlayQuality: homePlaymakingQuality.total,
+      awayCollectivePlayQuality: awayPlaymakingQuality.total,
+      homePlaymakingContributions: homePlaymakingQuality.contributions,
+      awayPlaymakingContributions: awayPlaymakingQuality.contributions,
       homeMatchups: this.buildMatchups(homePlayers, awayPlayers, game.homeMatchups ?? {}),
       awayMatchups: this.buildMatchups(awayPlayers, homePlayers, game.awayMatchups ?? {}),
       homeActivePlayers,
@@ -222,6 +283,35 @@ export class MatchSummaryService {
       }
     }
     return Array.from(uniquePlayers.values());
+  }
+
+  private getAverageTeamPlaymakingDefensiveScore(players: InGamePlayer[]): number {
+    if (players.length === 0) {
+      return 0;
+    }
+
+    const total = players.reduce((sum, player) => sum + getPlaymakingDefenseScore(player.player), 0);
+    return total / players.length;
+  }
+
+  private getEffectivePlaymakingDefenseScore(
+    attackerMinutes: number,
+    defender: InGamePlayer | undefined,
+    averageTeamDefensiveScore: number,
+  ): number {
+    if (!defender) {
+      return averageTeamDefensiveScore;
+    }
+
+    const defenderScore = getPlaymakingDefenseScore(defender.player);
+    const defenderMinutes = defender.minutesPlayed ?? 0;
+
+    if (attackerMinutes <= defenderMinutes) {
+      return defenderScore;
+    }
+
+    const extraMinutes = attackerMinutes - defenderMinutes;
+    return ((defenderScore * defenderMinutes) + (averageTeamDefensiveScore * extraMinutes)) / attackerMinutes;
   }
 
   private buildTeamProgressions(
