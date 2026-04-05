@@ -22,20 +22,21 @@ export class MatchSummaryPage implements OnInit {
     'player',
     'starter',
     'minutesPlayed',
+    'playmakingContribution',
     'points',
     'assists',
     'offensiveRebounds',
     'defensiveRebounds',
     'steals',
     'blocks',
-    'fgm',
-    'fga',
+    'driveMade',
+    'driveAttempts',
     'twoPm',
     'twoPa',
-    'driveAttempts',
-    'driveMade',
     'tpm',
     'tpa',
+    'fgm',
+    'fga',
     'usageShoot',
     'usageDrive',
     'usagePost',
@@ -54,4 +55,19 @@ export class MatchSummaryPage implements OnInit {
       switchMap(id => (id ? this.service.getMatchSummary(id) : of(null))),
     );
   }
+
+  getCollectivePlayQualityOffset(value: number): number {
+    const clamped = Math.max(-25, Math.min(25, value));
+    return ((clamped + 25) / 50) * 100;
+  }
+
+  getCollectivePlayQualityDisplay(value: number): number {
+    return Math.max(-25, Math.min(25, value));
+  }
+
+  getPlaymakingContribution(contributions: Record<string, number>, playerId: string): number {
+    return contributions[playerId] ?? 0;
+  }
+
+  protected readonly Math = Math;
 }

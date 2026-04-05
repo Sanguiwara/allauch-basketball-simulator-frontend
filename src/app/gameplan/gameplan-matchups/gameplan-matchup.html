@@ -9,6 +9,16 @@
         <span class="pill">{{ ownerPool.length }}</span>
       </div>
 
+      <div class="team-score-card">
+        <div class="team-score-card__title">Score d'equipe defense</div>
+        <div class="team-score-grid">
+          <div class="team-score-item"><span>Drive</span><strong>{{ homeDefenseTeamScore.drive }}</strong></div>
+          <div class="team-score-item"><span>3PT</span><strong>{{ homeDefenseTeamScore.threePt }}</strong></div>
+          <div class="team-score-item"><span>Playmaking</span><strong>{{ homeDefenseTeamScore.playmaking }}</strong></div>
+          <div class="team-score-item"><span>2PT</span><strong>{{ homeDefenseTeamScore.twoPt }}</strong></div>
+        </div>
+      </div>
+
       <div class="pool-toolbar">
         <div class="sort">
           <span class="sort__label">Tri</span>
@@ -18,55 +28,31 @@
             [class.sort__btn--active]="sortMode === 'default'"
             (click)="setSortMode('default')"
           >
-            Défaut
+            Defaut
           </button>
           <button
             mat-stroked-button
             class="sort__btn"
-            [class.sort__btn--active]="sortMode === 'defExtDesc'"
-            (click)="setSortMode('defExtDesc')"
+            [class.sort__btn--active]="sortMode === 'driveDefenseDesc'"
+            (click)="setSortMode('driveDefenseDesc')"
           >
-            DEF EXT ↓
+            DEF DRIVE ↓
           </button>
           <button
             mat-stroked-button
             class="sort__btn"
-            [class.sort__btn--active]="sortMode === 'defPostDesc'"
-            (click)="setSortMode('defPostDesc')"
+            [class.sort__btn--active]="sortMode === 'twoPtDefenseDesc'"
+            (click)="setSortMode('twoPtDefenseDesc')"
           >
-            DEF POSTE ↓
+            DEF 2PTS ↓
           </button>
           <button
             mat-stroked-button
             class="sort__btn"
-            [class.sort__btn--active]="sortMode === 'sizeDesc'"
-            (click)="setSortMode('sizeDesc')"
+            [class.sort__btn--active]="sortMode === 'threePtDefenseDesc'"
+            (click)="setSortMode('threePtDefenseDesc')"
           >
-            SIZE ↓
-          </button>
-          <button
-            mat-stroked-button
-            class="sort__btn"
-            [class.sort__btn--active]="sortMode === 'speedDesc'"
-            (click)="setSortMode('speedDesc')"
-          >
-            SPEED ↓
-          </button>
-          <button
-            mat-stroked-button
-            class="sort__btn"
-            [class.sort__btn--active]="sortMode === 'defIqDesc'"
-            (click)="setSortMode('defIqDesc')"
-          >
-            DEF IQ ↓
-          </button>
-          <button
-            mat-stroked-button
-            class="sort__btn"
-            [class.sort__btn--active]="sortMode === 'enduranceDesc'"
-            (click)="setSortMode('enduranceDesc')"
-          >
-            ENDURANCE ↓
+            DEF 3PTS ↓
           </button>
         </div>
       </div>
@@ -87,6 +73,7 @@
         }
 
         @for (p of ownerPool; track p.id) {
+          @let defensiveView = getDefensiveView(p.id);
           <div class="list__item">
             <mat-card
               class="card"
@@ -99,11 +86,26 @@
                   <span class="tag">HOME</span>
                 </div>
 
-                <div class="stats">
-                  @for (stat of defensiveStats; track stat.label) {
+                <div class="view-switcher">
+                  <button type="button" class="view-switcher__btn" (click)="cycleDefensiveView(p.id, -1)" aria-label="Vue defense precedente">
+                    ‹
+                  </button>
+                  <div class="view-switcher__title">
+                    <span>{{ defensiveViewLabel(defensiveView) }}</span>
+                    @if (defensiveView !== 'all') {
+                      <span class="view-switcher__score">{{ currentDefensiveScore(p, defensiveView) | number: '1.0-0' }}</span>
+                    }
+                  </div>
+                  <button type="button" class="view-switcher__btn" (click)="cycleDefensiveView(p.id, 1)" aria-label="Vue defense suivante">
+                    ›
+                  </button>
+                </div>
+
+                <div class="stats stats--details">
+                  @for (stat of defensiveDetails(p, defensiveView); track stat.label) {
                     <div class="stat">
                       <div class="label">{{ stat.label }}</div>
-                      <div class="value">{{ getPlayerStat(p, stat.key) }}</div>
+                      <div class="value">{{ stat.value | number: '1.0-0' }}</div>
                     </div>
                   }
                 </div>
@@ -136,7 +138,6 @@
 
       <div class="list list--matchups">
         @for (m of matchupsUI; track m.visitor.id; let i = $index) {
-
           <div class="matchup-row">
             <!-- HOME SLOT (drop zone) -->
             <div
@@ -146,6 +147,7 @@
               (cdkDropListDropped)="dropOnSlot($event, i)"
             >
               @if (m.home) {
+                @let homeView = getDefensiveView(m.home.id);
                 <mat-card
                   class="card"
                   cdkDrag
@@ -157,11 +159,26 @@
                       <span class="tag">HOME</span>
                     </div>
 
-                    <div class="stats">
-                      @for (stat of defensiveStats; track stat.label) {
+                    <div class="view-switcher">
+                      <button type="button" class="view-switcher__btn" (click)="cycleDefensiveView(m.home.id, -1)" aria-label="Vue defense precedente">
+                        ‹
+                      </button>
+                      <div class="view-switcher__title">
+                        <span>{{ defensiveViewLabel(homeView) }}</span>
+                        @if (homeView !== 'all') {
+                          <span class="view-switcher__score">{{ currentDefensiveScore(m.home, homeView) | number: '1.0-0' }}</span>
+                        }
+                      </div>
+                      <button type="button" class="view-switcher__btn" (click)="cycleDefensiveView(m.home.id, 1)" aria-label="Vue defense suivante">
+                        ›
+                      </button>
+                    </div>
+
+                    <div class="stats stats--details">
+                      @for (stat of defensiveDetails(m.home, homeView); track stat.label) {
                         <div class="stat">
                           <div class="label">{{ stat.label }}</div>
-                          <div class="value">{{ getPlayerStat(m.home, stat.key) }}</div>
+                          <div class="value">{{ stat.value | number: '1.0-0' }}</div>
                         </div>
                       }
                     </div>
@@ -183,6 +200,7 @@
             </div>
 
             <!-- VISITOR -->
+            @let visitorView = getOffensiveView(m.visitor.id);
             <mat-card class="card card--visitor">
               <mat-card-content class="card__body">
                 <div class="card__top">
@@ -190,18 +208,32 @@
                   <span class="tag">VISITOR</span>
                 </div>
 
-                <div class="stats stats--visitor">
-                  <div class="stat"><div class="label">3PT</div><div class="value">{{ m.visitor.tir3Pts }}</div></div>
-                  <div class="stat"><div class="label">2PT</div><div class="value">{{ m.visitor.tir2Pts }}</div></div>
-                  <div class="stat"><div class="label">BALLHANDLING</div><div class="value">{{ m.visitor.ballhandling }}</div></div>
-                  <div class="stat"><div class="label">FLT</div><div class="value">{{ m.visitor.floater }}</div></div>
-                  <div class="stat"><div class="label">RIM</div><div class="value">{{ m.visitor.finitionAuCercle }}</div></div>
-                  <div class="stat"><div class="label">SIZE</div><div class="value">{{ m.visitor.size }}</div></div>
+                <div class="view-switcher">
+                  <button type="button" class="view-switcher__btn" (click)="cycleOffensiveView(m.visitor.id, -1)" aria-label="Vue attaque precedente">
+                    ‹
+                  </button>
+                  <div class="view-switcher__title">
+                    <span>{{ offensiveViewLabel(visitorView) }}</span>
+                    @if (visitorView !== 'all') {
+                      <span class="view-switcher__score">{{ currentOffensiveScore(m.visitor, visitorView) | number: '1.0-0' }}</span>
+                    }
+                  </div>
+                  <button type="button" class="view-switcher__btn" (click)="cycleOffensiveView(m.visitor.id, 1)" aria-label="Vue attaque suivante">
+                    ›
+                  </button>
+                </div>
+
+                <div class="stats stats--details stats--visitor">
+                  @for (stat of offensiveDetails(m.visitor, visitorView); track stat.label) {
+                    <div class="stat">
+                      <div class="label">{{ stat.label }}</div>
+                      <div class="value">{{ stat.value | number: '1.0-0' }}</div>
+                    </div>
+                  }
                 </div>
               </mat-card-content>
             </mat-card>
           </div>
-
         }
       </div>
 

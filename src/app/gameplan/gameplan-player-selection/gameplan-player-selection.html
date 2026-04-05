@@ -8,6 +8,9 @@
           <span class="pill">{{ homePlayers.length }}</span>
           <span class="pill">Total: {{ totalSelectedMinutes }} / {{ totalMinutes }}</span>
           <span class="pill" [class.pill--warn]="remainingMinutes !== 0">Restant: {{ remainingMinutes }}</span>
+          <span class="pill">REB total: {{ totalReboundImpact }}</span>
+          <span class="pill">PM total: {{ totalPlaymakingImpact }}</span>
+          <span class="pill">INT total: {{ totalInterceptionImpact }}</span>
         </div>
 
         <div class="panel__actions">

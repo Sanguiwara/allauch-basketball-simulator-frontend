@@ -1,5 +1,6 @@
 export interface TeamListItemVM {
   id: string;
+  clubId: string;
   name: string;
   category: string;
   gender: string;

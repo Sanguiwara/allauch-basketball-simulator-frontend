@@ -51,6 +51,9 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
   remainingMinutes = this.totalMinutes;
   hasInvalidMinutes = false;
   canSave = false;
+  totalReboundImpact = 0;
+  totalPlaymakingImpact = 0;
+  totalInterceptionImpact = 0;
   isSaving = false;
   saveStatus: 'idle' | 'success' | 'error' = 'idle';
 
@@ -303,6 +306,10 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
     return this.avg([p.passingSkills, p.iq, p.basketballIqOff, p.basketballIqDef]);
   }
 
+  getImpactMultiplier(minutes: number): number {
+    return minutes / 200;
+  }
+
   physScore(p: Player): number {
     return this.avg([p.physique, p.endurance, p.solidite, p.speed]);
   }
@@ -376,12 +383,19 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
   private recalculateSummary(): void {
     let total = 0;
     let hasInvalid = false;
+    let reboundImpact = 0;
+    let playmakingImpact = 0;
+    let interceptionImpact = 0;
 
     for (const p of this.homePlayers) {
       if (this.getChoice(p.id) !== 'play') continue;
       const minutes = this.getMinutes(p.id);
       if (Number.isFinite(minutes)) {
         total += minutes;
+        const multiplier = this.getImpactMultiplier(minutes);
+        reboundImpact += this.reboundScore(p) * multiplier;
+        playmakingImpact += this.playmakingScore(p) * multiplier;
+        interceptionImpact += this.stealScore(p) * multiplier;
       }
       if (this.isMinutesValueInvalid(minutes)) {
         hasInvalid = true;
@@ -391,6 +405,9 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
     this.totalSelectedMinutes = total;
     this.remainingMinutes = this.totalMinutes - total;
     this.hasInvalidMinutes = hasInvalid;
+    this.totalReboundImpact = Math.round(reboundImpact);
+    this.totalPlaymakingImpact = Math.round(playmakingImpact);
+    this.totalInterceptionImpact = Math.round(interceptionImpact);
     this.canSave = this.homePlayers.some(p => this.getChoice(p.id) === 'play') && !hasInvalid && this.remainingMinutes === 0;
   }
 

@@ -82,6 +82,50 @@
   margin: 6px 0 10px;
 }
 
+.team-score-card {
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.team-score-card__title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.team-score-card__meta {
+  margin-top: 4px;
+  font-size: 11px;
+  color: rgba(233, 238, 252, 0.65);
+}
+
+.team-score-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.team-score-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+}
+
+.team-score-item strong {
+  font-size: 13px;
+}
+
 .sort {
   display: flex;
   align-items: center;
@@ -251,13 +295,17 @@
 /* Stats grid (compact) */
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px 12px;
   font-size: 11px;
 }
 
+.stats--details {
+  grid-template-columns: repeat(auto-fit, minmax(68px, 1fr));
+}
+
 .stats--visitor {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(68px, 1fr));
 }
 
 .stat .label {
@@ -271,6 +319,46 @@
   font-size: 12px;
   line-height: 1.15;
   margin-top: 2px;
+}
+
+.view-switcher {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.view-switcher__btn {
+  height: 28px;
+  width: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(233, 238, 252, 0.88);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.view-switcher__btn:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.view-switcher__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.view-switcher__score {
+  font-size: 12px;
+  color: rgba(233, 238, 252, 0.92);
 }
 
 /* Hints / footer */

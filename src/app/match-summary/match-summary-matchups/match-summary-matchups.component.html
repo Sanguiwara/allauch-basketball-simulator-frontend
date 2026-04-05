@@ -5,6 +5,28 @@
       <div class="defense-state__value">{{ defenseTypeLabel }}</div>
     </div>
   } @else if (matchups.length > 0) {
+    <div class="team-score-stack">
+      <div class="team-score-card">
+        <div class="team-score-card__title">Score d'equipe {{ defenderLabel }}</div>
+        <div class="team-score-grid">
+          <div class="team-score-item"><span>Drive</span><strong>{{ defenderTeamScore.drive }}</strong></div>
+          <div class="team-score-item"><span>3PT</span><strong>{{ defenderTeamScore.threePt }}</strong></div>
+          <div class="team-score-item"><span>Playmaking</span><strong>{{ defenderTeamScore.playmaking }}</strong></div>
+          <div class="team-score-item"><span>2PT</span><strong>{{ defenderTeamScore.twoPt }}</strong></div>
+        </div>
+      </div>
+
+      <div class="team-score-card">
+        <div class="team-score-card__title">Score d'equipe {{ attackerLabel }}</div>
+        <div class="team-score-grid">
+          <div class="team-score-item"><span>Drive</span><strong>{{ attackerTeamScore.drive }}</strong></div>
+          <div class="team-score-item"><span>3PT</span><strong>{{ attackerTeamScore.threePt }}</strong></div>
+          <div class="team-score-item"><span>Playmaking</span><strong>{{ attackerTeamScore.playmaking }}</strong></div>
+          <div class="team-score-item"><span>2PT</span><strong>{{ attackerTeamScore.twoPt }}</strong></div>
+        </div>
+      </div>
+    </div>
+
     <div class="matchups__header">
       <div class="matchups__col-title">
         <span class="pill pill--ghost">{{ defenderLabel }}</span>
@@ -21,6 +43,7 @@
         <div class="matchup-row">
           <div class="slot">
             @if (matchup.home) {
+              @let homeView = getDefensiveView(matchup.home.id);
               <mat-card class="card">
                 <mat-card-content class="card__body">
                   <div class="card__top">
@@ -28,11 +51,26 @@
                     <span class="tag">{{ defenderLabel }}</span>
                   </div>
 
-                  <div class="stats">
-                    @for (stat of defensiveStats; track stat.label) {
+                  <div class="view-switcher">
+                    <button type="button" class="view-switcher__btn" (click)="cycleDefensiveView(matchup.home.id, -1)" aria-label="Vue defense precedente">
+                      ‹
+                    </button>
+                    <div class="view-switcher__title">
+                      <span>{{ defensiveViewLabel(homeView) }}</span>
+                      @if (homeView !== 'all') {
+                        <span class="view-switcher__score">{{ currentDefensiveScore(matchup.home, homeView) | number: '1.0-0' }}</span>
+                      }
+                    </div>
+                    <button type="button" class="view-switcher__btn" (click)="cycleDefensiveView(matchup.home.id, 1)" aria-label="Vue defense suivante">
+                      ›
+                    </button>
+                  </div>
+
+                  <div class="stats stats--details">
+                    @for (stat of defensiveDetails(matchup.home, homeView); track stat.label) {
                       <div class="stat">
                         <div class="label">{{ stat.label }}</div>
-                        <div class="value">{{ getPlayerStat(matchup.home, stat.key) }}</div>
+                        <div class="value">{{ stat.value | number: '1.0-0' }}</div>
                       </div>
                     }
                   </div>
@@ -51,6 +89,7 @@
             }
           </div>
 
+          @let visitorView = getOffensiveView(matchup.visitor.id);
           <mat-card class="card card--visitor">
             <mat-card-content class="card__body">
               <div class="card__top">
@@ -58,13 +97,28 @@
                 <span class="tag">{{ attackerLabel }}</span>
               </div>
 
-              <div class="stats stats--visitor">
-                <div class="stat"><div class="label">3PT</div><div class="value">{{ matchup.visitor.tir3Pts }}</div></div>
-                <div class="stat"><div class="label">2PT</div><div class="value">{{ matchup.visitor.tir2Pts }}</div></div>
-                <div class="stat"><div class="label">BALLHANDLING</div><div class="value">{{ matchup.visitor.ballhandling }}</div></div>
-                <div class="stat"><div class="label">FLT</div><div class="value">{{ matchup.visitor.floater }}</div></div>
-                <div class="stat"><div class="label">RIM</div><div class="value">{{ matchup.visitor.finitionAuCercle }}</div></div>
-                <div class="stat"><div class="label">SIZE</div><div class="value">{{ matchup.visitor.size }}</div></div>
+              <div class="view-switcher">
+                <button type="button" class="view-switcher__btn" (click)="cycleOffensiveView(matchup.visitor.id, -1)" aria-label="Vue attaque precedente">
+                  ‹
+                </button>
+                <div class="view-switcher__title">
+                  <span>{{ offensiveViewLabel(visitorView) }}</span>
+                  @if (visitorView !== 'all') {
+                    <span class="view-switcher__score">{{ currentOffensiveScore(matchup.visitor, visitorView) | number: '1.0-0' }}</span>
+                  }
+                </div>
+                <button type="button" class="view-switcher__btn" (click)="cycleOffensiveView(matchup.visitor.id, 1)" aria-label="Vue attaque suivante">
+                  ›
+                </button>
+              </div>
+
+              <div class="stats stats--details stats--visitor">
+                @for (stat of offensiveDetails(matchup.visitor, visitorView); track stat.label) {
+                  <div class="stat">
+                    <div class="label">{{ stat.label }}</div>
+                    <div class="value">{{ stat.value | number: '1.0-0' }}</div>
+                  </div>
+                }
               </div>
             </mat-card-content>
           </mat-card>

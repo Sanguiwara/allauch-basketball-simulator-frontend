@@ -12,10 +12,27 @@ import {MatTab, MatTabGroup} from '@angular/material/tabs';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {RouterLink} from '@angular/router';
 import {catchError, finalize, of} from 'rxjs';
+import {Player} from '../../models/player.model';
+import {
+  getDriveDefenseScore,
+  getIndicativeDefenseTeamScore,
+  getPlaymakingDefenseScore,
+  getThreePtDefenseScore,
+  getTwoPtDefenseScore,
+  TeamScoreSummary,
+} from '../../utils/team-score';
 
 type UsageKey = 'usageDrive' | 'usageShoot' | 'usagePost';
 type ShotMixKey = 'threePoint' | 'midRange' | 'drive';
 type SortMode = 'default' | 'threePtScoreDesc' | 'twoPtScoreDesc' | 'driveScoreDesc';
+type DefensiveViewMode = 'all' | 'drive' | 'threePt' | 'playmaking' | 'twoPt';
+type OpponentSortMode = 'default' | 'driveDesc' | 'threePtDesc' | 'playmakingDesc' | 'twoPtDesc';
+type StatDetail = {
+  label: string;
+  value: number;
+};
+
+const DEFENSIVE_VIEW_ORDER: DefensiveViewMode[] = ['all', 'drive', 'threePt', 'playmaking', 'twoPt'];
 
 @Component({
   selector: 'app-gameplan-offense',
@@ -41,7 +58,11 @@ export class GameplanOffense implements OnChanges {
   @Input('activePlayers') activePlayersInput: InGamePlayer[] | null = null;
 
   activePlayers: InGamePlayer[] = [];
+  opponentPlayers: Player[] = [];
   sortMode: SortMode = 'default';
+  opponentSortMode: OpponentSortMode = 'default';
+  isOpponentSidebarCollapsed = false;
+  defensiveViewByPlayerId = new Map<string, DefensiveViewMode>();
 
   maxGeneralUsage = 100;
   maxPerPlayerUsage = 30;
@@ -60,8 +81,10 @@ export class GameplanOffense implements OnChanges {
     {validators: [this.totalShareValidator()]},
   );
 
-  constructor(private api: GamePlanApiService, private cdr: ChangeDetectorRef) {
-  }
+  constructor(
+    private api: GamePlanApiService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['gamePlan'] && this.gamePlan) {
@@ -71,6 +94,7 @@ export class GameplanOffense implements OnChanges {
     if ((changes['gamePlan'] || changes['activePlayersInput']) && this.gamePlan) {
       const source = this.activePlayersInput ?? this.gamePlan.activePlayers ?? [];
       this.activePlayers = source.map((p) => ({...p}));
+      this.opponentPlayers = this.gamePlan.opponentTeam?.players ?? [];
     }
   }
 
@@ -78,16 +102,126 @@ export class GameplanOffense implements OnChanges {
     return this.getSortedPlayers();
   }
 
+  get displayOpponentPlayers(): Player[] {
+    if (this.opponentSortMode === 'default') {
+      return [...this.opponentPlayers];
+    }
+
+    const sorted = [...this.opponentPlayers];
+    sorted.sort((a, b) => this.getOpponentSortValue(b) - this.getOpponentSortValue(a));
+    return sorted;
+  }
+
+  get opponentDefenseTeamScore(): TeamScoreSummary {
+    return getIndicativeDefenseTeamScore(this.opponentPlayers);
+  }
+
   setSortMode(mode: SortMode): void {
     this.sortMode = mode;
   }
 
-  /** Somme en excluant un joueur (utile pour calculer ce qu'il reste) */
+  setOpponentSortMode(mode: OpponentSortMode): void {
+    this.opponentSortMode = mode;
+  }
+
+  toggleOpponentSidebar(): void {
+    this.isOpponentSidebarCollapsed = !this.isOpponentSidebarCollapsed;
+  }
+
+  getDefensiveView(playerId: string): DefensiveViewMode {
+    return this.defensiveViewByPlayerId.get(playerId) ?? 'all';
+  }
+
+  cycleDefensiveView(playerId: string, direction: -1 | 1): void {
+    this.defensiveViewByPlayerId.set(
+      playerId,
+      this.getNextView(DEFENSIVE_VIEW_ORDER, this.getDefensiveView(playerId), direction),
+    );
+  }
+
+  defensiveViewLabel(mode: DefensiveViewMode): string {
+    switch (mode) {
+      case 'all':
+        return 'Tous';
+      case 'drive':
+        return 'Def Drive';
+      case 'threePt':
+        return 'Def 3PT';
+      case 'playmaking':
+        return 'Def Playmaking';
+      case 'twoPt':
+        return 'Def 2PT';
+    }
+  }
+
+  defensiveDetails(player: Player, mode: DefensiveViewMode): StatDetail[] {
+    switch (mode) {
+      case 'all':
+        return [
+          {label: 'DR DEF', value: getDriveDefenseScore(player)},
+          {label: 'PLAY DEF', value: getPlaymakingDefenseScore(player)},
+          {label: '2PT DEF', value: getTwoPtDefenseScore(player)},
+          {label: '3PT DEF', value: getThreePtDefenseScore(player)},
+        ];
+      case 'drive':
+        return [
+          {label: 'SPD', value: player.speed},
+          {label: 'SIZE', value: player.size},
+          {label: 'DEF EXT', value: player.defExterieur},
+          {label: 'END', value: player.endurance},
+          {label: 'IQ', value: player.iq},
+          {label: 'STL', value: player.steal},
+          {label: 'DEF POST', value: player.defPoste},
+        ];
+      case 'threePt':
+        return [
+          {label: 'SPD', value: player.speed},
+          {label: 'SIZE', value: player.size},
+          {label: 'DEF EXT', value: player.defExterieur},
+          {label: 'END', value: player.endurance},
+          {label: 'IQ', value: player.iq},
+        ];
+      case 'playmaking':
+        return [
+          {label: 'SPD', value: player.speed},
+          {label: 'SIZE', value: player.size},
+          {label: 'DEF EXT', value: player.defExterieur},
+          {label: 'END', value: player.endurance},
+          {label: 'IQ DEF', value: player.basketballIqDef},
+          {label: 'STL', value: player.steal},
+        ];
+      case 'twoPt':
+        return [
+          {label: 'DEF POST', value: player.defPoste},
+          {label: 'SPD', value: player.speed},
+          {label: 'SIZE', value: player.size},
+          {label: 'END', value: player.endurance},
+          {label: 'IQ', value: player.iq},
+          {label: 'STL', value: player.steal},
+        ];
+    }
+  }
+
+  currentDefensiveScore(player: Player, mode: DefensiveViewMode): number {
+    switch (mode) {
+      case 'all':
+        return getPlaymakingDefenseScore(player);
+      case 'drive':
+        return getDriveDefenseScore(player);
+      case 'threePt':
+        return getThreePtDefenseScore(player);
+      case 'playmaking':
+        return getPlaymakingDefenseScore(player);
+      case 'twoPt':
+        return getTwoPtDefenseScore(player);
+    }
+  }
+
   private getTotalExcluding(key: UsageKey, exclude: InGamePlayer): number {
     let total = 0;
     for (const p of this.activePlayers) {
       if (p === exclude) continue;
-      total += (p[key] ?? 0);
+      total += p[key] ?? 0;
     }
     return total;
   }
@@ -99,7 +233,6 @@ export class GameplanOffense implements OnChanges {
 
     const totalWithoutPlayer = this.getTotalExcluding(key, player);
     const remaining = this.maxGeneralUsage - totalWithoutPlayer;
-
 
     if (remaining <= 0) {
       player[key] = 0;
@@ -113,7 +246,6 @@ export class GameplanOffense implements OnChanges {
     player[key] = next;
   }
 
-
   saveActivePlayers(): void {
     if (!this.gamePlan) return;
     this.gamePlan.activePlayers = this.activePlayers;
@@ -121,24 +253,27 @@ export class GameplanOffense implements OnChanges {
     this.isSavingUsage = true;
     this.saveStatusUsage = 'idle';
 
-    this.api.saveGamePlan(this.gamePlan).pipe(
-      catchError(() => {
-        this.saveStatusUsage = 'error';
-        this.cdr.markForCheck();
-        return of(null);
-      }),
-      finalize(() => {
-        this.isSavingUsage = false;
-        if (this.saveStatusUsage !== 'error') {
-          this.saveStatusUsage = 'success';
-        }
-        this.cdr.markForCheck();
-        setTimeout(() => {
-          this.saveStatusUsage = 'idle';
+    this.api
+      .saveGamePlan(this.gamePlan)
+      .pipe(
+        catchError(() => {
+          this.saveStatusUsage = 'error';
           this.cdr.markForCheck();
-        }, 2000);
-      })
-    ).subscribe();
+          return of(null);
+        }),
+        finalize(() => {
+          this.isSavingUsage = false;
+          if (this.saveStatusUsage !== 'error') {
+            this.saveStatusUsage = 'success';
+          }
+          this.cdr.markForCheck();
+          setTimeout(() => {
+            this.saveStatusUsage = 'idle';
+            this.cdr.markForCheck();
+          }, 2000);
+        }),
+      )
+      .subscribe();
   }
 
   get totalPercent(): number {
@@ -190,24 +325,27 @@ export class GameplanOffense implements OnChanges {
     this.isSavingShotMix = true;
     this.saveStatusShotMix = 'idle';
 
-    this.api.saveGamePlan(this.gamePlan).pipe(
-      catchError(() => {
-        this.saveStatusShotMix = 'error';
-        this.cdr.markForCheck();
-        return of(null);
-      }),
-      finalize(() => {
-        this.isSavingShotMix = false;
-        if (this.saveStatusShotMix !== 'error') {
-          this.saveStatusShotMix = 'success';
-        }
-        this.cdr.markForCheck();
-        setTimeout(() => {
-          this.saveStatusShotMix = 'idle';
+    this.api
+      .saveGamePlan(this.gamePlan)
+      .pipe(
+        catchError(() => {
+          this.saveStatusShotMix = 'error';
           this.cdr.markForCheck();
-        }, 2000);
-      })
-    ).subscribe();
+          return of(null);
+        }),
+        finalize(() => {
+          this.isSavingShotMix = false;
+          if (this.saveStatusShotMix !== 'error') {
+            this.saveStatusShotMix = 'success';
+          }
+          this.cdr.markForCheck();
+          setTimeout(() => {
+            this.saveStatusShotMix = 'idle';
+            this.cdr.markForCheck();
+          }, 2000);
+        }),
+      )
+      .subscribe();
   }
 
   setShotMixValue(key: ShotMixKey, value: number): void {
@@ -261,11 +399,7 @@ export class GameplanOffense implements OnChanges {
     }
 
     const sorted = [...this.activePlayers];
-    sorted.sort((a, b) => {
-      const valueA = this.getSortValue(a);
-      const valueB = this.getSortValue(b);
-      return valueB - valueA;
-    });
+    sorted.sort((a, b) => this.getSortValue(b) - this.getSortValue(a));
     return sorted;
   }
 
@@ -280,5 +414,27 @@ export class GameplanOffense implements OnChanges {
       default:
         return 0;
     }
+  }
+
+  private getOpponentSortValue(player: Player): number {
+    switch (this.opponentSortMode) {
+      case 'driveDesc':
+        return getDriveDefenseScore(player);
+      case 'threePtDesc':
+        return getThreePtDefenseScore(player);
+      case 'playmakingDesc':
+        return getPlaymakingDefenseScore(player);
+      case 'twoPtDesc':
+        return getTwoPtDefenseScore(player);
+      default:
+        return 0;
+    }
+  }
+
+  private getNextView<T extends string>(order: readonly T[], current: T, direction: -1 | 1): T {
+    const currentIndex = order.indexOf(current);
+    const safeIndex = currentIndex >= 0 ? currentIndex : 0;
+    const nextIndex = (safeIndex + direction + order.length) % order.length;
+    return order[nextIndex];
   }
 }

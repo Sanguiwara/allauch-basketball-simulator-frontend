@@ -101,6 +101,47 @@ describe('MatchSummaryService', () => {
     });
   });
 
+  it('computes collective play quality from team playmaking minus opposing defense playmaking', () => {
+    const calendarApiStub = {} as CalendarApiService;
+    const service = new MatchSummaryService(calendarApiStub);
+
+    const offensePlayers: InGamePlayer[] = [
+      buildInGamePlayer('p1', {
+        minutesPlayed: 40,
+        player: buildPlayer('p1', {
+          speed: 80,
+          size: 70,
+          endurance: 60,
+          passingSkills: 77,
+          basketballIqOff: 83,
+          ballhandling: 90,
+          tir3Pts: 88,
+          tir2Pts: 82,
+          finitionAuCercle: 85,
+          floater: 50,
+        }),
+      }),
+    ];
+    const defensePlayers: InGamePlayer[] = [
+      buildInGamePlayer('d1', {
+        minutesPlayed: 40,
+        player: buildPlayer('d1', {
+          speed: 80,
+          size: 70,
+          endurance: 60,
+          defExterieur: 65,
+          basketballIqDef: 68,
+          steal: 40,
+        }),
+      }),
+    ];
+
+    expect(service.buildCollectivePlayQuality(offensePlayers, defensePlayers, {})).toEqual({
+      total: 3.2,
+      contributions: {p1: 3.2},
+    });
+  });
+
   it('builds matchups from a record and keeps unmatched attackers visible', () => {
     const calendarApiStub = {} as CalendarApiService;
     const service = new MatchSummaryService(calendarApiStub);
@@ -163,6 +204,10 @@ describe('MatchSummaryService', () => {
 
     expect(result.homeMatchups).toEqual([{home: homeOne, visitor: awayOne}]);
     expect(result.awayMatchups).toEqual([{home: awayOne, visitor: homeOne}]);
+    expect(result.homeCollectivePlayQuality).toBe(0);
+    expect(result.awayCollectivePlayQuality).toBe(0);
+    expect(result.homePlaymakingContributions).toEqual({h1: 0});
+    expect(result.awayPlaymakingContributions).toEqual({a1: 0});
   });
 });
 
