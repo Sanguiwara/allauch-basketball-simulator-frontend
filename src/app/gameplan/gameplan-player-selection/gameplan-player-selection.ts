@@ -12,6 +12,7 @@ import {GamePlanApiService} from '../gameplan-service';
 import {GamePlan} from '../../models/gameplan.model';
 import {Player} from '../../models/player.model';
 import {InGamePlayer} from '../../models/ingameplayer.model';
+import {getPlaymakingOffenseScore, getReboundScore, getStealScore} from '../../utils/team-score';
 
 type PlayerChoice = 'play' | 'noPlay';
 type StarterChoice = 'starter' | 'bench';
@@ -266,27 +267,11 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
   }
 
   stealScore(p: Player): number {
-    return (
-      p.speed * 0.20 +
-      p.defExterieur * 0.25 +
-      p.steal * 0.30 +
-      p.basketballIqDef * 0.15 +
-      p.endurance * 0.05 +
-      p.physique * 0.05
-    );
+    return getStealScore(p);
   }
 
   reboundScore(p: Player): number {
-    return (
-      p.size * 0.18 +
-      p.weight * 0.10 +
-      p.agressivite * 0.10 +
-      p.agressiviteRebond * 0.18 +
-      p.timingRebond * 0.18 +
-      p.physique * 0.14 +
-      p.iq * 0.06 +
-      p.endurance * 0.06
-    );
+    return getReboundScore(p);
   }
 
   mentalScore(p: Player): number {
@@ -303,7 +288,7 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
   }
 
   playmakingScore(p: Player): number {
-    return this.avg([p.passingSkills, p.iq, p.basketballIqOff, p.basketballIqDef]);
+    return getPlaymakingOffenseScore(p);
   }
 
   getImpactMultiplier(minutes: number): number {

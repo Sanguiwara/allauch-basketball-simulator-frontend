@@ -3,6 +3,7 @@ import { GameResult } from '../models/game-result.model';
 import { CalendarApiService } from '../calendar/calendar-api.service';
 import { InGamePlayer } from '../models/ingameplayer.model';
 import { Player } from '../models/player.model';
+import { getReboundScore, getStealScore } from '../utils/team-score';
 
 describe('MatchSummaryService', () => {
   it('adds total shot number to team stats', () => {
@@ -208,6 +209,79 @@ describe('MatchSummaryService', () => {
     expect(result.awayCollectivePlayQuality).toBe(0);
     expect(result.homePlaymakingContributions).toEqual({h1: 0});
     expect(result.awayPlaymakingContributions).toEqual({a1: 0});
+    expect(result.homeReboundScore).toBe(0);
+    expect(result.awayReboundScore).toBe(0);
+    expect(result.homeInterceptionScore).toBe(0);
+    expect(result.awayInterceptionScore).toBe(0);
+  });
+
+  it('builds weighted team rebound and interception totals in the vm', () => {
+    const calendarApiStub = {} as CalendarApiService;
+    const service = new MatchSummaryService(calendarApiStub);
+
+    const homePlayer = buildPlayer('h1', {
+      size: 80,
+      weight: 65,
+      agressivite: 55,
+      agressiviteRebond: 78,
+      timingRebond: 82,
+      physique: 73,
+      iq: 68,
+      endurance: 76,
+      speed: 74,
+      defExterieur: 71,
+      steal: 84,
+      basketballIqDef: 77,
+    });
+    const awayPlayer = buildPlayer('a1', {
+      size: 70,
+      weight: 58,
+      agressivite: 49,
+      agressiviteRebond: 67,
+      timingRebond: 75,
+      physique: 69,
+      iq: 63,
+      endurance: 72,
+      speed: 81,
+      defExterieur: 79,
+      steal: 88,
+      basketballIqDef: 74,
+    });
+
+    const result = (service as unknown as {buildVm: (game: any) => any}).buildVm({
+      id: 'game-2',
+      executeAt: '2026-04-01T10:00:00Z',
+      homeGamePlanId: 'home-plan',
+      awayGamePlanId: 'away-plan',
+      homeTeamId: 'home-team',
+      homeTeamName: 'Home',
+      awayTeamId: 'away-team',
+      awayTeamName: 'Away',
+      homeClubID: 'home-club',
+      awayClubID: 'away-club',
+      gameResult: {
+        homeScore: {
+          threePointShootingResult: {attempts: 0, made: 0},
+          twoPointShootingResult: {attempts: 0, made: 0},
+          driveResult: {attempts: 0, made: 0},
+        },
+        awayScore: {
+          threePointShootingResult: {attempts: 0, made: 0},
+          twoPointShootingResult: {attempts: 0, made: 0},
+          driveResult: {attempts: 0, made: 0},
+        },
+      },
+      homeMatchups: {},
+      awayMatchups: {},
+      homeActivePlayers: [buildInGamePlayer('h1', {player: homePlayer, minutesPlayed: 40})],
+      awayActivePlayers: [buildInGamePlayer('a1', {player: awayPlayer, minutesPlayed: 20})],
+      playerProgressions: [],
+    });
+
+    expect(result.homeReboundScore).toBe(Math.round(getReboundScore(homePlayer) * (40 / 200) * 10) / 10);
+    expect(result.awayReboundScore).toBe(Math.round(getReboundScore(awayPlayer) * (20 / 200) * 10) / 10);
+    expect(result.homeInterceptionScore).toBe(Math.round(getStealScore(homePlayer) * (40 / 200) * 10) / 10);
+    expect(result.awayInterceptionScore).toBe(Math.round(getStealScore(awayPlayer) * (20 / 200) * 10) / 10);
   });
 });
 

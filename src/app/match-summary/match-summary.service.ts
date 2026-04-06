@@ -6,7 +6,7 @@ import {GameResult, ShootingResult} from '../models/game-result.model';
 import {InGamePlayer} from '../models/ingameplayer.model';
 import {Player} from '../models/player.model';
 import {calculateScore} from '../utils/game-result.utils';
-import {getPlaymakingDefenseScore, getPlaymakingOffenseScore} from '../utils/team-score';
+import {getPlaymakingDefenseScore, getPlaymakingOffenseScore, getReboundScore, getStealScore} from '../utils/team-score';
 
 export interface TeamStatRow {
   label: string;
@@ -21,6 +21,10 @@ export interface MatchSummaryVm {
   awayCollectivePlayQuality: number;
   homePlaymakingContributions: Record<string, number>;
   awayPlaymakingContributions: Record<string, number>;
+  homeReboundScore: number;
+  awayReboundScore: number;
+  homeInterceptionScore: number;
+  awayInterceptionScore: number;
   homeMatchups: MatchSummaryMatchup[];
   awayMatchups: MatchSummaryMatchup[];
   homeActivePlayers: InGamePlayer[];
@@ -260,6 +264,10 @@ export class MatchSummaryService {
       awayCollectivePlayQuality: awayPlaymakingQuality.total,
       homePlaymakingContributions: homePlaymakingQuality.contributions,
       awayPlaymakingContributions: awayPlaymakingQuality.contributions,
+      homeReboundScore: this.buildWeightedSkillTotal(homeActivePlayers, getReboundScore),
+      awayReboundScore: this.buildWeightedSkillTotal(awayActivePlayers, getReboundScore),
+      homeInterceptionScore: this.buildWeightedSkillTotal(homeActivePlayers, getStealScore),
+      awayInterceptionScore: this.buildWeightedSkillTotal(awayActivePlayers, getStealScore),
       homeMatchups: this.buildMatchups(homePlayers, awayPlayers, game.homeMatchups ?? {}),
       awayMatchups: this.buildMatchups(awayPlayers, homePlayers, game.awayMatchups ?? {}),
       homeActivePlayers,
@@ -292,6 +300,15 @@ export class MatchSummaryService {
 
     const total = players.reduce((sum, player) => sum + getPlaymakingDefenseScore(player.player), 0);
     return total / players.length;
+  }
+
+  private buildWeightedSkillTotal(players: InGamePlayer[], scorer: (player: Player) => number): number {
+    const total = players.reduce((sum, inGamePlayer) => {
+      const minutesPlayed = inGamePlayer.minutesPlayed ?? 0;
+      return sum + scorer(inGamePlayer.player) * (minutesPlayed / 200);
+    }, 0);
+
+    return Math.round(total * 10) / 10;
   }
 
   private getEffectivePlaymakingDefenseScore(

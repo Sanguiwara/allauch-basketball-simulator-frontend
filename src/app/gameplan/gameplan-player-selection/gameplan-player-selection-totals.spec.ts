@@ -2,8 +2,56 @@ import '@angular/compiler';
 import {describe, expect, it, vi} from 'vitest';
 import {GameplanPlayerSelectionComponent} from './gameplan-player-selection';
 import {Player} from '../../models/player.model';
+import {getPlaymakingOffenseScore, getReboundScore, getStealScore} from '../../utils/team-score';
 
 describe('GameplanPlayerSelectionComponent totals', () => {
+  it('uses the shared offensive playmaking score formula', () => {
+    const component = new GameplanPlayerSelectionComponent(
+      {saveGamePlan: vi.fn()} as never,
+      {markForCheck: vi.fn()} as never,
+    );
+
+    const player = makePlayer('p1', {
+      speed: 82,
+      size: 68,
+      endurance: 74,
+      passingSkills: 91,
+      basketballIqOff: 88,
+      ballhandling: 85,
+      tir3Pts: 77,
+      tir2Pts: 66,
+      finitionAuCercle: 71,
+      floater: 63,
+    });
+
+    expect(component.playmakingScore(player)).toBe(getPlaymakingOffenseScore(player));
+  });
+
+  it('uses the shared rebound and interception formulas', () => {
+    const component = new GameplanPlayerSelectionComponent(
+      {saveGamePlan: vi.fn()} as never,
+      {markForCheck: vi.fn()} as never,
+    );
+
+    const player = makePlayer('p1', {
+      size: 82,
+      weight: 71,
+      agressivite: 64,
+      agressiviteRebond: 89,
+      timingRebond: 77,
+      physique: 74,
+      iq: 68,
+      endurance: 81,
+      speed: 79,
+      defExterieur: 72,
+      steal: 88,
+      basketballIqDef: 75,
+    });
+
+    expect(component.reboundScore(player)).toBe(getReboundScore(player));
+    expect(component.stealScore(player)).toBe(getStealScore(player));
+  });
+
   it('computes weighted rebound, playmaking and interception totals from minutes', () => {
     const component = new GameplanPlayerSelectionComponent(
       {saveGamePlan: vi.fn()} as never,
@@ -50,7 +98,7 @@ describe('GameplanPlayerSelectionComponent totals', () => {
     component.setMinutes('p2', 40);
 
     expect(component.totalReboundImpact).toBe(18);
-    expect(component.totalPlaymakingImpact).toBe(21);
+    expect(component.totalPlaymakingImpact).toBe(19);
     expect(component.totalInterceptionImpact).toBe(22);
   });
 });

@@ -26,6 +26,30 @@ export function getDriveOffenseScore(player: Player): number {
   );
 }
 
+export function getStealScore(player: Player): number {
+  return roundScore(
+    player.speed * 0.2 +
+      player.defExterieur * 0.25 +
+      player.steal * 0.3 +
+      player.basketballIqDef * 0.15 +
+      player.endurance * 0.05 +
+      player.physique * 0.05,
+  );
+}
+
+export function getReboundScore(player: Player): number {
+  return roundScore(
+    player.size * 0.18 +
+      player.weight * 0.1 +
+      player.agressivite * 0.1 +
+      player.agressiviteRebond * 0.18 +
+      player.timingRebond * 0.18 +
+      player.physique * 0.14 +
+      player.iq * 0.06 +
+      player.endurance * 0.06,
+  );
+}
+
 export function getDriveDefenseScore(player: Player): number {
   return roundScore(
     player.speed * 0.18 +

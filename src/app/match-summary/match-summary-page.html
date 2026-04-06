@@ -63,6 +63,35 @@
                   </div>
                 </div>
               </div>
+              <div class="team-score-grid" aria-label="Scores d'équipe pondérés par minutes">
+                <div class="team-score-card">
+                  <div class="team-score-card__label">Score rebond</div>
+                  <div class="team-score-card__values">
+                    <span class="team-score-card__entry">
+                      <span class="team-score-card__team">{{ vm.game.homeTeamName }}</span>
+                      <span class="team-score-card__number">{{ vm.homeReboundScore }}</span>
+                    </span>
+                    <span class="team-score-card__entry">
+                      <span class="team-score-card__team">{{ vm.game.awayTeamName }}</span>
+                      <span class="team-score-card__number">{{ vm.awayReboundScore }}</span>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="team-score-card">
+                  <div class="team-score-card__label">Score interception</div>
+                  <div class="team-score-card__values">
+                    <span class="team-score-card__entry">
+                      <span class="team-score-card__team">{{ vm.game.homeTeamName }}</span>
+                      <span class="team-score-card__number">{{ vm.homeInterceptionScore }}</span>
+                    </span>
+                    <span class="team-score-card__entry">
+                      <span class="team-score-card__team">{{ vm.game.awayTeamName }}</span>
+                      <span class="team-score-card__number">{{ vm.awayInterceptionScore }}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
               <div class="table-wrapper">
                 <table mat-table [dataSource]="vm.teamStats" class="table team-stats">
                   <ng-container matColumnDef="home">
