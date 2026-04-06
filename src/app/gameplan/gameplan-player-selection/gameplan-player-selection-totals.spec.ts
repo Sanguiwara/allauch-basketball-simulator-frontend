@@ -24,7 +24,7 @@ describe('GameplanPlayerSelectionComponent totals', () => {
       floater: 63,
     });
 
-    expect(component.playmakingScore(player)).toBe(getPlaymakingOffenseScore(player));
+    expect(component.playmakingScore(player)).toBe(Math.round(getPlaymakingOffenseScore(player)));
   });
 
   it('uses the shared rebound and interception formulas', () => {

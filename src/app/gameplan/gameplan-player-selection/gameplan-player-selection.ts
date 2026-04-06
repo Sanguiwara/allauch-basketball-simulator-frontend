@@ -288,7 +288,7 @@ export class GameplanPlayerSelectionComponent implements OnChanges {
   }
 
   playmakingScore(p: Player): number {
-    return getPlaymakingOffenseScore(p);
+    return Math.round(getPlaymakingOffenseScore(p));
   }
 
   getImpactMultiplier(minutes: number): number {
