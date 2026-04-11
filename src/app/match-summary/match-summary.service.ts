@@ -13,6 +13,16 @@ export interface TeamStatRow {
   home: string;
   away: string;
 }
+function applyPlaymakingBadge(player: Player, value: number): number {
+  const iq = player.basketballIqOff ?? 0;
+
+  if (iq >= 90) return value * 1.08;
+  if (iq >= 70) return value * 1.06;
+  if (iq >= 50) return value * 1.04;
+  if (iq >= 30) return value * 1.02;
+
+  return value;
+}
 
 export interface MatchSummaryVm {
   game: Game;
@@ -179,8 +189,18 @@ export class MatchSummaryService {
         return sum;
       }
 
-      const offScore = getPlaymakingOffenseScore(inGameOff.player);
+      const baseOffScore = getPlaymakingOffenseScore(inGameOff.player);
       const minutesShare = minutesPlayed / 200;
+
+// badge appliqué sur la contribution (comme Java)
+      const baseContribution = baseOffScore * minutesShare;
+      const boostedContribution = applyPlaymakingBadge(inGameOff.player, baseContribution);
+
+//  recalcul du score effectif
+      const effectiveOffScore =
+        boostedContribution !== baseContribution
+          ? boostedContribution / minutesShare
+          : baseOffScore;
       const defenderId = attackerToDefenderId.get(inGameOff.player.id);
       const defender = defenderId ? defenderById.get(defenderId) : undefined;
       const effectiveDefensiveScore = this.getEffectivePlaymakingDefenseScore(
@@ -188,8 +208,8 @@ export class MatchSummaryService {
         defender,
         averageTeamDefensiveScore,
       );
-      const rawAdvantage = offScore - effectiveDefensiveScore;
-      const clampedAdvantage = Math.max(-25, Math.min(25, rawAdvantage));
+      const rawAdvantage = effectiveOffScore  - effectiveDefensiveScore;
+      const clampedAdvantage = Math.max(-15, Math.min(25, rawAdvantage));
       const contribution = Math.round(clampedAdvantage * minutesShare * 10) / 10;
 
       contributions[inGameOff.player.id] = contribution;
@@ -294,12 +314,14 @@ export class MatchSummaryService {
   }
 
   private getAverageTeamPlaymakingDefensiveScore(players: InGamePlayer[]): number {
-    if (players.length === 0) {
-      return 0;
-    }
+    return players.reduce((sum, inGamePlayer) => {
+      const minutesPlayed = inGamePlayer.minutesPlayed ?? 0;
+      const minutesWeight = minutesPlayed / 200;
 
-    const total = players.reduce((sum, player) => sum + getPlaymakingDefenseScore(player.player), 0);
-    return total / players.length;
+      const defScore = getPlaymakingDefenseScore(inGamePlayer.player);
+
+      return sum + minutesWeight * defScore * 0.75;
+    }, 0);
   }
 
   private buildWeightedSkillTotal(players: InGamePlayer[], scorer: (player: Player) => number): number {
@@ -344,4 +366,6 @@ export class MatchSummaryService {
       awayProgressions: (progressions ?? []).filter((progression) => awayIds.has(progression.playerId)),
     };
   }
+
+
 }

@@ -13,10 +13,10 @@ describe('MatchSummaryPage', () => {
       {} as MatchSummaryService,
     );
 
-    expect(component.getCollectivePlayQualityOffset(25)).toBe(100);
-    expect(component.getCollectivePlayQualityOffset(-25)).toBe(0);
+    expect(component.getCollectivePlayQualityOffset(20)).toBe(100);
+    expect(component.getCollectivePlayQualityOffset(-20)).toBe(0);
     expect(component.getCollectivePlayQualityOffset(0)).toBe(50);
-    expect(component.getCollectivePlayQualityDisplay(40)).toBe(25);
-    expect(component.getCollectivePlayQualityDisplay(-40)).toBe(-25);
+    expect(component.getCollectivePlayQualityDisplay(40)).toBe(20);
+    expect(component.getCollectivePlayQualityDisplay(-40)).toBe(-20);
   });
 });

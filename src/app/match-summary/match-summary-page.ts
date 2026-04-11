@@ -17,6 +17,8 @@ import {MatchSummaryMatchupsComponent} from './match-summary-matchups/match-summ
   styleUrl: './match-summary-page.scss',
 })
 export class MatchSummaryPage implements OnInit {
+  private static readonly COLLECTIVE_PLAY_QUALITY_LIMIT = 20;
+
   readonly teamStatsColumns: string[] = ['home', 'label', 'away'];
   readonly playerColumns: string[] = [
     'player',
@@ -57,12 +59,12 @@ export class MatchSummaryPage implements OnInit {
   }
 
   getCollectivePlayQualityOffset(value: number): number {
-    const clamped = Math.max(-25, Math.min(25, value));
-    return ((clamped + 25) / 50) * 100;
+    const clamped = this.getCollectivePlayQualityDisplay(value);
+    return ((clamped + MatchSummaryPage.COLLECTIVE_PLAY_QUALITY_LIMIT) / (MatchSummaryPage.COLLECTIVE_PLAY_QUALITY_LIMIT * 2)) * 100;
   }
 
   getCollectivePlayQualityDisplay(value: number): number {
-    return Math.max(-25, Math.min(25, value));
+    return Math.max(-MatchSummaryPage.COLLECTIVE_PLAY_QUALITY_LIMIT, Math.min(MatchSummaryPage.COLLECTIVE_PLAY_QUALITY_LIMIT, value));
   }
 
   getPlaymakingContribution(contributions: Record<string, number>, playerId: string): number {
